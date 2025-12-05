@@ -1,0 +1,235 @@
+So let me fill you in again on some context. I am doing a project where the goal is to design a CNN that will train an autonomous vehicle on driving through a course. I collected my own data by manually driving the vehicle around the course. I collected 15000 images, throttle readings, and steering readings. Once that was done I trained the model and the loss value (using MSE) was about 0.09. I need it to be under 0.05 unfortunatly. Once I ran the autopilot it could not complete any turns at all. It drove straight for the most part though. I designed the CNN you see right now on my own, but I know I made mistakes. Do you have any advice on this?
+
+
+Workspace
+(rerun without)
+Collecting workspace information
+
+Looking at your situation, here are some targeted recommendations to improve your autopilot performance:
+
+1. Data Quality Issues (Most Likely Culprit)
+Your model drives straight but can't turn, which strongly suggests data imbalance:
+
+# Add this diagnostic to your training script to check data distribution
+import matplotlib.pyplot as plt
+
+# After loading your data in learn.py
+steering_values = raw_labels_df['steering_value'].values
+plt.hist(steering_values, bins=50)
+plt.title('Steering Distribution')
+plt.xlabel('Steering Value')
+plt.ylabel('Frequency')
+plt.savefig('steering_distribution.png')
+
+print(f"Steering stats: mean={steering_values.mean():.3f}, std={steering_values.std():.3f}")
+print(f"% of data within [-0.1, 0.1]: {((steering_values > -0.1) & (steering_values < 0.1)).sum() / len(steering_values) * 100:.1f}%")
+
+If most values are near 0 (straight driving), you need to:
+
+Collect more data on turns
+Augment turning data (see below)
+Balance your dataset
+2. Data Augmentation for Turns
+Add this to your BearCarDataset class:
+
+class BearCarDataset(Dataset):
+    def __init__(self, labels_file_path, img_dir, augment=False):
+        self.labels_df = pd.read_csv(labels_file_path, header=None)
+        self.img_dir = img_dir
+        self.augment = augment
+        self.trans_in = v2.Compose([v2.ToDtype(torch.float32, scale=True)])
+        # Add horizontal flip augmentation
+        self.flip = v2.RandomHorizontalFlip(p=1.0)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.labels_df.iloc[idx, 0])
+        image = self.trans_in(decode_image(img_path))
+        target_steering = torch.as_tensor(
+            self.labels_df.iloc[idx, 1], dtype=torch.float32
+        )
+        target_throttle = torch.as_tensor(
+            self.labels_df.iloc[idx, 2], dtype=torch.float32
+        )
+        
+        # Augment by flipping images with non-zero steering
+        if self.augment and abs(target_steering) > 0.1 and torch.rand(1) < 0.5:
+            image = self.flip(image)
+            target_steering = -target_steering  # Flip steering direction
+            
+        return image, target_steering, target_throttle
+
+Then update line 134 in learn.py:
+train_set = BearCarDataset(os.path.join(data_dir, "labels_train.csv"), img_dir, augment=True)
+
+3. Model Architecture Issues
+Your DummyPilotNet has aggressive pooling that loses spatial information:
+
+class DummyPilotNet(nn.Module):
+    def __init__(self):
+        super(DummyPilotNet, self).__init__()
+        # Reduce aggressive downsampling
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=5, stride=2, padding=2)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.conv4 = nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1)  # NEW: extra layer
+        self.bn4 = nn.BatchNorm2d(128)
+        
+        # Remove early MaxPool, use GlobalAvgPool later
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.dropout = nn.Dropout(0.3)  # Reduce from 0.5
+        self.fc1 = nn.Linear(128, 128)  # Larger FC layer
+        self.fc2 = nn.Linear(128, 2)
+        self.leakyReLU = nn.LeakyReLU(0.01)
+        self.flatten = nn.Flatten()
+
+    def forward(self, x):
+        x = self.leakyReLU(self.bn1(self.conv1(x)))
+        x = self.leakyReLU(self.bn2(self.conv2(x)))
+        x = self.leakyReLU(self.bn3(self.conv3(x)))
+        x = self.leakyReLU(self.bn4(self.conv4(x)))
+        x = self.avgpool(x)
+        x = self.flatten(x)
+        x = self.dropout(x)
+        x = self.leakyReLU(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+4. Training Improvements
+Update line 147 in learn.py:
+
+optimizer = torch.optim.Adam(model.parameters(), lr=5e-5, weight_decay=1e-4)  # Lower LR, add regularization
+
+Add a learning rate scheduler after line 149:
+
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
+
+Then in your training loop (after line 169):
+
+scheduler.step(ep_val_loss)
+
+5. Quick Diagnostic Check
+Add this after loading your model in autopilot.py to verify predictions:
+
+# After line 23
+print("Testing model on sample straight/turn images...")
+# This helps verify the model isn't stuck predicting only straight
+
+Priority Actions:
+Check your data distribution first - if 80%+ of steering values are near zero, that's your main problem
+Collect more turning data or apply augmentation
+Try the improved architecture with less aggressive pooling
+Lower learning rate to 5e-5 or 1e-5
+Consider training longer (your model might need more epochs)
+The fact that your validation loss is 0.09 but the car can't turn suggests the model learned the majority class (straight driving) well but failed to learn turning behavior due to data imbalance.
+
+I think the main change ill make is reducing the max pooling and include the global pool. That should help, but I feel like I either need to add more layers (to make it less aggressive) or something else. Im going to try to get my data on this computer tomorrow so we can continue this and so I can work on it outside of school. Could you help me take out the max pooling and add the global pooling? Also can we please keep the comments describing parameter number, output calculations, and output sizes?
+
+Absolutely! Here's your updated model with the MaxPool removed and some adjustments. I've kept all your detailed comments:
+
+import torch.nn as nn
+
+# input shape: (180, 200, 3)
+# based off modified ResNet architecture from assignment 6
+# Using LeakyReLU activations instead of ReLU
+# Removed MaxPool to preserve spatial information
+# 
+class DummyPilotNet(nn.Module):
+    def __init__(self):
+        super(DummyPilotNet, self).__init__()
+        # Convolutional layers
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=2, padding=2) # output: (32, 90, 100)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=2, padding=1) # output: (64, 45, 50)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1) # output: (128, 23, 25)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.conv4 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1) # output: (128, 23, 25)
+        self.bn4 = nn.BatchNorm2d(128)
+        
+        # Global pooling and fully connected layers
+        self.globalavgpool = nn.AdaptiveAvgPool2d((1, 1)) # output: (128, 1, 1)
+        self.dropout = nn.Dropout(0.3)
+        self.fc1 = nn.Linear(128, 128)
+        self.fc2 = nn.Linear(128, 2)
+        self.leakyReLU = nn.LeakyReLU(negative_slope=0.01)
+        self.flatten = nn.Flatten()
+
+    def forward(self, x):  # input shape: (3, 180, 200)
+        x = self.leakyReLU(self.conv1(x))  # output: (32, 90, 100)
+        # (180 - 5 + 2*2) / 2 + 1 = 90 | (200 - 5 + 2*2) / 2 + 1 = 100 
+        # 32 * (5*5*3 + 1) = 2432 parameters
+        x = self.bn1(x) # 32 * 2 = 64 parameters
+        
+        x = self.leakyReLU(self.conv2(x))  # output: (64, 45, 50)
+        # (90 - 3 + 2*1) / 2 + 1 = 45 | (100 - 3 + 2*1) / 2 + 1 = 50
+        # 64 * (3*3*32 + 1) = 18496 parameters
+        x = self.bn2(x) # 64 * 2 = 128 parameters
+        
+        x = self.leakyReLU(self.conv3(x))  # output: (128, 23, 25)
+        # (45 - 3 + 2*1) / 2 + 1 = 23 | (50 - 3 + 2*1) / 2 + 1 = 25
+        # 128 * (3*3*64 + 1) = 73856 parameters
+        x = self.bn3(x) # 128 * 2 = 256 parameters
+        
+        x = self.leakyReLU(self.conv4(x))  # output: (128, 23, 25)
+        # (23 - 3 + 2*1) / 1 + 1 = 23 | (25 - 3 + 2*1) / 1 + 1 = 25
+        # 128 * (3*3*128 + 1) = 147584 parameters
+        x = self.bn4(x) # 128 * 2 = 256 parameters
+        
+        x = self.globalavgpool(x)     # output: (128, 1, 1)
+        x = self.flatten(x)           # output: (128)
+        x = self.dropout(x)
+        x = self.leakyReLU(self.fc1(x))    # output: (128)
+        # 128 * 128 + 128 = 16512 parameters
+        y = self.fc2(x)               # output: (2)
+        # 2 * 128 + 2 = 258 parameters
+        
+        # Total parameters: 2432 + 64 + 18496 + 128 + 73856 + 256 + 147584 + 256 + 16512 + 258 = 259842
+        return y
+
+Key Changes:
+Removed MaxPool1 - This was cutting your spatial resolution in half early on, losing important details for steering
+Made conv2 stride=2 - Compensates for removing MaxPool while being less aggressive
+Added conv4 layer - Extra layer with stride=1 to learn more features without reducing spatial size
+Increased fc1 to 128 units - More capacity to learn steering behavior
+Reduced dropout to 0.3 - Your model might have been underfitting with 0.5
+Renamed to globalavgpool - More descriptive name
+The network now has ~260k parameters (vs ~104k before), which gives it more learning capacity while still being efficient. The spatial information is preserved better through the network before the global pooling.
+
+Good luck getting your data tomorrow! When you do, definitely run that data distribution check I mentioned earlier - that will tell you a lot about why the turning isn't working.
+
+Sounds good ill do that! Thank you so much for your time and help! Last question, do you think it would be necessary to have the last fully connected layer have an output of three or something other than two? 
+
+Great question! For your specific application, keeping the output as 2 is correct since you're predicting:
+
+Steering value (continuous)
+Throttle value (continuous)
+You would only need a different output size if:
+
+Output of 1: If you were only predicting steering and keeping throttle constant (some autonomous systems do this)
+
+Output of 3+: If you were adding:
+
+Brake as a separate output
+Discrete actions (turn left/right/straight as classification)
+Multiple control signals
+However, there's one thing to consider: are you using both outputs effectively?
+
+Looking at your use case, if the car isn't turning well, you might want to check:
+
+# In your autopilot.py, are you using both predictions?
+steering, throttle = model_output[0], model_output[1]
+
+Some tips for the 2-output setup:
+
+Make sure both outputs are scaled properly - steering is typically [-1, 1] and throttle [0, 1]
+Consider separate loss weights if steering is more important:
+
+loss = 2.0 * mse_loss(pred_steering, true_steering) + 1.0 * mse_loss(pred_throttle, true_throttle)
+
+Monitor each output separately during training to see if one is learning better than the other
+So stick with output size of 2 - your architecture is correct for your task! The turning problem is almost certainly a data distribution issue rather than an architecture output issue.
+
+Good luck with your project tomorrow! 🚗
