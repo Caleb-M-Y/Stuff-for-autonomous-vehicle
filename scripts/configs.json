@@ -1,0 +1,17 @@
+{
+    "steering_joy_axis": 0,
+    "throttle_joy_axis": 4,
+    "record_btn": 5,
+    "pause_btn": 4,
+    "stop_btn": 0,
+    "steering_left": 1200000,
+    "steering_right": 1800000,
+    "steering_center": 1500000,
+    "steering_range": 300000,
+    "throttle_neutral": 1500000,
+    "throttle_fwd_range": 300000,
+    "throttle_rev_range": 400000,
+    "throttle_limit": 0.35,
+    "frame_rate": 24,
+    "record_cap": 15000
+}
