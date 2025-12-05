@@ -34,7 +34,7 @@ cv.startWindowThread()
 cam = Picamera2()
 cam.configure(
     cam.create_preview_configuration(
-        main={"format": "RGB888", "size": (224, 224)},
+        main={"format": "RGB888", "size": (180, 200, 3)},
         controls={
             "FrameDurationLimits": (
                 int(1_000_000 / params["frame_rate"]),
