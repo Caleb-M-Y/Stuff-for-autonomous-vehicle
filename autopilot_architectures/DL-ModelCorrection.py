@@ -14,12 +14,14 @@ class DummyPilotNet(nn.Module):
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1) # output: (128, 23, 25)
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1) # output: (128, 23, 25)
         self.conv5 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=2, padding=1) # output: (128, 12, 13)
+        self.conv6 = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1) # output: (128, 12, 13) 
         
         # Global pooling and fully connected layers
         self.globalavgpool = nn.AdaptiveAvgPool2d((1, 1)) # output: (128, 1, 1)
         self.dropout = nn.Dropout(0.3)
         self.fc1 = nn.Linear(128, 128)
-        self.fc2 = nn.Linear(128, 2)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 2)
         self.leakyReLU = nn.LeakyReLU(negative_slope=0.01)
         self.flatten = nn.Flatten()
 
@@ -43,14 +45,19 @@ class DummyPilotNet(nn.Module):
         x = self.leakyReLU(self.conv5(x))  # output: (128, 12, 13)
         # (23 - 3 + 2*1) / 2 + 1 = 12 | (25 - 3 + 2*1) / 2 + 1 = 13
         # 128 * (3*3*128 + 1) = 147584 parameters
+
+        x = self.leakyReLU(self.conv6(x))  # output: (128, 12, 13)
+        # (12 - 3 + 2*1) / 1 + 1 = 12 | (13 - 3 + 2*1) / 1 + 1 = 13
+        # 128 * (3*3*128 + 1) = 147584 parameters
         
         x = self.globalavgpool(x)     # output: (128, 1, 1)
         x = self.flatten(x)           # output: (128)
         x = self.dropout(x)
         x = self.leakyReLU(self.fc1(x))    # output: (128)
         # 128 * 128 + 128 = 16512 parameters
-        y = self.fc2(x)               # output: (2)
-        # 2 * 128 + 2 = 258 parameters
+        x = self.leakyReLU(self.fc2(x))    # output: (64)
+        y = self.fc3(x)               # output: (2)
+        # 2 * 64 + 2 = 130 parameters
         
-        # Total parameters: 2432 + 18496 + 73856 + 147584 + 147584 + 16512 + 258 = 406722 parameters
+        # Total parameters: 615330
         return y
