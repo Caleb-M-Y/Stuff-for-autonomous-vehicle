@@ -1,0 +1,42 @@
+[project]
+name = "bearcar"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "matplotlib>=3.10.3",
+  "numpy<2.0.0",
+  "opencv-python>=4.11.0.86",
+  "pandas>=2.3.0",
+  "pygame>=2.6.1",
+  "pyserial>=3.5",
+  "rshell>=0.0.36",
+  "ruff>=0.11.13",
+  "torch>=2.7.0",
+  "torchinfo>=1.8.0",
+  "torchvision>=0.22.0",
+]
+
+[dependency-groups]
+rpi = [
+  "numpy==1.26.4",
+  "opencv-python==4.11.0.86",
+  "pygame==2.6.1",
+  "pyserial==3.5",
+  "rshell==0.0.36",
+  "ruff>=0.11.13",
+  "torch==2.7.0",
+  "torchinfo==1.8.0",
+  "torchvision==0.22.0",
+]
+server = [
+  "matplotlib==3.10.3",
+  "numpy==1.26.4",
+  "pandas==2.3.0",
+  "pygame==2.6.1",
+  "ruff>=0.11.13",
+  "torch==2.7.0",
+  "torchinfo==1.8.0",
+  "torchvision==0.22.0",
+]
