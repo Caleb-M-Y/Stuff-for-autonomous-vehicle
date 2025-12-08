@@ -13,6 +13,5 @@
     "throttle_rev_range": 400000,
     "throttle_limit": 0.35,
     "frame_rate": 24,
-    "record_cap": 15000,
-    "pause_record": false
+    "record_cap": 15000
 }
