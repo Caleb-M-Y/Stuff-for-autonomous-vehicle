@@ -17,6 +17,12 @@ image_dir = str(data_dir.joinpath(datetime.now().strftime("%Y-%m-%d-%H-%M"), "im
 Path(image_dir).mkdir(parents=True, exist_ok=True)
 label_path = str(Path(image_dir).parent.joinpath("labels.csv"))
 
+# Create CSV with header if it doesn't exist
+if not Path(label_path).exists():
+    with open(label_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["filename", "label"])  # Header row
+
 # Load configs
 params_file_path = str(project_root.joinpath("scripts", "configs.json"))
 with open(params_file_path, "r") as file:
