@@ -233,3 +233,4 @@ finally:
     print(f"\nSession complete! Recorded {record_counts} total frames.")
     print(f"Data saved to: {Path(image_dir).parent}")
     sys.exit()
+# End of file: images/sd_image_collection.py
