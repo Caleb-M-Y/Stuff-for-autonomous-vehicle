@@ -28,8 +28,8 @@ class ArmController:
         self.right_shoulder_pulse_width = SHOULDER_MID
         # Constants
         self.claw.duty_ns(CLAW_MID)
-        self.left_shoulder.duty_ns(CLAW_MID)
-        self.right_shoulder.duty_ns(CLAW_MID)
+        self.left_shoulder.duty_ns(SHOULDER_MID)
+        self.right_shoulder.duty_ns(SHOULDER_MID)
         self.pw_inc = 10_000
 
     def close_claw(self, dir):  # Close claw
