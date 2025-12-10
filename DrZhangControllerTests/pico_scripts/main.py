@@ -5,7 +5,7 @@ Rename this script to main.py, then upload to the pico board.
 import sys
 import select
 from diff_drive_controller import DiffDriveController
-from arm_controller import ArmController
+from armcontroller import ArmController
 from machine import freq
 from utime import ticks_us
 
@@ -14,10 +14,10 @@ from utime import ticks_us
 freq(300_000_000)  # Pico 2 original: 150_000_000
 # Instantiate robot
 diff_driver = DiffDriveController(
-    right_wheel_ids=((15, 13, 14), (10, 11)),
-    left_wheel_ids=((16, 18, 17), (20, 19)),
+    right_wheel_ids=((2, 3, 4), (21, 20)),
+    left_wheel_ids=((6, 7, 8), (11, 10)),
 )
-arm_controller = ArmController(2, 3, 4)
+arm_controller = ArmController(12, 13, 14)
 # Create a poll to receive messages from host machine
 cmd_vel_listener = select.poll()
 cmd_vel_listener.register(sys.stdin, select.POLLIN)
