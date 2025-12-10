@@ -9,7 +9,7 @@ class DiffDriveController:
         self.left_wheel = RegulatedWheel(*left_wheel_ids)
         self.right_wheel = RegulatedWheel(*right_wheel_ids)
         # Constants
-        self.wheel_sep = 0.52
+        self.wheel_sep = 0.545
 
     def get_vels(self):
         self.meas_lin_vel = 0.5 * (
@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     # SETUP
     ddc = DiffDriveController(
-        right_wheel_ids=((15, 13, 14), (10, 11)),
-        left_wheel_ids=((16, 18, 17), (20, 19)),
+        right_wheel_ids=((2, 3, 4), (21, 20)),
+        left_wheel_ids=((6, 7, 8), (11, 10)),
     )
 
     # LOOP

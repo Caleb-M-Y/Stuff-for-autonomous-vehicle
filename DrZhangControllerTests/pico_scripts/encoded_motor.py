@@ -58,12 +58,12 @@ if __name__ == "__main__":  # Test only the encoder part
 
     # SETUP
     # em = EncodedMotor(
-    #     driver_ids=(16, 18, 17),
-    #     encoder_ids=(20, 19),
+    #     driver_ids=(6, 7, 8),
+    #     encoder_ids=(11, 10),
     # )  # left motor, encoder's green and yellow on GP19 and GP20
     em = EncodedMotor(
-        driver_ids=(15, 13, 14),
-        encoder_ids=(10, 11),
+        driver_ids=(2, 3, 4),
+        encoder_ids=(21, 20),
     )  # right motor, encoder's green and yellow on GP10 and GP11
 
     # LOOP
