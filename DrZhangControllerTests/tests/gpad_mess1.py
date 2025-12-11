@@ -71,8 +71,8 @@ try:
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
         
-        # 20Hz control loop (50ms period) - prevents buffer clogging
-        sleep(0.05)
+        # 100Hz control loop (10ms period) - matches blocking poll on Pico
+        sleep(0.01)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
