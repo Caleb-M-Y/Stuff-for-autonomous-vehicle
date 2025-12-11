@@ -71,6 +71,16 @@ try:
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
         
+        # Drain feedback buffer to prevent clogging (non-blocking)
+        # This keeps communication smooth even if feedback isn't being used
+        feedback_count = 0
+        while messenger.in_waiting > 0 and feedback_count < 10:  # Limit to prevent blocking
+            try:
+                messenger.readline()  # Discard feedback to prevent buffer buildup
+            except:
+                break
+            feedback_count += 1
+        
         # 100Hz control loop (10ms period) - matches blocking poll on Pico
         sleep(0.01)
 
