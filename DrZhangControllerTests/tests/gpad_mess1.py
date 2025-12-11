@@ -77,7 +77,7 @@ try:
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
     print("\nShutting down...")
-    messenger.write(b"0.0, 0.0, 0, 0\n")
+    messenger.write(b"0.0,0.0,0,0\n")
     sleep(0.1)
     pygame.quit()
     messenger.close()
