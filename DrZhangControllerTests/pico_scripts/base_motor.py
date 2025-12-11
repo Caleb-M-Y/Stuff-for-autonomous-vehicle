@@ -2,7 +2,7 @@ from machine import Pin, PWM
 
 
 class BaseMotor:
-    def __init__(self, pwm_id, in1_id, in2_id) -> None:
+    def __init__(self, in1_id, in2_id, pwm_id) -> None:
         self.pwm_pin = PWM(Pin(pwm_id))
         self.pwm_pin.freq(2000)
         self.in1_pin = Pin(in1_id, Pin.OUT)
@@ -29,8 +29,8 @@ if __name__ == "__main__":
     from utime import sleep
 
     # SETUP
-    m = BaseMotor(pwm_id=2, in1_id=3, in2_id=4)  # right motor
-    # m = BaseMotor(pwm_id=6, in1_id=7, in2_id=8)  # left motor
+    m = BaseMotor(pwm_id=4, in1_id=3, in2_id=2)  # right motor
+    #m = BaseMotor(pwm_id=8, in1_id=7, in2_id=6)  # left motor
 
     # LOOP
     # Forwardly ramp up and down
