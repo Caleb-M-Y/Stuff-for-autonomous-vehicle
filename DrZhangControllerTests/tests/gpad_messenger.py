@@ -3,7 +3,7 @@ from pathlib import Path
 import serial
 import pygame
 import json
-from time import sleep, time
+from time import sleep
 
 
 # SETUP
@@ -23,15 +23,9 @@ print(f"Controller: {js.get_name()}")
 ax_val_ang = 0.0
 ax_val_lin = 0.0
 act_lower, act_close = 0, 0
-# Flags, ordered by priority
+# Flags
 is_stopped = False
 is_enabled = True
-mode = "d"
-
-# Debug variables
-last_print_time = time()
-print_interval = 1.0  # Print every 1 second instead of every loop
-prev_action = (0, 0, 0, 0)  # Track previous action to only print on change
 
 print("\n=== Controls ===")
 print(f"Left stick: Forward/Backward (max {params['lin_vel_max']} m/s)")
@@ -41,6 +35,7 @@ print(f"Button {params['raise_button']}: Raise arm")
 print(f"Button {params['close_button']}: Close claw")
 print(f"Button {params['open_button']}: Open claw")
 print("================\n")
+print("Robot ready! Press Ctrl+C to stop.\n")
 
 # MAIN LOOP
 try:
@@ -75,27 +70,9 @@ try:
             -ax_val_lin * params["lin_vel_max"]
         )  # -1: max forward, +1: max backward
         
-        if is_enabled:
-            mode = "e"
-        else:
-            mode = "d"
-        
+        # Send control message to Pico
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
-        
-        # Smart logging - only print on change or every 1 second
-        current_action = (act_lin, act_ang, act_close, act_lower)
-        current_time = time()
-        
-        if current_action != prev_action:
-            # Action changed, print immediately
-            print(f"mode: {mode}, action: lin={act_lin:.2f}, ang={act_ang:.2f}, claw={act_close}, arm={act_lower}")
-            prev_action = current_action
-            last_print_time = current_time
-        elif current_time - last_print_time >= print_interval:
-            # Been 1 second since last print, show status
-            print(f"[Status] lin={act_lin:.2f}, ang={act_ang:.2f}, claw={act_close}, arm={act_lower}")
-            last_print_time = current_time
         
         # 20Hz control loop (50ms period)
         sleep(0.05)
@@ -108,4 +85,5 @@ except KeyboardInterrupt:
     sleep(0.1)
     pygame.quit()
     messenger.close()
+    print("Robot stopped. Goodbye!")
     sys.exit()
