@@ -1,29 +1,68 @@
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ cd
-ball-e@BALL-E:~ $ lsof /dev/ttyACM0
-ball-e@BALL-E:~ $ ls -1 /dev/ttyACM*
-/dev/ttyACM0
-ball-e@BALL-E:~ $ cat /dev/ttyACM0
-0.00,0.000.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-0.00,0.00
-ball-e@BALL-E:~ $ 
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py 
+pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Pico is connected to port: /dev/ttyACM0
+Controller: Wireless Controller
+
+=== Controls ===
+Left stick: Forward/Backward (max 0.5 m/s)
+Right stick: Turn Left/Right (max 1.5 rad/s)
+Button 0: Lower arm
+Button 2: Raise arm
+Button 3: Close claw
+Button 4: Open claw
+================
+
+Robot ready! Press Ctrl+C to stop.
+
+^C
+Shutting down...
+Robot stopped. Goodbye!
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python --version
+Python 3.11.2
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 --version
+Python 3.11.2
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 gpad_messenger.py
+gpad_messenger.py
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ head -20 gpad_messenger.py
+import sys
+from pathlib import Path
+import serial
+import pygame
+import json
+from time import sleep
+
+
+# SETUP
+# Load configs
+params_file_path = str(Path(__file__).parents[1].joinpath("configs.json"))
+with open(params_file_path, "r") as file:
+    params = json.load(file)
+# Init serial port
+messenger = serial.Serial(port="/dev/ttyACM0", baudrate=115200)
+print(f"Pico is connected to port: {messenger.name}")
+# Init controller
+pygame.display.init()
+pygame.joystick.init()
+js = pygame.joystick.Joystick(0)
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py
+pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Pico is connected to port: /dev/ttyACM0
+Controller: Wireless Controller
+
+=== Controls ===
+Left stick: Forward/Backward (max 0.5 m/s)
+Right stick: Turn Left/Right (max 1.5 rad/s)
+Button 0: Lower arm
+Button 2: Raise arm
+Button 3: Close claw
+Button 4: Open claw
+================
+
+Robot ready! Press Ctrl+C to stop.
+
+^C
+Shutting down...
+Robot stopped. Goodbye!
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ 
