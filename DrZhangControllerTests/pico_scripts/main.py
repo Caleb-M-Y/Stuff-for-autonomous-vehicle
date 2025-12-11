@@ -3,21 +3,36 @@ Rename this script to main.py, then upload to the pico board.
 """
 
 import sys
+print("sys works")
 import select
+print("select works")
 from diff_drive_cont import DiffDriveController
+print("dif drive works")
 from armcontroller import ArmController
+print("arm import works")
 from machine import freq
+print("machine works")
 from utime import ticks_us, ticks_diff
+print("utime works")
 
 # SETUP
 # Overclock
-freq(300_000_000)  # Pico 2 original: 150_000_000
+try:
+    freq(300_000_000)  # Pico 2 original: 150_000_000
+    print("overclocked to 200MHz")
+    print("new freq:", freq())
+except Exception as e:
+    print("overclock failed: {e}")
+
 # Instantiate robot
 diff_driver = DiffDriveController(
     right_wheel_ids=((3, 2, 4), (21, 20)),
     left_wheel_ids=((7, 6, 8), (11, 10)),
 )
+print("diff initalization works")
 arm_controller = ArmController(12, 13, 14)
+print("arm intit works")
+
 # Create a poll to receive messages from host machine
 cmd_vel_listener = select.poll()
 cmd_vel_listener.register(sys.stdin, select.POLLIN)
@@ -46,31 +61,31 @@ while True:
             except Exception as e:
                 print(f"Read error: {e}")  # Debug
     
-    # Process the message
-    if latest_buffer and len(latest_buffer) == 4: 
-        try: 
-            target_lin_vel = float(latest_buffer[0])
-            target_ang_vel = float(latest_buffer[1])
-            claw_dir = int(latest_buffer[2])
-            arm_dir = int(latest_buffer[3])
+        # Process the message
+        if latest_buffer and len(latest_buffer) == 4: 
+            try: 
+                target_lin_vel = float(latest_buffer[0])
+                target_ang_vel = float(latest_buffer[1])
+                claw_dir = int(latest_buffer[2])
+                arm_dir = int(latest_buffer[3])
 
-            last_cmd_time = ticks_us()
-            msg_count += 1
-            
-            # Debug output every 50 messages
-            if msg_count % 50 == 0:
-                print(f"MSG #{msg_count}: lin={target_lin_vel:.2f}, ang={target_ang_vel:.2f}, claw={claw_dir}, arm={arm_dir}")
+                last_cmd_time = ticks_us()
+                msg_count += 1
+                
+                # Debug output every 50 messages
+                if msg_count % 50 == 0:
+                    print(f"MSG #{msg_count}: lin={target_lin_vel:.2f}, ang={target_ang_vel:.2f}, claw={claw_dir}, arm={arm_dir}")
 
-            # Update wheels (always, even if 0.0)
-            diff_driver.set_vels(target_lin_vel, target_ang_vel)
+                # Update wheels (always, even if 0.0)
+                diff_driver.set_vels(target_lin_vel, target_ang_vel)
 
-            # Only update arm/claw if they're actually moving 
-            if claw_dir != 0:
-                arm_controller.close_claw(claw_dir)
-            if arm_dir != 0:
-                arm_controller.lower_claw(arm_dir)
-        except (ValueError, IndexError) as e:
-            print(f"Parse error: {e}, buffer={latest_buffer}")  # Debug
+                # Only update arm/claw if they're actually moving 
+                if claw_dir != 0:
+                    arm_controller.close_claw(claw_dir)
+                if arm_dir != 0:
+                    arm_controller.lower_claw(arm_dir)
+            except (ValueError, IndexError) as e:
+                print(f"Parse error: {e}, buffer={latest_buffer}")  # Debug
 
     # Safety timeout: stop robot if no commands for 500ms
     if ticks_diff(ticks_us(), last_cmd_time) > 500000:
