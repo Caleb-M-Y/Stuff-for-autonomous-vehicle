@@ -34,6 +34,8 @@ while True:
     # poll for new messages (non-blocking, 0ms timeout)
     event = cmd_vel_listener.poll(0)
     if event:  # Only process if there's actually a message
+        latest_buffer = None
+
         for msg, _ in event:
             try:
                 #keep reading until we get the newest message
@@ -41,8 +43,9 @@ while True:
                     line = msg.readline()
                     if not line:
                         break
-                    latest_buffer = line.strip().split(b",")
-            except: 
+                    # Decode bytes to string and split
+                    latest_buffer = line.decode('utf-8').split(",")
+            except Exception as e: 
                 pass
         
         #process only the LATEST message (discard old ones)
