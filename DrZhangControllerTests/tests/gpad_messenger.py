@@ -26,7 +26,6 @@ act_lower, act_close = 0, 0
 # Flags
 is_stopped = False
 is_enabled = True
-frame_count = 0  # DEBUG COUNTER
 
 print("\n=== Controls ===")
 print(f"Left stick: Forward/Backward (max {params['lin_vel_max']} m/s)")
@@ -37,27 +36,20 @@ print(f"Button {params['close_button']}: Close claw")
 print(f"Button {params['open_button']}: Open claw")
 print("================\n")
 print("Robot ready! Press Ctrl+C to stop.\n")
-print("Starting main loop...\n")
 
 # MAIN LOOP
 try:
     while not is_stopped:
-        frame_count += 1
-        
         for e in pygame.event.get():  # read controller input
             if e.type == pygame.JOYBUTTONDOWN:
                 if js.get_button(params["lower_button"]):
                     act_lower = 1
-                    print(f"[BUTTON] Lower arm pressed")
                 elif js.get_button(params["raise_button"]):
                     act_lower = -1
-                    print(f"[BUTTON] Raise arm pressed")
                 if js.get_button(params["close_button"]):
                     act_close = 1
-                    print(f"[BUTTON] Close claw pressed")
                 elif js.get_button(params["open_button"]):
                     act_close = -1
-                    print(f"[BUTTON] Open claw pressed")
             elif e.type == pygame.JOYBUTTONUP:
                 # Reset arm/claw when buttons released
                 if not js.get_button(params["lower_button"]) and not js.get_button(params["raise_button"]):
@@ -77,10 +69,6 @@ try:
         act_lin = (
             -ax_val_lin * params["lin_vel_max"]
         )  # -1: max forward, +1: max backward
-        
-        # DEBUG: Print what we're sending every 50 frames
-        if frame_count % 50 == 0:
-            print(f"[SEND #{frame_count}] lin={act_lin:.2f}, ang={act_ang:.2f}, claw={act_close}, arm={act_lower}")
         
         # Send control message to Pico
         msg = f"{act_lin},{act_ang},{act_close},{act_lower}\n".encode("utf-8")
