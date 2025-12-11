@@ -30,22 +30,63 @@ print("Pico ready!")
 
 # LOOP
 while True:
-    event = cmd_vel_listener.poll()  # wait until receive message
-    for msg, _ in event:  # read message
-        buffer = msg.readline().strip().split(",")
-        if len(buffer) == 4:
-            target_lin_vel = float(buffer[0])
-            target_ang_vel = float(buffer[1])
-            claw_dir = int(buffer[2])
-            arm_dir = int(buffer[3])
+    event = cmd_vel_listener.poll(1)  # ← 1ms timeout (nearly non-blocking)
+    
+    if event:
+        latest_buffer = None
+        for msg, _ in event:
+            # Read up to 10 pending messages, keep only the last
+            for _ in range(10):
+                try:
+                    line = msg.readline()
+                    if line:
+                        latest_buffer = line.decode('utf-8').strip().split(",")
+                    else:
+                        break  # No more messages
+                except:
+                    break
+        
+        # Process ONLY the latest message
+        if latest_buffer and len(latest_buffer) == 4:
+            try:
+                target_lin_vel = float(latest_buffer[0])
+                target_ang_vel = float(latest_buffer[1])
+                claw_dir = int(latest_buffer[2])
+                arm_dir = int(latest_buffer[3])
+            except:
+                pass
+    
     # send command to robot
     diff_driver.set_vels(target_lin_vel, target_ang_vel)
     arm_controller.close_claw(claw_dir)
     arm_controller.lower_claw(arm_dir)
-    # send feedback to host machine
+    
+    # send feedback (slowed to 50ms = 20Hz)
     toc = ticks_us()
-    if ticks_diff(toc, tic) >= 10000:
+    if ticks_diff(toc, tic) >= 50000:
         meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
         out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
         sys.stdout.write(out_msg)
         tic = toc
+
+# # LOOP
+# while True:
+#     event = cmd_vel_listener.poll()  # wait until receive message
+#     for msg, _ in event:  # read message
+#         buffer = msg.readline().strip().split(",")
+#         if len(buffer) == 4:
+#             target_lin_vel = float(buffer[0])
+#             target_ang_vel = float(buffer[1])
+#             claw_dir = int(buffer[2])
+#             arm_dir = int(buffer[3])
+#     # send command to robot
+#     diff_driver.set_vels(target_lin_vel, target_ang_vel)
+#     arm_controller.close_claw(claw_dir)
+#     arm_controller.lower_claw(arm_dir)
+#     # send feedback to host machine
+#     toc = ticks_us()
+#     if ticks_diff(toc, tic) >= 10000:
+#         meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
+#         out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
+#         sys.stdout.write(out_msg)
+#         tic = toc
