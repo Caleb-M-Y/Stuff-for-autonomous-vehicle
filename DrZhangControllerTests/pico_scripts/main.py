@@ -41,6 +41,7 @@ target_lin_vel, target_ang_vel = 0.0, 0.0
 claw_dir, arm_dir = 0, 0
 tic = ticks_us()
 last_cmd_time = ticks_us()
+msg_count = 0
 
 print("Pico ready!")
 
@@ -48,6 +49,7 @@ print("Pico ready!")
 while True:
     # poll for new messages (non-blocking, 0ms timeout)
     event = cmd_vel_listener.poll(0)
+
     if event:  # Only process if there's actually a message
         latest_buffer = None
 
@@ -96,6 +98,6 @@ while True:
     toc = ticks_us()
     if ticks_diff(toc, tic) >= 50000:
         meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
-        out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
+        out_msg = f"{meas_lin_vel},{meas_ang_vel}\n"
         sys.stdout.write(out_msg)
         tic = toc

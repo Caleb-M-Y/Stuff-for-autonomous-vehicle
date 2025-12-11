@@ -69,11 +69,15 @@ try:
         act_lin = (
             -ax_val_lin * params["lin_vel_max"]
         )  # -1: max forward, +1: max backward
+        # After line 69, add:
+        if frame_count % 50 == 0:  # Print every 50 loops
+            print(f"Sending: {act_lin:.2f}, {act_ang:.2f}, {act_close}, {act_lower}")
+            frame_count += 1  # Add this counter at the top
         
         # Send control message to Pico
         msg = f"{act_lin},{act_ang},{act_close},{act_lower}\n".encode("utf-8")
         messenger.write(msg)
-        messenger.flush()
+        #messenger.flush()
         
         # 50Hz control loop (20ms period)
         sleep(0.020)
