@@ -23,10 +23,8 @@ print(f"Controller: {js.get_name()}")
 ax_val_ang = 0.0
 ax_val_lin = 0.0
 act_lower, act_close = 0, 0
-# Flags, ordered by priority
+# Flags
 is_stopped = False
-is_enabled = True
-mode = "d"
 
 print("\n=== Controls ===")
 print(f"Left stick: Forward/Backward (max {params['lin_vel_max']} m/s)")
@@ -36,6 +34,7 @@ print(f"Button {params['raise_button']}: Raise arm")
 print(f"Button {params['close_button']}: Close claw")
 print(f"Button {params['open_button']}: Open claw")
 print("================\n")
+print("Robot ready! Press Ctrl+C to stop.\n")
 
 # MAIN LOOP
 try:
@@ -69,16 +68,11 @@ try:
             -ax_val_lin * params["lin_vel_max"]
         )  # -1: max forward, +1: max backward
         
-        if is_enabled:
-            mode = "e"
-        else:
-            mode = "d"
-        
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
-        print(f"mode: {mode}, action: {msg}")
         
-        sleep(0.01)
+        # 50Hz control loop (20ms period) - fast but not overwhelming
+        sleep(0.02)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
@@ -87,4 +81,5 @@ except KeyboardInterrupt:
     sleep(0.1)
     pygame.quit()
     messenger.close()
+    print("Robot stopped. Goodbye!")
     sys.exit()
