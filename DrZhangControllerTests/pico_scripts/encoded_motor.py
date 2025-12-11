@@ -1,4 +1,4 @@
-from base_motor import BaseMotor
+from base_motor_cont import BaseMotor
 from machine import Pin
 
 
@@ -57,14 +57,8 @@ if __name__ == "__main__":  # Test only the encoder part
     from utime import sleep
 
     # SETUP
-    # em = EncodedMotor(
-    #     driver_ids=(6, 7, 8),
-    #     encoder_ids=(11, 10),
-    # )  # left motor, encoder's green and yellow on GP19 and GP20
-    em = EncodedMotor(
-        driver_ids=(2, 3, 4),
-        encoder_ids=(21, 20),
-    )  # right motor, encoder's green and yellow on GP10 and GP11
+    #em = EncodedMotor(driver_ids=(7, 6, 8), encoder_ids=(11, 10))  # left motor, encoder's green and yellow on GP19 and GP20
+    em = EncodedMotor(driver_ids=(3, 2, 4), encoder_ids=(21, 20))  # right motor, encoder's green and yellow on GP10 and GP11
 
     # LOOP
     # Forward ramp up and down
