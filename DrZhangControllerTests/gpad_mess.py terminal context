@@ -1,0 +1,59 @@
+pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Pico is connected to port: /dev/ttyACM0
+Controller: Wireless Controller
+
+=== Controls ===
+Left stick: Forward/Backward (max 0.5 m/s)
+Right stick: Turn Left/Right (max 1.5 rad/s)
+Button 0: Lower arm
+Button 2: Raise arm
+Button 3: Close claw
+Button 4: Open claw
+================
+
+Robot ready! Press Ctrl+C to stop.
+
+Starting main loop...
+
+[SEND #50] lin=-0.00, ang=-0.00, claw=0, arm=0
+[SEND #100] lin=-0.00, ang=-0.00, claw=0, arm=0
+[SEND #150] lin=-0.00, ang=-0.00, claw=0, arm=0
+[BUTTON] Lower arm pressed
+[SEND #200] lin=-0.00, ang=-0.00, claw=0, arm=1
+[SEND #250] lin=-0.00, ang=-0.00, claw=0, arm=1
+[SEND #300] lin=-0.00, ang=-0.00, claw=0, arm=1
+[SEND #350] lin=-0.00, ang=-0.00, claw=0, arm=0
+[SEND #400] lin=-0.00, ang=-0.00, claw=0, arm=0
+[BUTTON] Raise arm pressed
+[SEND #450] lin=-0.00, ang=-0.00, claw=0, arm=-1
+[SEND #500] lin=-0.00, ang=-0.00, claw=0, arm=-1
+[SEND #550] lin=-0.00, ang=-0.00, claw=0, arm=-1
+[SEND #600] lin=-0.00, ang=-0.00, claw=0, arm=0
+[BUTTON] Close claw pressed
+[SEND #650] lin=-0.00, ang=-0.00, claw=1, arm=0
+[SEND #700] lin=-0.00, ang=-0.00, claw=1, arm=0
+[SEND #750] lin=-0.00, ang=-0.00, claw=1, arm=0
+[SEND #800] lin=-0.00, ang=-0.00, claw=0, arm=0
+[BUTTON] Open claw pressed
+[SEND #850] lin=-0.00, ang=-0.00, claw=-1, arm=0
+[SEND #900] lin=-0.00, ang=-0.00, claw=-1, arm=0
+[SEND #950] lin=-0.00, ang=-0.00, claw=-1, arm=0
+[SEND #1000] lin=0.50, ang=0.15, claw=0, arm=0
+[SEND #1050] lin=0.50, ang=0.15, claw=0, arm=0
+[SEND #1100] lin=0.50, ang=0.15, claw=0, arm=0
+[SEND #1150] lin=-0.00, ang=-0.00, claw=0, arm=0
+[SEND #1200] lin=-0.50, ang=0.30, claw=0, arm=0
+[SEND #1250] lin=-0.50, ang=0.30, claw=0, arm=0
+[SEND #1300] lin=-0.50, ang=0.30, claw=0, arm=0
+[SEND #1350] lin=-0.10, ang=-1.50, claw=0, arm=0
+[SEND #1400] lin=-0.05, ang=-1.50, claw=0, arm=0
+[SEND #1450] lin=0.05, ang=-1.50, claw=0, arm=0
+[SEND #1500] lin=0.10, ang=1.50, claw=0, arm=0
+[SEND #1550] lin=0.10, ang=1.50, claw=0, arm=0
+[SEND #1600] lin=0.10, ang=1.50, claw=0, arm=0
+[SEND #1650] lin=-0.00, ang=-0.00, claw=0, arm=0
+[SEND #1700] lin=-0.00, ang=-0.00, claw=0, arm=0
+^C
+Shutting down...
+Robot stopped. Goodbye!
