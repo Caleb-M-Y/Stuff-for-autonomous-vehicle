@@ -79,12 +79,17 @@ try:
             print(f"Sent #{msg_count}: lin={act_lin:.2f}, ang={act_ang:.2f}, claw={act_close}, arm={act_lower}")
         
         # Try to read feedback from Pico (non-blocking)
-        if messenger.in_waiting > 0:
+        # Read all available feedback to prevent buffer buildup
+        feedback_count = 0
+        while messenger.in_waiting > 0 and feedback_count < 10:  # Limit to prevent blocking
             try:
                 feedback = messenger.readline().decode('utf-8').strip()
-                print(f"Feedback: {feedback}")
+                # Only print every 10th feedback to reduce spam
+                if feedback_count == 0:
+                    print(f"Feedback: {feedback}")
             except:
-                pass
+                break
+            feedback_count += 1
         
         # 100Hz control loop (10ms period) - matches blocking poll on Pico
         sleep(0.01)
