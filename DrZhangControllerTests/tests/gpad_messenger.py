@@ -75,8 +75,8 @@ try:
         messenger.write(msg)
         messenger.flush()
         
-        # 10Hz control loop (100ms period)
-        sleep(0.1)
+        # 50Hz control loop (20ms period)
+        sleep(0.020)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
