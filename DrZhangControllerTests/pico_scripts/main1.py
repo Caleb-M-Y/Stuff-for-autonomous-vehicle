@@ -26,7 +26,8 @@ target_lin_vel, target_ang_vel = 0.0, 0.0
 claw_dir, arm_dir = 0, 0
 tic = ticks_us()
 
-print("Pico ready!")
+# Print removed - interferes with serial communication
+# print("Pico ready!")
 
 # LOOP
 while True:
@@ -34,10 +35,14 @@ while True:
     for msg, _ in event:  # read message
         buffer = [x.strip() for x in msg.readline().strip().split(",")]  # strip whitespace from each element
         if len(buffer) == 4:
-            target_lin_vel = float(buffer[0])
-            target_ang_vel = float(buffer[1])
-            claw_dir = int(buffer[2])
-            arm_dir = int(buffer[3])
+            try:
+                target_lin_vel = float(buffer[0])
+                target_ang_vel = float(buffer[1])
+                claw_dir = int(buffer[2])
+                arm_dir = int(buffer[3])
+            except ValueError:
+                # Silently handle parse errors to avoid serial interference
+                pass
     # send command to robot
     diff_driver.set_vels(target_lin_vel, target_ang_vel)
     arm_controller.close_claw(claw_dir)
