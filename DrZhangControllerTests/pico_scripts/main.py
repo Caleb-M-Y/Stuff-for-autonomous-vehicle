@@ -38,37 +38,39 @@ while True:
 
         for msg, _ in event:
             try:
-                #keep reading until we get the newest message
-                while True:
-                    line = msg.readline()
-                    if not line:
-                        break
-                    # Decode bytes to string and split
-                    latest_buffer = line.decode('utf-8').split(",")
-            except Exception as e: 
-                pass
-        
-        #process only the LATEST message (discard old ones)
-        if latest_buffer and len(latest_buffer) == 4: 
-            try: 
-                target_lin_vel = float(latest_buffer[0])
-                target_ang_vel = float(latest_buffer[1])
-                claw_dir = int(latest_buffer[2])
-                arm_dir = int(latest_buffer[3])
+                # Read the latest message
+                line = msg.readline()
+                if line:
+                    # Decode bytes to string, then split
+                    latest_buffer = line.decode('utf-8').strip().split(",")
+            except Exception as e:
+                print(f"Read error: {e}")  # Debug
+    
+    # Process the message
+    if latest_buffer and len(latest_buffer) == 4: 
+        try: 
+            target_lin_vel = float(latest_buffer[0])
+            target_ang_vel = float(latest_buffer[1])
+            claw_dir = int(latest_buffer[2])
+            arm_dir = int(latest_buffer[3])
 
-                last_cmd_time = ticks_us()
+            last_cmd_time = ticks_us()
+            msg_count += 1
+            
+            # Debug output every 50 messages
+            if msg_count % 50 == 0:
+                print(f"MSG #{msg_count}: lin={target_lin_vel:.2f}, ang={target_ang_vel:.2f}, claw={claw_dir}, arm={arm_dir}")
 
-                # Update wheels (always, even if 0.0)
-                diff_driver.set_vels(target_lin_vel, target_ang_vel)
+            # Update wheels (always, even if 0.0)
+            diff_driver.set_vels(target_lin_vel, target_ang_vel)
 
-                # Only update arm/claw if theyre actually moving 
-                if claw_dir != 0:
-                    arm_controller.close_claw(claw_dir)
-                if arm_dir != 0:
-                    arm_controller.lower_claw(arm_dir)
-            except (ValueError, IndexError):
-                # Skip malformed messages
-                pass
+            # Only update arm/claw if they're actually moving 
+            if claw_dir != 0:
+                arm_controller.close_claw(claw_dir)
+            if arm_dir != 0:
+                arm_controller.lower_claw(arm_dir)
+        except (ValueError, IndexError) as e:
+            print(f"Parse error: {e}, buffer={latest_buffer}")  # Debug
 
     # Safety timeout: stop robot if no commands for 500ms
     if ticks_diff(ticks_us(), last_cmd_time) > 500000:
