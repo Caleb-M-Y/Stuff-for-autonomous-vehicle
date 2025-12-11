@@ -1,4 +1,4 @@
-from regulated_wheel import RegulatedWheel
+from regulated_wheel_cont import RegulatedWheel
 
 
 class DiffDriveController:
@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     # SETUP
     ddc = DiffDriveController(
-        right_wheel_ids=((2, 3, 4), (21, 20)),
-        left_wheel_ids=((6, 7, 8), (11, 10)),
+        right_wheel_ids=((3, 2, 4), (21, 20)),
+        left_wheel_ids=((7, 6, 8), (11, 10)),
     )
 
     # LOOP
