@@ -1,90 +1,999 @@
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py 
-pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
-Hello from the pygame community. https://www.pygame.org/contribute.html
-Pico is connected to port: /dev/ttyACM0
-Controller: Wireless Controller
-
-=== Controls ===
-Left stick: Forward/Backward (max 0.5 m/s)
-Right stick: Turn Left/Right (max 1.5 rad/s)
-Button 0: Lower arm
-Button 2: Raise arm
-Button 3: Close claw
-Button 4: Open claw
-================
-
-Robot ready! Press Ctrl+C to stop.
-
+Sent #1740: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1590)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1750: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1600)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1760: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1610)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1770: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1620)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1780: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1630)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1790: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1640)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1800: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1650)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1810: lin=-0.00, ang=-0.00, claw=1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1660)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1820: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1670)
+Feedback: -0.0, -0.0
+Sent #1830: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1680)
+Sent #1840: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1850: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1690)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1860: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1700)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1870: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1710)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1880: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1720)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1890: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1730)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1900: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1740)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1910: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1750)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1920: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1760)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1930: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1770)
+Feedback: -0.0, -0.0
+Sent #1940: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1780)
+Sent #1950: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1960: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1790)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1970: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1800)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1980: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=1, arm=0 (msg #1810)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #1990: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #1820)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2000: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1830)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2010: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1840)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2020: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1850)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2030: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1860)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2040: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1870)
+Feedback: -0.0, -0.0
+Sent #2050: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1880)
+Sent #2060: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2070: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1890)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2080: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1900)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2090: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1910)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2100: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1920)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2110: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1930)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2120: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1940)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2130: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1950)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2140: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1960)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2150: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1970)
+Feedback: -0.0, -0.0
+Sent #2160: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1980)
+Sent #2170: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2180: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #1990)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2190: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2000)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2200: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2010)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2210: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2020)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2220: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2030)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2230: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2040)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2240: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2050)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2250: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2060)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2260: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2070)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2270: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2080)
+Feedback: -0.0, -0.0
+Sent #2280: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2090)
+Sent #2290: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2300: lin=-0.00, ang=-0.00, claw=-1, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2100)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2310: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2110)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2320: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2120)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2330: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2130)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2340: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2140)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2350: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2150)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2360: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2160)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2370: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2170)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2380: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2180)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2390: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2190)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2400: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2200)
+Feedback: -0.0, -0.0
+Sent #2410: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2210)
+Sent #2420: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2430: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2220)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2440: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2230)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2450: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2240)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2460: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2250)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2470: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2260)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2480: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2270)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2490: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2280)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2500: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2290)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2510: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=-1, arm=0 (msg #2300)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2520: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2310)
+Feedback: -0.0, -0.0
+Sent #2530: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2320)
+Sent #2540: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2550: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2330)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2560: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2340)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2570: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2350)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2580: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2360)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2590: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2370)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2600: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2380)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2610: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2390)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2620: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2400)
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Sent #2630: lin=-0.00, ang=-0.00, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: Received: lin=-0.00, ang=-0.00, claw=0, arm=0 (msg #2410)
+Feedback: -0.0, -0.0
+Sent #2640: lin=-0.50, ang=0.15, claw=0, arm=0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
+Feedback: -0.0, -0.0
 ^C
 Shutting down...
-Robot stopped. Goodbye!
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python --version
-Python 3.11.2
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 --version
-Python 3.11.2
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 gpad_messenger.py
-gpad_messenger.py
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ head -20 gpad_messenger.py
-import sys
-from pathlib import Path
-import serial
-import pygame
-import json
-from time import sleep
-
-
-# SETUP
-# Load configs
-params_file_path = str(Path(__file__).parents[1].joinpath("configs.json"))
-with open(params_file_path, "r") as file:
-    params = json.load(file)
-# Init serial port
-messenger = serial.Serial(port="/dev/ttyACM0", baudrate=115200)
-print(f"Pico is connected to port: {messenger.name}")
-# Init controller
-pygame.display.init()
-pygame.joystick.init()
-js = pygame.joystick.Joystick(0)
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py
-pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
-Hello from the pygame community. https://www.pygame.org/contribute.html
-Pico is connected to port: /dev/ttyACM0
-Controller: Wireless Controller
-
-=== Controls ===
-Left stick: Forward/Backward (max 0.5 m/s)
-Right stick: Turn Left/Right (max 1.5 rad/s)
-Button 0: Lower arm
-Button 2: Raise arm
-Button 3: Close claw
-Button 4: Open claw
-================
-
-Robot ready! Press Ctrl+C to stop.
-
-^C
-Shutting down...
-Robot stopped. Goodbye!
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py 2>&1 | head -50
-^C
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 /dev/input/js*
-/dev/input/js0
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 /dev/input/event*
-/dev/input/event0
-/dev/input/event1
-/dev/input/event10
-/dev/input/event11
-/dev/input/event2
-/dev/input/event3
-/dev/input/event4
-/dev/input/event5
-/dev/input/event6
-/dev/input/event7
-/dev/input/event8
-/dev/input/event9
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 -c "import pygame; print('Pygame version:', pygame.version.ver)"
-pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
-Hello from the pygame community. https://www.pygame.org/contribute.html
-Pygame version: 2.1.2
-ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ 
-
+Test stopped. Goodbye!
