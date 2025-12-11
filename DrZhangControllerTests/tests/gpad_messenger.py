@@ -71,7 +71,7 @@ try:
         )  # -1: max forward, +1: max backward
         
         # Send control message to Pico
-        msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
+        msg = f"{act_lin},{act_ang},{act_close},{act_lower}\n".encode("utf-8")
         messenger.write(msg)
         messenger.flush()
         
@@ -82,7 +82,7 @@ try:
 except KeyboardInterrupt:
     print("\nShutting down...")
     # Stop robot before closing
-    messenger.write(b"0.0, 0.0, 0, 0\n")
+    messenger.write(b"0.0,0.0,0,0\n")
     sleep(0.1)
     pygame.quit()
     messenger.close()
