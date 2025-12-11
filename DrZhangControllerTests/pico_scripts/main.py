@@ -36,23 +36,33 @@ while True:
     if event:  # Only process if there's actually a message
         for msg, _ in event:
             try:
-                buffer = msg.readline().strip().split(",")
-                if len(buffer) == 4:
-                    target_lin_vel = float(buffer[0])
-                    target_ang_vel = float(buffer[1])
-                    claw_dir = int(buffer[2])
-                    arm_dir = int(buffer[3])
-                    
-                    last_cmd_time = ticks_us()
-                    
-                    # Update wheels
-                    diff_driver.set_vels(target_lin_vel, target_ang_vel)
-                    
-                    # Only update arm/claw if they're actually moving
-                    if claw_dir != 0:
-                        arm_controller.close_claw(claw_dir)
-                    if arm_dir != 0:
-                        arm_controller.lower_claw(arm_dir)
+                #keep reading until we get the newest message
+                while True:
+                    line = msg.readline()
+                    if not line:
+                        break
+                    latest_buffer = line.strip().split(b",")
+            except: 
+                pass
+        
+        #process only the LATEST message (discard old ones)
+        if latest_buffer and len(latest_buffer) == 4: 
+            try: 
+                target_lin_vel = float(latest_buffer[0])
+                target_ang_vel = float(latest_buffer[1])
+                claw_dir = int(latest_buffer[2])
+                arm_dir = int(latest_buffer[3])
+
+                last_cmd_time = ticks_us()
+
+                # Update wheels (always, even if 0.0)
+                diff_driver.set_vels(target_lin_vel, target_ang_vel)
+
+                # Only update arm/claw if theyre actually moving 
+                if claw_dir != 0:
+                    arm_controller.close_claw(claw_dir)
+                if arm_dir != 0:
+                    arm_controller.lower_claw(arm_dir)
             except (ValueError, IndexError):
                 # Skip malformed messages
                 pass
@@ -60,33 +70,12 @@ while True:
     # Safety timeout: stop robot if no commands for 500ms
     if ticks_diff(ticks_us(), last_cmd_time) > 500000:
         diff_driver.set_vels(0.0, 0.0)
-        last_cmd_time = ticks_us()  # Reset timer to avoid constant stopping
+        last_cmd_time = ticks_us()  # prevent repeated stops
 
-    # Send feedback every 10ms
+    # Send feedback every 50ms (20Hz, Matching Pi send rates)
     toc = ticks_us()
-    if ticks_diff(toc, tic) >= 10000:
+    if ticks_diff(toc, tic) >= 50000:
         meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
         out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
         sys.stdout.write(out_msg)
         tic = toc
-    
-            
-
-# buffer = msg.readline().strip().split(",")
-#                 # print(f"{diff_driver.lin_vel},{diff_driver.ang_vel}")
-#                 if len(buffer) == 4:
-#                     target_lin_vel = float(buffer[0])
-#                     target_ang_vel = float(buffer[1])
-#                     claw_dir = int(buffer[2])
-#                     arm_dir = int(buffer[3])
-#                     diff_driver.set_vels(target_lin_vel, target_ang_vel)
-#                     arm_controller.close_claw(claw_dir)
-#                     arm_controller.lower_claw(arm_dir)
-#             toc = ticks_us()
-#             if toc - tic >= 10000:
-#                 meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
-#                 out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
-#                 #         out_msg = "PICO\n"
-#                 sys.stdout.write(out_msg)
-#                 tic = ticks_us()
-
