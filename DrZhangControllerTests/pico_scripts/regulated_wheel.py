@@ -1,48 +1,92 @@
-"""
-Rename this script to main.py, then upload to the pico board.
-"""
+from sentient_wheel_cont import SentientWheel
+from machine import Timer
 
-import sys
-import select
-from diff_drive_controller import DiffDriveController
-from armcontroller import ArmController
-from machine import freq
-from utime import ticks_us
 
-# SETUP
-# Overclock
-freq(300_000_000)  # Pico 2 original: 150_000_000
-# Instantiate robot
-diff_driver = DiffDriveController(
-    right_wheel_ids=((2, 3, 4), (21, 20)),
-    left_wheel_ids=((6, 7, 8), (11, 10)),
-)
-arm_controller = ArmController(2, 3, 4)
-# Create a poll to receive messages from host machine
-cmd_vel_listener = select.poll()
-cmd_vel_listener.register(sys.stdin, select.POLLIN)
-event = cmd_vel_listener.poll()
-target_lin_vel, target_ang_vel = 0.0, 0.0
-claw_dir, arm_dir = 0, 0
-tic = ticks_us()
+class RegulatedWheel(SentientWheel):
+    def __init__(self, driver_ids: list | tuple, encoder_ids: list | tuple) -> None:
+        super().__init__(driver_ids, encoder_ids)
+        # Constants
+        self.k_p = 0.09
+        self.k_i = 0.0
+        self.k_d = 0.0
+        self.reg_freq = 50  # Hz
+        # Variables
+        self.reg_vel_counter = 0
+        self.duty = 0.0
+        self.error = 0.0
+        self.prev_error = 0.0
+        self.error_inte = 0.0  # integral
+        self.error_diff = 0.0  # differentiation
+        self.ref_lin_vel = 0.0
+        # PID controller config
+        self.vel_reg_timer = Timer(
+            freq=self.reg_freq,
+            mode=Timer.PERIODIC,
+            callback=self.regulate_velocity,
+        )
 
-# LOOP
-while True:
-    for msg, _ in event:
-        buffer = msg.readline().strip().split(",")
-        # print(f"{diff_driver.lin_vel},{diff_driver.ang_vel}")
-        if len(buffer) == 4:
-            target_lin_vel = float(buffer[0])
-            target_ang_vel = float(buffer[1])
-            claw_dir = int(buffer[2])
-            arm_dir = int(buffer[3])
-            diff_driver.set_vels(target_lin_vel, target_ang_vel)
-            arm_controller.close_claw(claw_dir)
-            arm_controller.lower_claw(arm_dir)
-    toc = ticks_us()
-    if toc - tic >= 10000:
-        meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
-        out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
-        #         out_msg = "PICO\n"
-        sys.stdout.write(out_msg)
-        tic = ticks_us()
+    def regulate_velocity(self, timer):
+        if self.reg_vel_counter > self.reg_freq:
+            self.stop()
+            self.reset_encoder_counts()
+            self.ref_lin_vel = 0.0
+            self.prev_error = 0.0
+        else:
+            self.error = self.ref_lin_vel - self.meas_lin_vel  # ang_vel also works
+            self.error_inte += self.error
+            self.error_diff = self.error - self.prev_error
+            self.prev_error = self.error  # UPDATE previous error
+            inc_duty = (
+                self.k_p * self.error
+                + self.k_i * self.error_inte
+                + self.k_d * self.error_diff
+            )
+            self.duty = self.duty + inc_duty
+            if self.duty > 0:
+                if self.duty > 1.0:
+                    self.duty = 1.0
+                self.forward(self.duty)
+            else:
+                if self.duty < -1.0:
+                    self.duty = -1.0
+                self.backward(-self.duty)
+            self.reg_vel_counter += 1
+
+    def set_wheel_velocity(self, ref_lin_vel):
+        self.reg_vel_counter = 0
+        if ref_lin_vel is not self.ref_lin_vel:
+            self.ref_lin_vel = ref_lin_vel
+            self.prev_error = 0.0
+            self.error_inte = 0.0
+
+
+if __name__ == "__main__":
+    """ Use following tuning PID"""
+    from utime import sleep
+
+    # rw = RegulatedWheel(
+    #     driver_ids=(7, 6, 8),
+    #     encoder_ids=(21, 20),
+    # )  # left wheel
+    rw = RegulatedWheel(
+        driver_ids=(3, 2, 4),
+        encoder_ids=(21, 20),
+    )  # right wheel
+    for i in range(400):
+        if 24 < i <= 174:  # step up @ t=0.5s
+            rw.set_wheel_velocity(-0.1)
+        elif 174 < i <= 299:  # step down @ t=2s
+            rw.set_wheel_velocity(0.0)
+        elif i == 349:
+            print("No command given in the past 1 second, cut off.")
+        print(
+            f"Reference velocity={rw.ref_lin_vel} m/s, Measured velocity={rw.meas_lin_vel} m/s"
+        )
+        sleep(0.02)
+
+    # Terminate
+    rw.stop()
+    sleep(0.5)
+    print("wheel stopped.")
+
+
