@@ -23,9 +23,10 @@ print(f"Controller: {js.get_name()}")
 ax_val_ang = 0.0
 ax_val_lin = 0.0
 act_lower, act_close = 0, 0
-# Flags
+# Flags, ordered by priority
 is_stopped = False
 is_enabled = True
+mode = "d"
 
 print("\n=== Controls ===")
 print(f"Left stick: Forward/Backward (max {params['lin_vel_max']} m/s)")
@@ -35,7 +36,6 @@ print(f"Button {params['raise_button']}: Raise arm")
 print(f"Button {params['close_button']}: Close claw")
 print(f"Button {params['open_button']}: Open claw")
 print("================\n")
-print("Robot ready! Press Ctrl+C to stop.\n")
 
 # MAIN LOOP
 try:
@@ -51,7 +51,6 @@ try:
                 elif js.get_button(params["open_button"]):
                     act_close = -1
             elif e.type == pygame.JOYBUTTONUP:
-                # Reset arm/claw when buttons released
                 if not js.get_button(params["lower_button"]) and not js.get_button(params["raise_button"]):
                     act_lower = 0
                 if not js.get_button(params["close_button"]) and not js.get_button(params["open_button"]):
@@ -70,20 +69,22 @@ try:
             -ax_val_lin * params["lin_vel_max"]
         )  # -1: max forward, +1: max backward
         
-        # Send control message to Pico
-        msg = f"{act_lin},{act_ang},{act_close},{act_lower}\n".encode("utf-8")
-        messenger.write(msg)
+        if is_enabled:
+            mode = "e"
+        else:
+            mode = "d"
         
-        # 50Hz control loop (20ms period)
-        sleep(0.02)
+        msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
+        messenger.write(msg)
+        print(f"mode: {mode}, action: {msg}")
+        
+        sleep(0.01)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
     print("\nShutting down...")
-    # Stop robot before closing
-    messenger.write(b"0.0,0.0,0,0\n")
+    messenger.write(b"0.0, 0.0, 0, 0\n")
     sleep(0.1)
     pygame.quit()
     messenger.close()
-    print("Robot stopped. Goodbye!")
     sys.exit()
