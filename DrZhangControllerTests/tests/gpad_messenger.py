@@ -73,9 +73,10 @@ try:
         # Send control message to Pico
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
+        messenger.flush()
         
-        # 20Hz control loop (50ms period)
-        sleep(0.05)
+        # 10Hz control loop (100ms period)
+        sleep(0.1)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
