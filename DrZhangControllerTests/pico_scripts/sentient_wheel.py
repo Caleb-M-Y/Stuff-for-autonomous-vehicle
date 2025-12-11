@@ -1,4 +1,4 @@
-from encoded_motor import EncodedMotor
+from encoded_motor_cont import EncodedMotor
 from machine import Timer
 from math import pi
 
@@ -43,11 +43,11 @@ if __name__ == "__main__":  # Test only the encoder part
 
     # SETUP
     # sw = SentientWheel(
-    #     driver_ids=(6, 7, 8),
+    #     driver_ids=(7, 6, 8),
     #     encoder_ids=(11, 10),
     # )  # left wheel
     sw = SentientWheel(
-        driver_ids=(2, 3, 4),
+        driver_ids=(3, 2, 4),
         encoder_ids=(21, 20),
     )  # right wheel
 
