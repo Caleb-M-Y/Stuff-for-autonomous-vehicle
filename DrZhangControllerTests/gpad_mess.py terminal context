@@ -65,4 +65,26 @@ Robot ready! Press Ctrl+C to stop.
 ^C
 Shutting down...
 Robot stopped. Goodbye!
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 gpad_messenger.py 2>&1 | head -50
+^C
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 /dev/input/js*
+/dev/input/js0
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ ls -1 /dev/input/event*
+/dev/input/event0
+/dev/input/event1
+/dev/input/event10
+/dev/input/event11
+/dev/input/event2
+/dev/input/event3
+/dev/input/event4
+/dev/input/event5
+/dev/input/event6
+/dev/input/event7
+/dev/input/event8
+/dev/input/event9
+ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ python3 -c "import pygame; print('Pygame version:', pygame.version.ver)"
+pygame 2.1.2 (SDL 2.26.5, Python 3.11.2)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Pygame version: 2.1.2
 ball-e@BALL-E:~/clean_ball-e/python_scripts/tests $ 
+
