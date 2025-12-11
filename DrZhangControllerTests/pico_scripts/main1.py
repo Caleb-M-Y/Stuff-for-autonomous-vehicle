@@ -30,45 +30,21 @@ print("Pico ready!")
 
 # LOOP
 while True:
-    event = cmd_vel_listener.poll(1)  # ← 1ms timeout (nearly non-blocking)
-    
-    if event:
-        latest_buffer = None
-        # Drain the entire buffer, keep only the latest message
-        # This prevents message queue from clogging
-        while True:
-            try:
-                # Check if data is available without blocking
-                if cmd_vel_listener.poll(0):
-                    line = sys.stdin.readline()
-                    if line:
-                        # Strip whitespace from each element
-                        latest_buffer = [x.strip() for x in line.decode('utf-8').strip().split(",")]
-                    else:
-                        break  # No more messages
-                else:
-                    break  # No more data available
-            except:
-                break
-        
-        # Process ONLY the latest message
-        if latest_buffer and len(latest_buffer) == 4:
-            try:
-                target_lin_vel = float(latest_buffer[0])
-                target_ang_vel = float(latest_buffer[1])
-                claw_dir = int(latest_buffer[2])
-                arm_dir = int(latest_buffer[3])
-            except:
-                pass
-    
+    event = cmd_vel_listener.poll()  # wait until receive message (blocking - prevents buffer clogging)
+    for msg, _ in event:  # read message
+        buffer = [x.strip() for x in msg.readline().strip().split(",")]  # strip whitespace from each element
+        if len(buffer) == 4:
+            target_lin_vel = float(buffer[0])
+            target_ang_vel = float(buffer[1])
+            claw_dir = int(buffer[2])
+            arm_dir = int(buffer[3])
     # send command to robot
     diff_driver.set_vels(target_lin_vel, target_ang_vel)
     arm_controller.close_claw(claw_dir)
     arm_controller.lower_claw(arm_dir)
-    
-    # send feedback (slowed to 50ms = 20Hz)
+    # send feedback to host machine
     toc = ticks_us()
-    if ticks_diff(toc, tic) >= 50000:
+    if ticks_diff(toc, tic) >= 10000:  # 10ms = 100Hz feedback rate
         meas_lin_vel, meas_ang_vel = diff_driver.get_vels()
         out_msg = f"{meas_lin_vel}, {meas_ang_vel}\n"
         sys.stdout.write(out_msg)
