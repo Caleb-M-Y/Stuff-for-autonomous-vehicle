@@ -21,7 +21,8 @@ claw_dir, arm_dir = 0, 0
 tic = ticks_us()
 message_count = 0
 
-print("Pico ready! (TEST MODE - No robot control)")
+# Print removed - interferes with serial communication
+# print("Pico ready! (TEST MODE - No robot control)")
 
 # LOOP
 while True:
@@ -35,11 +36,11 @@ while True:
                 claw_dir = int(buffer[2])
                 arm_dir = int(buffer[3])
                 message_count += 1
-                # Print received message (every 10th message to avoid spam)
-                if message_count % 10 == 0:
-                    print(f"Received: lin={target_lin_vel:.2f}, ang={target_ang_vel:.2f}, claw={claw_dir}, arm={arm_dir} (msg #{message_count})")
+                # NOTE: Print statements removed - they interfere with serial feedback communication
+                # If you need debugging, use a separate serial connection or reduce feedback rate
             except ValueError as e:
-                print(f"Parse error: {e}, buffer={buffer}")
+                # Silently handle parse errors to avoid serial interference
+                pass
     
     # NO robot control - just echo back what we received
     # (In real version, this would be: diff_driver.set_vels(...) and arm_controller calls)
