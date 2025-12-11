@@ -34,17 +34,22 @@ while True:
     
     if event:
         latest_buffer = None
-        for msg, _ in event:
-            # Read up to 10 pending messages, keep only the last
-            for _ in range(10):
-                try:
-                    line = msg.readline()
+        # Drain the entire buffer, keep only the latest message
+        # This prevents message queue from clogging
+        while True:
+            try:
+                # Check if data is available without blocking
+                if cmd_vel_listener.poll(0):
+                    line = sys.stdin.readline()
                     if line:
-                        latest_buffer = line.decode('utf-8').strip().split(",")
+                        # Strip whitespace from each element
+                        latest_buffer = [x.strip() for x in line.decode('utf-8').strip().split(",")]
                     else:
                         break  # No more messages
-                except:
-                    break
+                else:
+                    break  # No more data available
+            except:
+                break
         
         # Process ONLY the latest message
         if latest_buffer and len(latest_buffer) == 4:

@@ -71,8 +71,8 @@ try:
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
         messenger.write(msg)
         
-        # 50Hz control loop (20ms period) - fast but not overwhelming
-        sleep(0.02)
+        # 20Hz control loop (50ms period) - prevents buffer clogging
+        sleep(0.05)
 
 # Take care terminal signal (Ctrl-c)
 except KeyboardInterrupt:
