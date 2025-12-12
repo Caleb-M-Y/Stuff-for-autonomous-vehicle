@@ -29,7 +29,7 @@ class ArmController:
         self.claw.duty_ns(CLAW_MID)
         self.left_shoulder.duty_ns(SHOULDER_MID)
         self.right_shoulder.duty_ns(SHOULDER_MID)
-        self.pw_inc = 20_000
+        self.pw_inc = 5_000
 
     def close_claw(self, dir):  # Close claw
         """
