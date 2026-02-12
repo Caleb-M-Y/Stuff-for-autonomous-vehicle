@@ -39,7 +39,7 @@ cam.configure(
 )
 cam.start()
 # Camera warmup countdown
-for i in reversed(range(3 * params["frame_rate"])):
+for i in reversed(range(int(3 * params["frame_rate"]))):
     frame = cam.capture_array()
     if frame is None:
         print("No frame received. TERMINATE!")
@@ -114,6 +114,8 @@ try:
         
         # Process gamepad data
         for e in pygame.event.get():  # read controller input
+            if e.type == pygame.JOYAXISMOTION:
+                print(f"Axis motion: {e.axis} {e.value}") # debug print for axis motion
             if e.type == pygame.JOYBUTTONDOWN:
                 # Stop program button
                 if js.get_button(params["stop_program"]):
@@ -159,7 +161,11 @@ try:
         )  # -1: max forward, +1: max backward
         
         msg = f"{act_lin}, {act_ang}, {act_close}, {act_lower}\n".encode("utf-8")
-        messenger.write(msg)
+        print(f"Sending message: {msg}")
+        try:
+            messenger.write(msg)
+        except Exception as e:
+            print(f"Error sending message: {e}")
         
         # Drain feedback buffer to prevent clogging (non-blocking)
         # This keeps communication smooth even if feedback isn't being used
