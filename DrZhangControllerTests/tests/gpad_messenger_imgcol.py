@@ -5,9 +5,13 @@ import pygame
 import json
 from time import sleep, time
 import cv2 as cv
-from picamera2 import Picamera2
+import numpy as np
+import pyrealsense2 as rs
 import os
 
+# RealSense capture size (D455 native); output is resized to this for consistency
+CAPTURE_WIDTH, CAPTURE_HEIGHT = 640, 480
+OUTPUT_WIDTH, OUTPUT_HEIGHT = 224, 224
 
 # SETUP
 # Load configs
@@ -23,27 +27,25 @@ pygame.joystick.init()
 js = pygame.joystick.Joystick(0)
 print(f"Controller: {js.get_name()}")
 
-# Init Pi Camera
+# Init Intel RealSense D455
 cv.startWindowThread()
-cam = Picamera2()
-cam.configure(
-    cam.create_preview_configuration(
-        main={"format": "RGB888", "size": (224, 224)},
-        controls={
-            "FrameDurationLimits": (
-                int(1_000_000 / params["frame_rate"]),
-                int(1_000_000 / params["frame_rate"]),
-            )
-        },
-    )
-)
-cam.start()
-# Camera warmup countdown
+pipeline = rs.pipeline()
+config = rs.config()
+config.enable_stream(rs.stream.color, CAPTURE_WIDTH, CAPTURE_HEIGHT, rs.format.bgr8, min(30, params["frame_rate"]))
+profile = pipeline.start(config)
+print("Intel RealSense D455 started.")
+
+# Camera warmup countdown (convert BGR → RGB so we work in RGB everywhere)
 for i in reversed(range(int(3 * params["frame_rate"]))):
-    frame = cam.capture_array()
-    if frame is None:
+    frames = pipeline.wait_for_frames()
+    color_frame = frames.get_color_frame()
+    if not color_frame:
         print("No frame received. TERMINATE!")
-        sys.exit()
+        sys.exit(1)
+    frame_bgr = np.asanyarray(color_frame.get_data())
+    if frame_bgr.size == 0:
+        print("No frame received. TERMINATE!")
+        sys.exit(1)
     if not i % params["frame_rate"]:
         print(i / params["frame_rate"])  # count down 3, 2, 1 sec
 
@@ -94,19 +96,24 @@ def save_images_to_directory():
 # MAIN LOOP
 try:
     while not is_stopped:
-        # Process camera data
-        frame = cam.capture_array()
-        if frame is None:
-            print("No frame received. TERMINATE!")
-            break
-        
-        # Display camera feed
-        cv.imshow("camera", frame)
+        # Process camera data (RealSense D455): convert BGR → RGB so we work in RGB everywhere
+        frames = pipeline.wait_for_frames()
+        color_frame = frames.get_color_frame()
+        if not color_frame:
+            continue
+        frame_bgr = np.asanyarray(color_frame.get_data())
+        if frame_bgr.size == 0:
+            continue
+        frame_bgr = cv.resize(frame_bgr, (OUTPUT_WIDTH, OUTPUT_HEIGHT))
+        frame = cv.cvtColor(frame_bgr, cv.COLOR_BGR2RGB)  # RGB from here on
+
+        # Display camera feed (convert to BGR only for OpenCV imshow)
+        cv.imshow("camera", cv.cvtColor(frame, cv.COLOR_RGB2BGR))
         if cv.waitKey(1) == ord("q"):  # [q]uit
             print("Quit signal received.")
             break
-        
-        # Capture images at frame_rate when recording
+
+        # Capture images at frame_rate when recording (frame is already RGB)
         current_time = time()
         if is_recording and (current_time - last_frame_time >= frame_interval):
             collected_images.append(frame.copy())
@@ -199,7 +206,7 @@ finally:
     # Cleanup
     pygame.quit()
     messenger.close()
-    cam.stop()
+    pipeline.stop()
     cv.destroyAllWindows()
     print("Robot stopped. Goodbye!")
     sys.exit()

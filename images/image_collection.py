@@ -6,7 +6,8 @@ import json
 from time import sleep
 from datetime import datetime
 import cv2 as cv
-from picamera2 import Picamera2
+import numpy as np
+import pyrealsense2 as rs
 import csv
 
 # SETUP
@@ -40,29 +41,29 @@ pygame.joystick.init()
 js = pygame.joystick.Joystick(0)
 print(f"Controller connected: {js.get_name()}")
 
-# Init camera
+# Init Intel RealSense D455
+CAPTURE_WIDTH, CAPTURE_HEIGHT = 640, 480
+OUTPUT_WIDTH, OUTPUT_HEIGHT = 224, 224  # width x height (match original)
+
 cv.startWindowThread()
-cam = Picamera2()
-cam.configure(
-    cam.create_preview_configuration(
-        main={"format": "RGB888", "size": (200, 180)},  # width x height
-        controls={
-            "FrameDurationLimits": (
-                int(1_000_000 / params["frame_rate"]),
-                int(1_000_000 / params["frame_rate"]),
-            )
-        },
-    )
-)
-cam.start()
+pipeline = rs.pipeline()
+config = rs.config()
+config.enable_stream(rs.stream.color, CAPTURE_WIDTH, CAPTURE_HEIGHT, rs.format.bgr8, min(30, params["frame_rate"]))
+profile = pipeline.start(config)
+print("Intel RealSense D455 started.")
 
 # Countdown
 print("Starting countdown...")
 for i in reversed(range(3 * params["frame_rate"])):
-    frame = cam.capture_array()
-    if frame is None:
+    frames = pipeline.wait_for_frames()
+    color_frame = frames.get_color_frame()
+    if not color_frame:
         print("No frame received. TERMINATE!")
-        sys.exit()
+        sys.exit(1)
+    frame = np.asanyarray(color_frame.get_data())
+    if frame.size == 0:
+        print("No frame received. TERMINATE!")
+        sys.exit(1)
     if not i % params["frame_rate"]:
         print(f"Starting in {i // params['frame_rate']}...")
 
@@ -111,11 +112,15 @@ print("================\n")
 # MAIN LOOP
 try:
     while not is_stopped:
-        # Capture frame
-        frame = cam.capture_array()
-        if frame is None:
-            print("No frame received. TERMINATE!")
-            break
+        # Capture frame (RealSense D455)
+        frames = pipeline.wait_for_frames()
+        color_frame = frames.get_color_frame()
+        if not color_frame:
+            continue
+        frame = np.asanyarray(color_frame.get_data())
+        if frame.size == 0:
+            continue
+        frame = cv.resize(frame, (OUTPUT_WIDTH, OUTPUT_HEIGHT))  # BGR for cv.imwrite
         frame_counts += 1
         
         # Show preview if enabled (non-blocking)
@@ -261,7 +266,7 @@ finally:
     cv.destroyAllWindows()
     pygame.quit()
     messenger.close()
-    cam.stop()
+    pipeline.stop()
     print(f"\nSession complete! Recorded {record_counts} total frames.")
     print(f"Data saved to: {Path(image_dir).parent}")
     sys.exit()
