@@ -72,7 +72,7 @@ if __name__ == "__main__":
     from utime import sleep
 
     sleep(1)
-    ac = ArmController(12, 13, 14)
+    ac = ArmController(15, 13, 14)
     for _ in range(40):
         ac.close_claw(-1)
         sleep(0.1)
