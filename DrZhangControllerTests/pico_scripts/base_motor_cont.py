@@ -29,8 +29,8 @@ if __name__ == "__main__":
     from utime import sleep
 
     # SETUP
-    m = BaseMotor(pwm_id=4, in1_id=3, in2_id=2)  # right motor
-    #m = BaseMotor(pwm_id=8, in1_id=7, in2_id=6)  # left motor
+    m = BaseMotor(pwm_id=21, in1_id=20, in2_id=19)  # left motor
+    #m = BaseMotor(pwm_id=16, in1_id=17, in2_id=18)  # right motor
 
     # LOOP
     # Forwardly ramp up and down
