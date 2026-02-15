@@ -2,14 +2,14 @@ from regulated_wheel_cont import RegulatedWheel
 
 
 class DiffDriveController:
+    """Differential drive: each wheel_ids is ((in1, in2, pwm), (enc_a, enc_b))."""
+
     def __init__(
         self, left_wheel_ids: list | tuple, right_wheel_ids: list | tuple
     ) -> None:
-        # Configs
         self.left_wheel = RegulatedWheel(*left_wheel_ids)
         self.right_wheel = RegulatedWheel(*right_wheel_ids)
-        # Constants
-        self.wheel_sep = 0.545
+        self.wheel_sep = 0.545  # m
 
     def get_vels(self):
         self.meas_lin_vel = 0.5 * (

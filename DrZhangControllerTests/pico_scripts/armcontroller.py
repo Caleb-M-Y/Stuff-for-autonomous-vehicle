@@ -1,7 +1,7 @@
 from machine import Pin, PWM
 from time import sleep
 
-# SHOULDER_NEUTRAL = 1_400_000
+# Servo pulse width limits (ns). Tune to match your claw/shoulder mechanical limits.
 CLAW_MAX = 2_600_000
 CLAW_MIN = 1_800_000
 CLAW_MID = (CLAW_MAX + CLAW_MIN) // 2
