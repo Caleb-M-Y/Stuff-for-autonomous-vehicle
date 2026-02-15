@@ -2,6 +2,8 @@ from machine import Pin, PWM
 
 
 class BaseMotor:
+    """DC motor driver: in1_id, in2_id = direction pins; pwm_id = speed (0--1 maps to duty)."""
+
     def __init__(self, in1_id, in2_id, pwm_id) -> None:
         self.pwm_pin = PWM(Pin(pwm_id))
         self.pwm_pin.freq(2000)
@@ -11,16 +13,18 @@ class BaseMotor:
     def stop(self):
         self.pwm_pin.duty_u16(0)
 
-    def forward(self, speed=0.0):  # map 0~65535 to 0~1
-        assert 0 <= speed <= 1  # make sure speed in range [0, 1]
-        self.in1_pin.off()
-        self.in2_pin.on()
-        self.pwm_pin.duty_u16(int(65535 * speed))
-
-    def backward(self, speed=0.0):  # map 0~65535 to 0~1
-        assert 0 <= speed <= 1  # make sure speed in range [0, 1]
+    def forward(self, speed=0.0):
+        """Drive motor forward (robot forward). speed in [0, 1], clamped."""
+        speed = max(0.0, min(1.0, float(speed)))
         self.in1_pin.on()
         self.in2_pin.off()
+        self.pwm_pin.duty_u16(int(65535 * speed))
+
+    def backward(self, speed=0.0):
+        """Drive motor backward (robot backward). speed in [0, 1], clamped."""
+        speed = max(0.0, min(1.0, float(speed)))
+        self.in1_pin.off()
+        self.in2_pin.on()
         self.pwm_pin.duty_u16(int(65535 * speed))
 
 

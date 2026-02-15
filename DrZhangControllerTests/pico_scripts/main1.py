@@ -1,5 +1,6 @@
 """
-Rename this script to main.py, then upload to the pico board.
+Rename to main.py and upload to Pico. Expects host messages: "act_lin,act_ang,claw_dir,arm_dir\\n"
+(linear vel m/s, angular vel rad/s, claw -1/0/1, arm -1/0/1).
 """
 
 import sys
@@ -10,9 +11,7 @@ from machine import freq
 from utime import ticks_us, ticks_diff
 
 # SETUP
-# Overclock
 freq(300_000_000)  # Pico 2 original: 150_000_000
-# Instantiate robot
 diff_driver = DiffDriveController(
     right_wheel_ids=((16, 17, 18), (27, 26)),
     left_wheel_ids=((21, 20, 19), (7, 6)),

@@ -32,10 +32,10 @@ class RegulatedWheel(SentientWheel):
             self.ref_lin_vel = 0.0
             self.prev_error = 0.0
         else:
-            self.error = self.ref_lin_vel - self.meas_lin_vel  # ang_vel also works
+            self.error = self.ref_lin_vel - self.meas_lin_vel
             self.error_inte += self.error
             self.error_diff = self.error - self.prev_error
-            self.prev_error = self.error  # UPDATE previous error
+            self.prev_error = self.error
             inc_duty = (
                 self.k_p * self.error
                 + self.k_i * self.error_inte
@@ -45,19 +45,25 @@ class RegulatedWheel(SentientWheel):
             if self.duty > 0:
                 if self.duty > 1.0:
                     self.duty = 1.0
+                    # Anti-windup: don't grow integral when saturated
+                    self.error_inte = self.error_inte - self.error
                 self.forward(self.duty)
             else:
                 if self.duty < -1.0:
                     self.duty = -1.0
+                    self.error_inte = self.error_inte - self.error
                 self.backward(-self.duty)
             self.reg_vel_counter += 1
 
     def set_wheel_velocity(self, ref_lin_vel):
         self.reg_vel_counter = 0
-        if ref_lin_vel is not self.ref_lin_vel:
+        if ref_lin_vel != self.ref_lin_vel:
             self.ref_lin_vel = ref_lin_vel
             self.prev_error = 0.0
             self.error_inte = 0.0
+        # Reset duty when target is zero so we don't coast on stale integral
+        if ref_lin_vel == 0.0:
+            self.duty = 0.0
 
 
 if __name__ == "__main__":
