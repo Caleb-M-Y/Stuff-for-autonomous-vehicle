@@ -6,9 +6,9 @@ class RegulatedWheel(SentientWheel):
     def __init__(self, driver_ids: list | tuple, encoder_ids: list | tuple) -> None:
         super().__init__(driver_ids, encoder_ids)
         # Constants
-        self.k_p = 0.09
+        self.k_p = 0.25
         self.k_i = 0.0
-        self.k_d = 0.0
+        self.k_d = 0.05
         self.reg_freq = 50  # Hz
         # Variables
         self.reg_vel_counter = 0
@@ -65,12 +65,12 @@ if __name__ == "__main__":
     from utime import sleep
 
     # rw = RegulatedWheel(
-    #     driver_ids=(7, 6, 8),
-    #     encoder_ids=(21, 20),
+    #     driver_ids=(21, 20, 19),
+    #     encoder_ids=(7, 6),
     # )  # left wheel
     rw = RegulatedWheel(
-        driver_ids=(3, 2, 4),
-        encoder_ids=(21, 20),
+        driver_ids=(16, 17, 18),
+        encoder_ids=(27, 26),
     )  # right wheel
     for i in range(400):
         if 24 < i <= 174:  # step up @ t=0.5s

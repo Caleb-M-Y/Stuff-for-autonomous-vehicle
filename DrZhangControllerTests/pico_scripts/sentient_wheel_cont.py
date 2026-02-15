@@ -43,12 +43,12 @@ if __name__ == "__main__":  # Test only the encoder part
 
     # SETUP
     # sw = SentientWheel(
-    #     driver_ids=(7, 6, 8),
-    #     encoder_ids=(11, 10),
+    #     driver_ids=(21, 20, 19),
+    #     encoder_ids=(7, 6),
     # )  # left wheel
     sw = SentientWheel(
-        driver_ids=(3, 2, 4),
-        encoder_ids=(21, 20),
+        driver_ids=(16, 17, 18),
+        encoder_ids=(27, 26),
     )  # right wheel
 
     # LOOP

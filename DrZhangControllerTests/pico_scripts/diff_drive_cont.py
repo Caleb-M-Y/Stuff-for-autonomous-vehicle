@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     # SETUP
     ddc = DiffDriveController(
-        right_wheel_ids=((3, 2, 4), (21, 20)),
-        left_wheel_ids=((7, 6, 8), (11, 10)),
+        right_wheel_ids=((16, 17, 18), (27, 26)),
+        left_wheel_ids=((21, 20, 19), (7, 6)),
     )
 
     # LOOP

@@ -14,10 +14,10 @@ from utime import ticks_us, ticks_diff
 freq(300_000_000)  # Pico 2 original: 150_000_000
 # Instantiate robot
 diff_driver = DiffDriveController(
-    right_wheel_ids=((3, 2, 4), (21, 20)),
-    left_wheel_ids=((7, 6, 8), (11, 10)),
+    right_wheel_ids=((16, 17, 18), (27, 26)),
+    left_wheel_ids=((21, 20, 19), (7, 6)),
 )
-arm_controller = ArmController(12, 13, 14)
+arm_controller = ArmController(15, 13, 14)
 # Create a poll to receive messages from host machine
 cmd_vel_listener = select.poll()
 cmd_vel_listener.register(sys.stdin, select.POLLIN)

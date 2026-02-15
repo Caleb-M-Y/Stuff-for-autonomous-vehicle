@@ -9,8 +9,8 @@ import numpy as np
 import pyrealsense2 as rs
 import os
 
-# RealSense capture size (D455 native); output is resized to this for consistency
-CAPTURE_WIDTH, CAPTURE_HEIGHT = 640, 480
+# RealSense D455: use a supported stream config (many builds don't support 24 fps)
+# Output is resized to OUTPUT_* for consistency with previous Pi camera size
 OUTPUT_WIDTH, OUTPUT_HEIGHT = 224, 224
 
 # SETUP
@@ -27,13 +27,37 @@ pygame.joystick.init()
 js = pygame.joystick.Joystick(0)
 print(f"Controller: {js.get_name()}")
 
-# Init Intel RealSense D455
+# Init Intel RealSense D455 (try supported configs; "Couldn't resolve requests" = bad res/fps)
 cv.startWindowThread()
 pipeline = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.color, CAPTURE_WIDTH, CAPTURE_HEIGHT, rs.format.bgr8, min(30, params["frame_rate"]))
-profile = pipeline.start(config)
-print("Intel RealSense D455 started.")
+
+# D455 and Raspberry Pi librealsense often only support specific combos; 24 fps usually not supported
+REALSENSE_FPS = 30
+configs_to_try = [
+    (640, 480, REALSENSE_FPS),   # most common
+    (424, 240, REALSENSE_FPS),   # lighter, often works on Pi
+    (1280, 720, REALSENSE_FPS),
+    (960, 540, REALSENSE_FPS),
+]
+profile = None
+for w, h, fps in configs_to_try:
+    try:
+        config = rs.config()
+        config.enable_stream(rs.stream.color, w, h, rs.format.bgr8, fps)
+        profile = pipeline.start(config)
+        print(f"Intel RealSense D455 started: color {w}x{h} @ {fps} fps.")
+        break
+    except RuntimeError as e:
+        if "Couldn't resolve" in str(e) or "resolve requests" in str(e).lower():
+            continue
+        raise
+if profile is None:
+    print("RealSense: Couldn't resolve requests. Try:")
+    print("  - Use a supported resolution/fps (e.g. 640x480 @ 30).")
+    print("  - Check udev rules: https://github.com/IntelRealSense/librealsense#installation")
+    print("  - Plug camera into USB 3.0 and run: rs-enumerate-devices")
+    raise RuntimeError("RealSense D455: no supported stream config found.")
 
 # Camera warmup countdown (convert BGR → RGB so we work in RGB everywhere)
 for i in reversed(range(int(3 * params["frame_rate"]))):
