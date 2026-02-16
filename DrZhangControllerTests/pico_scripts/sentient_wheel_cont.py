@@ -7,6 +7,10 @@ class SentientWheel(EncodedMotor):
     def __init__(self, driver_ids: list | tuple, encoder_ids: list | tuple) -> None:
         super().__init__(driver_ids, encoder_ids)
         # Constants
+        # Variables
+        self.prev_counts = 0
+        self.meas_ang_vel = 0.0
+        self.meas_lin_vel = 0.0
         self.wheel_radius = 0.075  # m
         self.gear_ratio = 102.083
         self.cpr = 64  # CPR = PPR * 4
@@ -17,10 +21,7 @@ class SentientWheel(EncodedMotor):
             mode=Timer.PERIODIC,
             callback=self.measure_velocity,
         )
-        # Variables
-        self.prev_counts = 0
-        self.meas_ang_vel = 0.0
-        self.meas_lin_vel = 0.0
+        
 
     def measure_velocity(self, timer):
         curr_counts = self.encoder_counts
@@ -43,12 +44,12 @@ if __name__ == "__main__":  # Test only the encoder part
 
     # SETUP
     # sw = SentientWheel(
-    #     driver_ids=(21, 20, 19),
-    #     encoder_ids=(7, 6),
+    #     driver_ids=(16, 17, 18),
+    #     encoder_ids=(27, 26),
     # )  # left wheel
     sw = SentientWheel(
-        driver_ids=(16, 17, 18),
-        encoder_ids=(27, 26),
+        driver_ids=(21, 20, 19),
+        encoder_ids=(7, 6),
     )  # right wheel
 
     # LOOP
