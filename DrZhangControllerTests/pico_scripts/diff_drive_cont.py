@@ -42,7 +42,7 @@ if __name__ == "__main__":
         if 24 < i <= 174:  # step up @ t=0.5 s
             ddc.set_vels(0.5, 0.0)
         elif 174 < i <= 299:  # step down @ t=2s
-            ddc.set_vels(0.0, 0.0)
+            ddc.set_vels(-0.3, 0.0)
         elif i == 349:
             print("No command given in the past 1 second, cut off.")
         meas_lin_vel, meas_ang_vel = ddc.get_vels()
