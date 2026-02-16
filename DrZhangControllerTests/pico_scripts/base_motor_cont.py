@@ -9,7 +9,7 @@ class BaseMotor:
         self.pwm_pin.freq(2000)
         self.in1_pin = Pin(in1_id, Pin.OUT)
         self.in2_pin = Pin(in2_id, Pin.OUT)
-        self.disable
+        self.disable()  # motors off until first command
 
     def stop(self):
         self.pwm_pin.duty_u16(0)

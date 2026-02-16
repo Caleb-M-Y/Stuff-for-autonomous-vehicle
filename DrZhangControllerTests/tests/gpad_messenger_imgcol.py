@@ -11,7 +11,7 @@ import os
 
 # RealSense D455: use a supported stream config (many builds don't support 24 fps)
 # Output is resized to OUTPUT_* for consistency with previous Pi camera size
-OUTPUT_WIDTH, OUTPUT_HEIGHT = 224, 224
+OUTPUT_WIDTH, OUTPUT_HEIGHT = 640, 480
 
 # SETUP
 # Load configs
