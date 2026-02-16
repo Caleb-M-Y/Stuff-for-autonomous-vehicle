@@ -4,11 +4,12 @@ from machine import Pin, PWM
 class BaseMotor:
     """DC motor driver: in1_id, in2_id = direction pins; pwm_id = speed (0--1 maps to duty)."""
 
-    def __init__(self, in1_id, in2_id, pwm_id) -> None:
+    def __init__(self, pwm_id, in1_id, in2_id, ) -> None:
         self.pwm_pin = PWM(Pin(pwm_id))
         self.pwm_pin.freq(2000)
         self.in1_pin = Pin(in1_id, Pin.OUT)
         self.in2_pin = Pin(in2_id, Pin.OUT)
+        self.disable
 
     def stop(self):
         self.pwm_pin.duty_u16(0)
@@ -16,16 +17,20 @@ class BaseMotor:
     def forward(self, speed=0.0):
         """Drive motor forward (robot forward). speed in [0, 1], clamped."""
         speed = max(0.0, min(1.0, float(speed)))
-        self.in1_pin.on()
-        self.in2_pin.off()
+        self.in1_pin.off()
+        self.in2_pin.on()
         self.pwm_pin.duty_u16(int(65535 * speed))
 
     def backward(self, speed=0.0):
         """Drive motor backward (robot backward). speed in [0, 1], clamped."""
         speed = max(0.0, min(1.0, float(speed)))
-        self.in1_pin.off()
-        self.in2_pin.on()
+        self.in1_pin.on()
+        self.in2_pin.off()
         self.pwm_pin.duty_u16(int(65535 * speed))
+        
+    def disable(self):
+        self.in1_pin.off()
+        self.in2_pin.off()
 
 
 # TEST
@@ -57,5 +62,5 @@ if __name__ == "__main__":
         sleep(4 / 100)  # 4 seconds to ramp down
 
     # Terminate
-    m.stop()
+    m.disable()
     print("motor stopped.")
