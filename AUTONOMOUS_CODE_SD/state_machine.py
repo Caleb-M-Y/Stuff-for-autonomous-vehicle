@@ -28,6 +28,8 @@ BUCKET_NEAR_M = 3.0  # below this: stop and drop
 
 # Minimum confidence to consider a detection (filter weak detections)
 MIN_CONFIDENCE = 0.35
+CONFIRM_FRAMES = 3
+CLOSE_CONFIRM_FRAMES = 3
 
 # Pico message format: "lin_vel, ang_vel, shoulder_cmd, claw_cmd, arm_state\n"
 # arm_state: 0 = idle, 10 = neutral/return
@@ -290,10 +292,22 @@ def handle_detect_ball(
     In "detect" mode: find best ball; compute distance (depth or geometry);
     set velocity or transition to pick when close.
     """
+    seen_streak = getattr(ud, "ball_seen_streak", 0)
+    close_streak = getattr(ud, "ball_close_streak", 0)
+
     best = pick_best_detection(detections, "ball", MIN_CONFIDENCE)
     if best is None:
+        ud.ball_seen_streak = 0
+        ud.ball_close_streak = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
+
+    seen_streak += 1
+    ud.ball_seen_streak = seen_streak
+    if seen_streak < CONFIRM_FRAMES:
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
+
     label, conf, bbox = best
     dist_m, used_depth = compute_distance(
         depth_frame, depth_width, depth_height, bbox, model_height, BALL_HEIGHT_M
@@ -302,6 +316,7 @@ def handle_detect_ball(
     ud.distance_from_depth = used_depth
 
     if dist_m >= BALL_FAR_M:
+        ud.ball_close_streak = 0
         center_x = (bbox.xmin() + bbox.xmax()) / 2.0
         if center_x < 0.4:
             ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
@@ -310,6 +325,7 @@ def handle_detect_ball(
         else:
             ud.latest_msg = build_msg(-0.35, 0.0, 0, 0, 0)
     elif dist_m >= BALL_MID_M:
+        ud.ball_close_streak = 0
         center_x = (bbox.xmin() + bbox.xmax()) / 2.0
         if center_x < 0.4:
             ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
@@ -318,9 +334,16 @@ def handle_detect_ball(
         else:
             ud.latest_msg = build_msg(-0.2, 0.0, 0, 0, 0)
     else:
+        close_streak += 1
+        ud.ball_close_streak = close_streak
+        if close_streak < CLOSE_CONFIRM_FRAMES:
+            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+            return
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         ud.arm_state = "lower"
         ud.mode = "pick"
+        ud.ball_seen_streak = 0
+        ud.ball_close_streak = 0
 
 
 def handle_detect_bucket(
@@ -332,10 +355,22 @@ def handle_detect_bucket(
     model_height: int = 640,
 ) -> None:
     """Same as detect_ball but for bucket and transition to drop."""
+    seen_streak = getattr(ud, "bucket_seen_streak", 0)
+    close_streak = getattr(ud, "bucket_close_streak", 0)
+
     best = pick_best_detection(detections, "bucket", MIN_CONFIDENCE)
     if best is None:
+        ud.bucket_seen_streak = 0
+        ud.bucket_close_streak = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
+
+    seen_streak += 1
+    ud.bucket_seen_streak = seen_streak
+    if seen_streak < CONFIRM_FRAMES:
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
+
     label, conf, bbox = best
     dist_m, used_depth = compute_distance(
         depth_frame, depth_width, depth_height, bbox, model_height, BUCKET_HEIGHT_M
@@ -344,6 +379,7 @@ def handle_detect_bucket(
     ud.distance_from_depth = used_depth
 
     if dist_m >= BUCKET_FAR_M:
+        ud.bucket_close_streak = 0
         center_x = (bbox.xmin() + bbox.xmax()) / 2.0
         if center_x < 0.4:
             ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
@@ -352,6 +388,7 @@ def handle_detect_bucket(
         else:
             ud.latest_msg = build_msg(-0.2, 0.0, 0, 0, 0)
     elif dist_m >= BUCKET_MID_M:
+        ud.bucket_close_streak = 0
         center_x = (bbox.xmin() + bbox.xmax()) / 2.0
         if center_x < 0.4:
             ud.latest_msg = build_msg(-0.1, -0.5, 0, 0, 0)
@@ -360,6 +397,13 @@ def handle_detect_bucket(
         else:
             ud.latest_msg = build_msg(-0.1, 0.0, 0, 0, 0)
     else:
+        close_streak += 1
+        ud.bucket_close_streak = close_streak
+        if close_streak < CLOSE_CONFIRM_FRAMES:
+            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+            return
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         ud.arm_state = "lower"
         ud.mode = "drop"
+        ud.bucket_seen_streak = 0
+        ud.bucket_close_streak = 0
