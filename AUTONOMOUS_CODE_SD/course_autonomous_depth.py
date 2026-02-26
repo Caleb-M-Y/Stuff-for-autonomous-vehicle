@@ -162,6 +162,7 @@ def main():
         default=None,
         help="Compatibility only; ignored because this script always uses RealSense color/depth.",
     )
+    parser.add_argument("--no-display", action="store_true", help="Disable OpenCV live camera window")
     parser.add_argument("--no-depth", action="store_true", help="Disable RealSense depth (geometry only)")
     args = parser.parse_args()
 
@@ -207,6 +208,11 @@ def main():
     depth_width, depth_height = 640, 480
     model_height = 640
     use_depth = not args.no_depth
+    show_display = not args.no_display
+    display_name = "Autonomous Depth View"
+
+    if show_display:
+        cv2.namedWindow(display_name, cv2.WINDOW_NORMAL)
 
     try:
         print("Main loop running. Use Ctrl+C to stop.")
@@ -267,6 +273,63 @@ def main():
                 src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
                 print(f"[{user_data.mode}] dist={getattr(user_data, 'distance', 0):.2f}m ({src}) msg={user_data.latest_msg.decode().strip()}")
 
+            if show_display:
+                frame_bgr = cv2.cvtColor(color_np, cv2.COLOR_RGB2BGR)
+                for label, conf, bbox in detections:
+                    if conf < 0.25:
+                        continue
+                    x1 = int(bbox.xmin() * depth_width)
+                    y1 = int(bbox.ymin() * depth_height)
+                    x2 = int(bbox.xmax() * depth_width)
+                    y2 = int(bbox.ymax() * depth_height)
+                    x1 = max(0, min(depth_width - 1, x1))
+                    y1 = max(0, min(depth_height - 1, y1))
+                    x2 = max(0, min(depth_width - 1, x2))
+                    y2 = max(0, min(depth_height - 1, y2))
+                    cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(
+                        frame_bgr,
+                        f"{label} {conf:.2f}",
+                        (x1, max(20, y1 - 8)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.55,
+                        (0, 255, 0),
+                        2,
+                    )
+
+                dist_value = getattr(user_data, "distance", 0.0)
+                dist_src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
+                cv2.putText(
+                    frame_bgr,
+                    f"mode={user_data.mode} arm={user_data.arm_state}",
+                    (10, 24),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"dist={dist_value:.2f}m src={dist_src}",
+                    (10, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    "Press q to quit",
+                    (10, 76),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.55,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.imshow(display_name, frame_bgr)
+                if (cv2.waitKey(1) & 0xFF) == ord("q"):
+                    raise KeyboardInterrupt
+
     except KeyboardInterrupt:
         print("Stopping.")
     finally:
@@ -280,6 +343,8 @@ def main():
             pass
         engine.stop()
         rs_pipeline.stop()
+        if show_display:
+            cv2.destroyAllWindows()
         print("Done.")
 
 
