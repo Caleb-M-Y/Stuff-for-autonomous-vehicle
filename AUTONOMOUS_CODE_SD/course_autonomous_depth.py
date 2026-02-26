@@ -142,9 +142,26 @@ class UserData:
 def main():
     script_dir = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Autonomous course with depth + YOLO")
-    parser.add_argument("--hef", default=str(script_dir / "2-25-26.hef"), help="Path to .hef model")
-    parser.add_argument("--labels", default=str(script_dir / "ball_bucket.json"), help="Hailo labels JSON")
+    parser.add_argument(
+        "--hef",
+        "--hef-path",
+        dest="hef",
+        default=str(script_dir / "2-25-26.hef"),
+        help="Path to .hef model",
+    )
+    parser.add_argument(
+        "--labels",
+        "--labels-json",
+        dest="labels",
+        default=str(script_dir / "ball_bucket.json"),
+        help="Hailo labels JSON",
+    )
     parser.add_argument("--port", default="/dev/ttyACM0", help="Pico serial port")
+    parser.add_argument(
+        "--input",
+        default=None,
+        help="Compatibility only; ignored because this script always uses RealSense color/depth.",
+    )
     parser.add_argument("--no-depth", action="store_true", help="Disable RealSense depth (geometry only)")
     args = parser.parse_args()
 
@@ -158,6 +175,9 @@ def main():
     labels_path = Path(args.labels)
     if not labels_path.is_absolute():
         labels_path = script_dir / labels_path
+    if not labels_path.exists():
+        labels_alt = script_dir.parent / "models" / labels_path.name
+        labels_path = labels_alt if labels_alt.exists() else labels_path
     if not hef_path.exists():
         print(f"HEF not found: {hef_path}")
         sys.exit(1)
