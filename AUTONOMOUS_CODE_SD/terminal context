@@ -1,0 +1,36 @@
+ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef-path ../models/2-25-26.hef --labels-json ../models/ball_bucket.json --input /dev/video4
+usage: course_autonomous_depth.py [-h] [--hef HEF] [--labels LABELS]
+                                  [--port PORT] [--no-depth]
+course_autonomous_depth.py: error: unrecognized arguments: --hef-path ../models/2-25-26.hef --labels-json ../models/ball_bucket.json --input /dev/video4
+
+
+
+
+
+
+
+ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef 2-25-26.hef --labels ball_bucket.json --port /dev/ttyACM0
+Labels not found: /home/ball-e/ball-e/python_scripts/ball_bucket.json
+
+
+
+
+
+
+
+ball-e@BALL-E:~/ball-e/python_scripts $ python course_camera.py --hef-path ../models/2-25-26.hef --labels-json ../models/ball_bucket.json --input /dev/video4
+Messenger initiated at: /dev/ttyACM0
+
+Loading environment variables from /home/ball-e/hailo-rpi5-examples/venv_hailo_rpi_examples/lib/python3.11/site-packages/.env...
+⚠️ Missing environment variables: %s hailort_version, tappas_version, model_zoo_version, host_arch, hailo_arch, server_url, tappas_variant, resources_path, virtual_env_name, tappas_postproc_path
+Auto-detected Hailo architecture: hailo8
+Using HEF path: ../models/2-25-26.hef
+Using post-process shared object: /usr/local/hailo/resources/so/libyolo_hailortpp_postprocess.so
+v4l2src device=/dev/video4 name=source ! video/x-raw, width=640, height=480 ! videoflip name=videoflip video-direction=horiz !  queue name=source_scale_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! videoscale name=source_videoscale n-threads=2 ! queue name=source_convert_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! videoconvert n-threads=3 name=source_convert qos=false ! video/x-raw, pixel-aspect-ratio=1/1, format=RGB, width=640, height=640 ! videorate name=source_videorate ! capsfilter name=source_fps_caps caps="video/x-raw, framerate=30/1"  ! queue name=inference_scale_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! videoscale name=inference_videoscale n-threads=2 qos=false ! queue name=inference_convert_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! video/x-raw, pixel-aspect-ratio=1/1 ! videoconvert name=inference_videoconvert n-threads=2 ! queue name=inference_hailonet_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! hailonet name=inference_hailonet hef-path=../models/2-25-26.hef batch-size=2  vdevice-group-id=1 nms-score-threshold=0.3 nms-iou-threshold=0.45 output-format-type=HAILO_FORMAT_TYPE_FLOAT32 force-writable=true  ! queue name=inference_hailofilter_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! hailofilter name=inference_hailofilter so-path=/usr/local/hailo/resources/so/libyolo_hailortpp_postprocess.so  config-path=../models/ball_bucket.json   function-name=filter  qos=false ! queue name=inference_output_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0   ! queue name=identity_callback_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! identity name=identity_callback  ! queue name=hailo_display_overlay_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! hailooverlay name=hailo_display_overlay  ! queue name=hailo_display_videoconvert_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! videoconvert name=hailo_display_videoconvert n-threads=2 qos=false ! queue name=hailo_display_q leaky=no max-size-buffers=3 max-size-bytes=0 max-size-time=0  ! fpsdisplaysink name=hailo_display video-sink=autovideosink sync=false text-overlay=False signal-fps-measurements=true 
+[HailoRT] [warning] HEF was compiled for Hailo8L device, while the device itself is Hailo8. This will result in lower performance.
+[HailoRT] [warning] HEF was compiled for Hailo8L device, while the device itself is Hailo8. This will result in lower performance.
+Frame count: 2
+Target velocity: b'-0.30, 0.0, 0, 0, 10\n'
+Frame count: 4
+Target velocity: b'-0.30, 0.0, 0, 0, 10\n'
+Frame count: 6
