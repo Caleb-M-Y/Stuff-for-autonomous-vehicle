@@ -51,7 +51,7 @@ class WheelController(WheelDriver):
             self.reg_vel_counter += 1
 
     def set_velocity(self, ref_lin_vel):
-        if ref_lin_vel is not self.ref_lin_vel:
+        if ref_lin_vel != self.ref_lin_vel:
             self.ref_lin_vel = ref_lin_vel
             self.prev_error = 0.0
             self.error_inte = 0.0
