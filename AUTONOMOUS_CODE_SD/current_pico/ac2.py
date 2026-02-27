@@ -1,10 +1,6 @@
 from machine import Pin, PWM
 from time import sleep
-
-SHOULDER_A_NEUTRAL = 1_300_000 #LEFT
-SHOULDER_B_NEUTRAL = 1_600_000 #RIGHT
-
-CLAW_NEUTRAL = 1_800_000
+import arm_tuning as tune
 
 
 class ArmController:
@@ -16,15 +12,29 @@ class ArmController:
         self.shoulder_servo_a.freq(50) #LEFT
         self.shoulder_servo_b.freq(50) #RIGHT
 
-        
-        
         # Set initial positions
         self.set_neutral()
+
+    @staticmethod
+    def _clamp(value, low, high):
+        if value < low:
+            return low
+        if value > high:
+            return high
+        return value
+
+    @staticmethod
+    def _sanitize_host_cmd(dc_inc):
+        try:
+            val = int(dc_inc)
+        except Exception:
+            val = 0
+        return ArmController._clamp(val, -tune.MAX_ABS_HOST_CMD, tune.MAX_ABS_HOST_CMD)
         
     def set_neutral(self):
-        self.shoulder_duty_a = SHOULDER_A_NEUTRAL
-        self.shoulder_duty_b = SHOULDER_B_NEUTRAL
-        self.claw_duty = CLAW_NEUTRAL
+        self.shoulder_duty_a = tune.SHOULDER_A_NEUTRAL
+        self.shoulder_duty_b = tune.SHOULDER_B_NEUTRAL
+        self.claw_duty = tune.CLAW_NEUTRAL
 
         self.shoulder_servo_a.duty_ns(self.shoulder_duty_a)
         self.shoulder_servo_b.duty_ns(self.shoulder_duty_b)
@@ -38,18 +48,21 @@ class ArmController:
 # L_SHOULDER_MID = 1_300_000
 
     def lower_claw(self, dc_inc=0):  # Lower arm
-        assert -50_000 <= dc_inc <= 50_000
-        self.shoulder_duty_a += dc_inc
-        self.shoulder_duty_b -= dc_inc
+        base_cmd = self._sanitize_host_cmd(dc_inc)
+        if base_cmd > 0:
+            scaled = int(base_cmd * tune.SHOULDER_CMD_SCALE * tune.SHOULDER_LOWER_SCALE)
+        else:
+            scaled = int(base_cmd * tune.SHOULDER_CMD_SCALE * tune.SHOULDER_RAISE_SCALE)
 
-        if self.shoulder_duty_a >= 2_500_000:
-            self.shoulder_duty_a = 2_500_000
-            self.shoulder_duty_b = 400_000
-    
-            
-        elif self.shoulder_duty_a <= 400_000:
-            self.shoulder_duty_a = 400_000
-            self.shoulder_duty_b = 2_500_000
+        self.shoulder_duty_a += scaled
+        self.shoulder_duty_b -= scaled
+
+        self.shoulder_duty_a = self._clamp(
+            self.shoulder_duty_a, tune.SHOULDER_A_MIN, tune.SHOULDER_A_MAX
+        )
+        self.shoulder_duty_b = self._clamp(
+            self.shoulder_duty_b, tune.SHOULDER_B_MIN, tune.SHOULDER_B_MAX
+        )
 
         self.shoulder_servo_a.duty_ns(self.shoulder_duty_a)
         self.shoulder_servo_b.duty_ns(self.shoulder_duty_b)
@@ -61,12 +74,10 @@ class ArmController:
 # CLAW_RANGE = (CLAW_MAX - CLAW_MIN) // 2
 
     def close_claw(self, dc_inc=0):  # Close claw
-        assert -50_000 <= dc_inc <= 50_000
-        self.claw_duty += dc_inc
-        if self.claw_duty >= 2_600_000:
-            self.claw_duty = 2_600_000
-        elif self.claw_duty <= 1_800_000:
-            self.claw_duty = 1_800_000
+        base_cmd = self._sanitize_host_cmd(dc_inc)
+        scaled = int(base_cmd * tune.CLAW_CMD_SCALE)
+        self.claw_duty += scaled
+        self.claw_duty = self._clamp(self.claw_duty, tune.CLAW_MIN, tune.CLAW_MAX)
         self.claw_servo.duty_ns(self.claw_duty)
         
 
