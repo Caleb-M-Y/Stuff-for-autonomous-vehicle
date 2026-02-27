@@ -24,6 +24,7 @@ import serial
 
 # Hailo inference (same pattern as camera_test2)
 import hailo
+import autonomy_tuning as tune
 
 # Local state machine: best detection, distance depth/geometry, mode handlers
 from state_machine import (
@@ -319,8 +320,35 @@ def main():
                 )
                 cv2.putText(
                     frame_bgr,
-                    "Press q to quit",
+                    f"ball_win={tune.BALL_PICK_MIN_M:.2f}-{tune.BALL_PICK_MAX_M:.2f}m bucket_win={tune.BUCKET_DROP_MIN_M:.2f}-{tune.BUCKET_DROP_MAX_M:.2f}m",
                     (10, 76),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.52,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"ball seen/close/lost={getattr(user_data, 'ball_seen_streak', 0)}/{getattr(user_data, 'ball_close_streak', 0)}/{getattr(user_data, 'ball_lost_streak', 0)}",
+                    (10, 102),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.52,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"bucket seen/close/lost={getattr(user_data, 'bucket_seen_streak', 0)}/{getattr(user_data, 'bucket_close_streak', 0)}/{getattr(user_data, 'bucket_lost_streak', 0)}",
+                    (10, 128),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.52,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    "Press q to quit",
+                    (10, 154),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.55,
                     (255, 255, 255),

@@ -8,28 +8,17 @@ Used by course_autonomous_depth.py (main: depth + YOLO) and course_camera.py (ba
 
 from __future__ import annotations
 
+import autonomy_tuning as tune
+
 # -----------------------------------------------------------------------------
 # Constants: distance bands (m), speeds, and geometry fallback
 # -----------------------------------------------------------------------------
-# Ball: real height ~6" = 0.1524 m. Bucket: ~15" = 0.381 m.
-BALL_HEIGHT_M = 0.1524
-BUCKET_HEIGHT_M = 0.381
-FOCAL_PX = 3386.0
-
-# Distance bands for ball (approach from encoder/detect until close, then pick)
-BALL_FAR_M = 9.0
-BALL_MID_M = 4.6
-BALL_NEAR_M = 4.6  # below this: stop and pick
-
-# Distance bands for bucket (approach and drop)
-BUCKET_FAR_M = 7.0
-BUCKET_MID_M = 3.0
-BUCKET_NEAR_M = 3.0  # below this: stop and drop
-
-# Minimum confidence to consider a detection (filter weak detections)
-MIN_CONFIDENCE = 0.35
-CONFIRM_FRAMES = 3
-CLOSE_CONFIRM_FRAMES = 3
+BALL_HEIGHT_M = tune.BALL_HEIGHT_M
+BUCKET_HEIGHT_M = tune.BUCKET_HEIGHT_M
+FOCAL_PX = tune.FOCAL_PX
+MIN_CONFIDENCE = tune.MIN_CONFIDENCE
+CONFIRM_FRAMES = tune.CONFIRM_FRAMES
+CLOSE_CONFIRM_FRAMES = tune.CLOSE_CONFIRM_FRAMES
 
 # Pico message format: "lin_vel, ang_vel, shoulder_cmd, claw_cmd, arm_state\n"
 # arm_state: 0 = idle, 10 = neutral/return
@@ -75,6 +64,45 @@ def pick_best_detection(detections, class_substring: str, min_conf: float = MIN_
 # -----------------------------------------------------------------------------
 # Distance: depth-first, then geometry fallback
 # -----------------------------------------------------------------------------
+def _clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+def _turn_rate_from_center(center_x: float) -> float:
+    """Proportional steering command from normalized center-x error."""
+    err = center_x - 0.5
+    if abs(err) < tune.CENTER_DEADBAND:
+        return 0.0
+    return _clamp(tune.STEER_KP * err, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
+
+
+def _depth_median_at_center(depth_frame, cx_px: int, cy_px: int, width: int, height: int) -> float:
+    """
+    Compute median depth from a small kernel around target center.
+    This is more robust than a single pixel.
+    """
+    if depth_frame is None:
+        return 0.0
+    radius = max(0, int(tune.DEPTH_KERNEL_RADIUS))
+    dvals = []
+    for y in range(cy_px - radius, cy_px + radius + 1):
+        if y < 0 or y >= height:
+            continue
+        for x in range(cx_px - radius, cx_px + radius + 1):
+            if x < 0 or x >= width:
+                continue
+            try:
+                d = depth_frame.get_distance(x, y)
+            except Exception:
+                d = 0.0
+            if d > tune.MIN_VALID_DEPTH_M:
+                dvals.append(d)
+    if not dvals:
+        return 0.0
+    dvals.sort()
+    return dvals[len(dvals) // 2]
+
+
 def compute_distance(
     depth_frame,
     depth_width: int,
@@ -98,12 +126,7 @@ def compute_distance(
     cx_px = max(0, min(depth_width - 1, cx_px))
     cy_px = max(0, min(depth_height - 1, cy_px))
 
-    hw_dist = 0.0
-    if depth_frame is not None:
-        try:
-            hw_dist = depth_frame.get_distance(cx_px, cy_px)
-        except Exception:
-            hw_dist = 0.0
+    hw_dist = _depth_median_at_center(depth_frame, cx_px, cy_px, depth_width, depth_height)
 
     # Geometry fallback: Z = (f * H) / h_pixels; h_pixels from bbox in model space
     h_pixels = (bbox.ymax() - bbox.ymin()) * model_height
@@ -111,7 +134,7 @@ def compute_distance(
         h_pixels = 1.0
     calc_dist = (FOCAL_PX * real_height_m) / h_pixels
 
-    if hw_dist > 0.1:
+    if hw_dist > tune.MIN_VALID_DEPTH_M:
         return (hw_dist, True)
     return (calc_dist, False)
 
@@ -142,10 +165,10 @@ def steering_from_bbox_and_distance(
 
     if is_ball:
         # Toward ball: user_data convention was negative lin_vel
-        if distance_m >= BALL_FAR_M:
+        if distance_m >= tune.BALL_FAR_M:
             lin = -0.35 if forward_positive else -0.35
             ang = -ang  # match course_camera sign
-        elif distance_m >= BALL_MID_M:
+        elif distance_m >= tune.BALL_MID_M:
             lin = -0.2
             ang = -ang
         else:
@@ -156,10 +179,10 @@ def steering_from_bbox_and_distance(
         return (lin, ang)
     else:
         # Toward bucket
-        if distance_m >= BUCKET_FAR_M:
+        if distance_m >= tune.BUCKET_FAR_M:
             lin = -0.2
             ang = -ang
-        elif distance_m >= BUCKET_MID_M:
+        elif distance_m >= tune.BUCKET_MID_M:
             lin = -0.1
             ang = -ang
         else:
@@ -294,14 +317,22 @@ def handle_detect_ball(
     """
     seen_streak = getattr(ud, "ball_seen_streak", 0)
     close_streak = getattr(ud, "ball_close_streak", 0)
+    lost_streak = getattr(ud, "ball_lost_streak", 0)
 
     best = pick_best_detection(detections, "ball", MIN_CONFIDENCE)
     if best is None:
         ud.ball_seen_streak = 0
         ud.ball_close_streak = 0
-        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        lost_streak += 1
+        ud.ball_lost_streak = lost_streak
+        if lost_streak >= tune.SEARCH_START_FRAMES:
+            search_dir = getattr(ud, "ball_search_dir", 1.0)
+            ud.latest_msg = build_msg(0.0, search_dir * tune.BALL_SEARCH_TURN_RATE, 0, 0, 0)
+        else:
+            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
 
+    ud.ball_lost_streak = 0
     seen_streak += 1
     ud.ball_seen_streak = seen_streak
     if seen_streak < CONFIRM_FRAMES:
@@ -312,38 +343,47 @@ def handle_detect_ball(
     dist_m, used_depth = compute_distance(
         depth_frame, depth_width, depth_height, bbox, model_height, BALL_HEIGHT_M
     )
+    center_x = (bbox.xmin() + bbox.xmax()) / 2.0
+    ud.ball_search_dir = -1.0 if center_x < 0.5 else 1.0
+    ang_cmd = _turn_rate_from_center(center_x)
+
     ud.distance = dist_m
     ud.distance_from_depth = used_depth
 
-    if dist_m >= BALL_FAR_M:
+    if dist_m > tune.BALL_PICK_MAX_M:
         ud.ball_close_streak = 0
-        center_x = (bbox.xmin() + bbox.xmax()) / 2.0
-        if center_x < 0.4:
-            ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
-        elif center_x > 0.6:
-            ud.latest_msg = build_msg(-0.2, 0.5, 0, 0, 0)
+        if dist_m >= tune.BALL_FAR_M:
+            lin_cmd = tune.BALL_SPEED_FAR
+        elif dist_m >= tune.BALL_MID_M:
+            lin_cmd = tune.BALL_SPEED_MID
         else:
-            ud.latest_msg = build_msg(-0.35, 0.0, 0, 0, 0)
-    elif dist_m >= BALL_MID_M:
+            lin_cmd = tune.BALL_SPEED_NEAR
+        if abs(center_x - 0.5) > tune.MISALIGN_ERR_FOR_SLOWDOWN:
+            lin_cmd *= tune.MISALIGN_LINEAR_SCALE
+        ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
+        return
+
+    if dist_m < tune.BALL_PICK_MIN_M:
         ud.ball_close_streak = 0
-        center_x = (bbox.xmin() + bbox.xmax()) / 2.0
-        if center_x < 0.4:
-            ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
-        elif center_x > 0.6:
-            ud.latest_msg = build_msg(-0.2, 0.5, 0, 0, 0)
-        else:
-            ud.latest_msg = build_msg(-0.2, 0.0, 0, 0, 0)
-    else:
+        ud.latest_msg = build_msg(tune.BALL_TOO_CLOSE_BACKUP_LIN, ang_cmd * 0.5, 0, 0, 0)
+        return
+
+    if abs(center_x - 0.5) <= tune.BALL_CENTER_TOL_FOR_PICK:
         close_streak += 1
-        ud.ball_close_streak = close_streak
-        if close_streak < CLOSE_CONFIRM_FRAMES:
-            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
-            return
-        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
-        ud.arm_state = "lower"
-        ud.mode = "pick"
-        ud.ball_seen_streak = 0
-        ud.ball_close_streak = 0
+    else:
+        close_streak = 0
+    ud.ball_close_streak = close_streak
+
+    if close_streak < CLOSE_CONFIRM_FRAMES:
+        ud.latest_msg = build_msg(0.0, ang_cmd, 0, 0, 0)
+        return
+
+    ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+    ud.arm_state = "lower"
+    ud.mode = "pick"
+    ud.ball_seen_streak = 0
+    ud.ball_close_streak = 0
+    ud.ball_lost_streak = 0
 
 
 def handle_detect_bucket(
@@ -357,14 +397,22 @@ def handle_detect_bucket(
     """Same as detect_ball but for bucket and transition to drop."""
     seen_streak = getattr(ud, "bucket_seen_streak", 0)
     close_streak = getattr(ud, "bucket_close_streak", 0)
+    lost_streak = getattr(ud, "bucket_lost_streak", 0)
 
     best = pick_best_detection(detections, "bucket", MIN_CONFIDENCE)
     if best is None:
         ud.bucket_seen_streak = 0
         ud.bucket_close_streak = 0
-        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        lost_streak += 1
+        ud.bucket_lost_streak = lost_streak
+        if lost_streak >= tune.SEARCH_START_FRAMES:
+            search_dir = getattr(ud, "bucket_search_dir", 1.0)
+            ud.latest_msg = build_msg(0.0, search_dir * tune.BUCKET_SEARCH_TURN_RATE, 0, 0, 0)
+        else:
+            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
 
+    ud.bucket_lost_streak = 0
     seen_streak += 1
     ud.bucket_seen_streak = seen_streak
     if seen_streak < CONFIRM_FRAMES:
@@ -375,35 +423,44 @@ def handle_detect_bucket(
     dist_m, used_depth = compute_distance(
         depth_frame, depth_width, depth_height, bbox, model_height, BUCKET_HEIGHT_M
     )
+    center_x = (bbox.xmin() + bbox.xmax()) / 2.0
+    ud.bucket_search_dir = -1.0 if center_x < 0.5 else 1.0
+    ang_cmd = _turn_rate_from_center(center_x)
+
     ud.distance = dist_m
     ud.distance_from_depth = used_depth
 
-    if dist_m >= BUCKET_FAR_M:
+    if dist_m > tune.BUCKET_DROP_MAX_M:
         ud.bucket_close_streak = 0
-        center_x = (bbox.xmin() + bbox.xmax()) / 2.0
-        if center_x < 0.4:
-            ud.latest_msg = build_msg(-0.2, -0.5, 0, 0, 0)
-        elif center_x > 0.6:
-            ud.latest_msg = build_msg(-0.2, 0.5, 0, 0, 0)
+        if dist_m >= tune.BUCKET_FAR_M:
+            lin_cmd = tune.BUCKET_SPEED_FAR
+        elif dist_m >= tune.BUCKET_MID_M:
+            lin_cmd = tune.BUCKET_SPEED_MID
         else:
-            ud.latest_msg = build_msg(-0.2, 0.0, 0, 0, 0)
-    elif dist_m >= BUCKET_MID_M:
+            lin_cmd = tune.BUCKET_SPEED_NEAR
+        if abs(center_x - 0.5) > tune.MISALIGN_ERR_FOR_SLOWDOWN:
+            lin_cmd *= tune.MISALIGN_LINEAR_SCALE
+        ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
+        return
+
+    if dist_m < tune.BUCKET_DROP_MIN_M:
         ud.bucket_close_streak = 0
-        center_x = (bbox.xmin() + bbox.xmax()) / 2.0
-        if center_x < 0.4:
-            ud.latest_msg = build_msg(-0.1, -0.5, 0, 0, 0)
-        elif center_x > 0.6:
-            ud.latest_msg = build_msg(-0.1, 0.5, 0, 0, 0)
-        else:
-            ud.latest_msg = build_msg(-0.1, 0.0, 0, 0, 0)
-    else:
+        ud.latest_msg = build_msg(tune.BUCKET_TOO_CLOSE_BACKUP_LIN, ang_cmd * 0.5, 0, 0, 0)
+        return
+
+    if abs(center_x - 0.5) <= tune.BUCKET_CENTER_TOL_FOR_DROP:
         close_streak += 1
-        ud.bucket_close_streak = close_streak
-        if close_streak < CLOSE_CONFIRM_FRAMES:
-            ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
-            return
-        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
-        ud.arm_state = "lower"
-        ud.mode = "drop"
-        ud.bucket_seen_streak = 0
-        ud.bucket_close_streak = 0
+    else:
+        close_streak = 0
+    ud.bucket_close_streak = close_streak
+
+    if close_streak < CLOSE_CONFIRM_FRAMES:
+        ud.latest_msg = build_msg(0.0, ang_cmd, 0, 0, 0)
+        return
+
+    ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+    ud.arm_state = "lower"
+    ud.mode = "drop"
+    ud.bucket_seen_streak = 0
+    ud.bucket_close_streak = 0
+    ud.bucket_lost_streak = 0
