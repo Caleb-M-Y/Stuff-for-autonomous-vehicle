@@ -13,7 +13,7 @@ Units:
 # Minimum detector confidence accepted as a "real" object.
 # Raise this if you get false positives on the carpet/background.
 # Lower this if true balls/buckets are being ignored too often.
-MIN_CONFIDENCE = 0.45
+MIN_CONFIDENCE = 0.50
 
 # Number of consecutive frames a target must be seen before motion is allowed.
 # Raise for more stability under flicker; lower for faster response.
@@ -31,19 +31,19 @@ CLOSE_CONFIRM_FRAMES = 3
 # These can be full class names (e.g. red_ball, red_bucket) and the state
 # machine will map them to the same color family automatically.
 KNOWN_COLOR_TOKENS = (
-    "red_ball",
-    "red_bucket",
-    "yellow_ball",
-    "yellow_bucket",
-    "green_ball",
-    "green_bucket",
-    "blue_ball",
-    "blue_bucket"
+    "blue bucket",
+    "blue ball",
+    "yellow bucket",
+    "green ball",
+    "green bucket",
+    "red ball",
+    "red bucket",
+    "yellow ball",
 )
 
 # Requested first ball color/class. Use "" to disable color priority entirely.
-# Accepted examples: "red", "red_ball", or any value matching KNOWN_COLOR_TOKENS.
-TARGET_BALL_COLOR = "red_ball"
+# Accepted examples: "red", "red ball", "red_ball", or any value in KNOWN_COLOR_TOKENS.
+TARGET_BALL_COLOR = "red ball"
 
 # If True, enforce TARGET_BALL_COLOR only while lap_counter == 0 (first cycle).
 # If False, every lap will keep prioritizing TARGET_BALL_COLOR.

@@ -270,16 +270,20 @@ def main():
     # Resolve model path: allow same dir or repo-level models/
     hef_path = Path(args.hef)
     if not hef_path.is_absolute():
-        hef_path = script_dir / hef_path
-    if not hef_path.exists():
-        alt = script_dir.parent / "models" / hef_path.name
-        hef_path = alt if alt.exists() else hef_path
+        hef_candidates = [
+            script_dir / hef_path,
+            script_dir / "models" / hef_path.name,
+            script_dir.parent / "models" / hef_path.name,
+        ]
+        hef_path = next((candidate for candidate in hef_candidates if candidate.exists()), hef_candidates[0])
     labels_path = Path(args.labels)
     if not labels_path.is_absolute():
-        labels_path = script_dir / labels_path
-    if not labels_path.exists():
-        labels_alt = script_dir.parent / "models" / labels_path.name
-        labels_path = labels_alt if labels_alt.exists() else labels_path
+        labels_candidates = [
+            script_dir / labels_path,
+            script_dir / "models" / labels_path.name,
+            script_dir.parent / "models" / labels_path.name,
+        ]
+        labels_path = next((candidate for candidate in labels_candidates if candidate.exists()), labels_candidates[0])
     if not hef_path.exists():
         print(f"HEF not found: {hef_path}")
         sys.exit(1)
