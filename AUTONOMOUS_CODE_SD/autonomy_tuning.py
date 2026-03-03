@@ -85,26 +85,14 @@ BUCKET_HEIGHT_M = 0.381
 # Raise if near-zero spikes appear; lower if camera is very close to objects.
 MIN_VALID_DEPTH_M = 0.10
 
-
-# -----------------------------------------------------------------------------
-# Ball Approach and Pickup Window
-# -----------------------------------------------------------------------------
-# Distance split for "far" speed profile.
+# Ball approach and pickup
 BALL_FAR_M = 6.0
-
-# Distance split for "mid" speed profile.
 BALL_MID_M = 1.4
 
 # Lower bound of legal pickup distance window.
 # If robot is closer than this, code commands a brief reverse.
 BALL_PICK_MIN_M = 0.55
-
-# Upper bound of legal pickup distance window.
-# If robot is farther than this, code keeps approaching.
-BALL_PICK_MAX_M = 0.68
-
-# Reverse speed when too close to a ball (positive in current sign convention).
-# Raise magnitude to back away faster.
+BALL_PICK_MAX_M = 0.63
 BALL_TOO_CLOSE_BACKUP_LIN = 0.40
 
 # Linear speed used when ball is farther than BALL_FAR_M.
@@ -121,14 +109,8 @@ BALL_SPEED_NEAR = -0.10
 # Smaller value = stricter centering.
 BALL_CENTER_TOL_FOR_PICK = 0.08
 
-
-# -----------------------------------------------------------------------------
-# Bucket Approach and Drop Window
-# -----------------------------------------------------------------------------
-# Distance split for "far" bucket speed profile.
-BUCKET_FAR_M = 8.0
-
-# Distance split for "mid" bucket speed profile.
+# Bucket approach and drop
+BUCKET_FAR_M = 4.0
 BUCKET_MID_M = 1.5
 
 # Lower bound of legal drop distance window.
