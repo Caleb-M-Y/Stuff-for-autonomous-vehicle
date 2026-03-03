@@ -9,8 +9,11 @@ Run from repo root or AUTONOMOUS_CODE_SD; ensure 2-25-26.hef and labels JSON pat
 
 import os
 import sys
+import csv
+import json
 import argparse
 import threading
+from datetime import datetime
 from time import sleep
 from pathlib import Path
 
@@ -39,6 +42,44 @@ from state_machine import (
     handle_detect_ball,
     handle_detect_bucket,
 )
+
+
+class _TeeStream:
+    """Duplicate text writes to multiple streams (console + log file)."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            try:
+                stream.write(data)
+            except Exception:
+                pass
+        self.flush()
+
+    def flush(self):
+        for stream in self.streams:
+            try:
+                stream.flush()
+            except Exception:
+                pass
+
+    def isatty(self):
+        return any(getattr(stream, "isatty", lambda: False)() for stream in self.streams)
+
+
+def _jsonify(value):
+    """Convert common Python objects to JSON-safe values."""
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, (list, tuple, set)):
+        return [_jsonify(v) for v in value]
+    if isinstance(value, dict):
+        return {str(k): _jsonify(v) for k, v in value.items()}
+    return str(value)
 
 # -----------------------------------------------------------------------------
 # Hailo inference engine: YOLO on 640x640 RGB frames via GStreamer
@@ -117,6 +158,8 @@ class UserData:
         self.lap_counter = 0
         self.distance = 0.0
         self.distance_from_depth = False
+        self.carrying_ball_color = None
+        self.target_bucket_color = None
         self._running = True
 
     def send_loop(self):
@@ -165,7 +208,64 @@ def main():
     )
     parser.add_argument("--no-display", action="store_true", help="Disable OpenCV live camera window")
     parser.add_argument("--no-depth", action="store_true", help="Disable RealSense depth (geometry only)")
+    parser.add_argument("--save-run", action="store_true", help="Save terminal log, telemetry CSV, and metadata")
+    parser.add_argument("--run-root", default=str(script_dir / "run_logs"), help="Root folder for run artifacts")
+    parser.add_argument("--run-name", default=None, help="Optional run folder name (default: timestamp)")
+    parser.add_argument("--no-video-log", action="store_true", help="Disable POV video recording when --save-run is enabled")
+    parser.add_argument("--video-fps", type=float, default=15.0, help="FPS for saved POV video")
     args = parser.parse_args()
+
+    orig_stdout = sys.stdout
+    orig_stderr = sys.stderr
+    run_dir = None
+    terminal_log_fp = None
+    telemetry_fp = None
+    telemetry_writer = None
+    video_writer = None
+    record_video = False
+    frame_index = 0
+
+    if args.save_run:
+        run_name = args.run_name or datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_dir = Path(args.run_root) / run_name
+        run_dir.mkdir(parents=True, exist_ok=True)
+
+        terminal_log_fp = open(run_dir / "terminal.log", "a", encoding="utf-8", buffering=1)
+        sys.stdout = _TeeStream(orig_stdout, terminal_log_fp)
+        sys.stderr = _TeeStream(orig_stderr, terminal_log_fp)
+
+        telemetry_fp = open(run_dir / "telemetry.csv", "w", newline="", encoding="utf-8")
+        telemetry_writer = csv.writer(telemetry_fp)
+        telemetry_writer.writerow(
+            [
+                "timestamp_iso",
+                "frame_idx",
+                "mode",
+                "arm_state",
+                "distance_m",
+                "distance_src",
+                "target_ball_requested",
+                "carrying_ball_color",
+                "target_bucket_color",
+                "detection_count",
+                "detections",
+                "latest_msg",
+            ]
+        )
+
+        tune_snapshot = {name: _jsonify(getattr(tune, name)) for name in dir(tune) if name.isupper()}
+        metadata = {
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "run_name": run_name,
+            "run_dir": str(run_dir),
+            "args": _jsonify(vars(args)),
+            "tuning": tune_snapshot,
+        }
+        with open(run_dir / "metadata.json", "w", encoding="utf-8") as meta_fp:
+            json.dump(metadata, meta_fp, indent=2)
+
+        record_video = not args.no_video_log
+        print(f"Run artifact capture enabled: {run_dir}")
 
     # Resolve model path: allow same dir or repo-level models/
     hef_path = Path(args.hef)
@@ -230,6 +330,7 @@ def main():
             rgb_640 = cv2.resize(color_np, (640, 640))
             engine.push_frame(rgb_640)
             detections = engine.get_latest()
+            frame_index += 1
 
             # 3) Dispatch by mode (centralized state machine)
             if user_data.mode == "pause":
@@ -272,9 +373,37 @@ def main():
             # Optional: print mode and distance when in detect modes
             if user_data.mode in ("detect", "detect_bucket") and detections:
                 src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
-                print(f"[{user_data.mode}] dist={getattr(user_data, 'distance', 0):.2f}m ({src}) msg={user_data.latest_msg.decode().strip()}")
+                print(
+                    f"[{user_data.mode}] dist={getattr(user_data, 'distance', 0):.2f}m ({src}) "
+                    f"target_ball={getattr(tune, 'TARGET_BALL_COLOR', '') or 'any'} "
+                    f"carrying={getattr(user_data, 'carrying_ball_color', None)} "
+                    f"target_bucket={getattr(user_data, 'target_bucket_color', None)} "
+                    f"msg={user_data.latest_msg.decode().strip()}"
+                )
 
-            if show_display:
+            if telemetry_writer is not None:
+                dist_src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
+                detection_summary = ";".join(f"{label}:{conf:.2f}" for label, conf, _ in detections[:12])
+                telemetry_writer.writerow(
+                    [
+                        datetime.now().isoformat(timespec="milliseconds"),
+                        frame_index,
+                        user_data.mode,
+                        user_data.arm_state,
+                        f"{getattr(user_data, 'distance', 0.0):.3f}",
+                        dist_src,
+                        getattr(tune, "TARGET_BALL_COLOR", "") or "any",
+                        getattr(user_data, "carrying_ball_color", None),
+                        getattr(user_data, "target_bucket_color", None),
+                        len(detections),
+                        detection_summary,
+                        user_data.latest_msg.decode("utf-8", errors="ignore").strip(),
+                    ]
+                )
+                if (frame_index % 15) == 0:
+                    telemetry_fp.flush()
+
+            if show_display or record_video:
                 frame_bgr = cv2.cvtColor(color_np, cv2.COLOR_RGB2BGR)
                 for label, conf, bbox in detections:
                     if conf < 0.25:
@@ -347,13 +476,47 @@ def main():
                 )
                 cv2.putText(
                     frame_bgr,
-                    "Press q to quit",
+                    f"target_ball={getattr(tune, 'TARGET_BALL_COLOR', '') or 'any'} carry={getattr(user_data, 'carrying_ball_color', None)} bucket_target={getattr(user_data, 'target_bucket_color', None)}",
                     (10, 154),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.50,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"missing_ball/bucket_color={getattr(user_data, 'ball_target_missing_streak', 0)}/{getattr(user_data, 'bucket_target_missing_streak', 0)}",
+                    (10, 180),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.50,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    "Press q to quit",
+                    (10, 206),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.55,
                     (255, 255, 255),
                     2,
                 )
+
+                if record_video:
+                    if video_writer is None:
+                        h, w = frame_bgr.shape[:2]
+                        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                        video_path = run_dir / "pov_annotated.mp4"
+                        video_writer = cv2.VideoWriter(str(video_path), fourcc, args.video_fps, (w, h))
+                        if not video_writer.isOpened():
+                            print(f"WARNING: could not open video writer at {video_path}")
+                            video_writer = None
+                        else:
+                            print(f"POV video recording: {video_path}")
+                    if video_writer is not None:
+                        video_writer.write(frame_bgr)
+
+            if show_display:
                 cv2.imshow(display_name, frame_bgr)
                 if (cv2.waitKey(1) & 0xFF) == ord("q"):
                     raise KeyboardInterrupt
@@ -371,9 +534,20 @@ def main():
             pass
         engine.stop()
         rs_pipeline.stop()
+        if video_writer is not None:
+            video_writer.release()
         if show_display:
             cv2.destroyAllWindows()
+        if telemetry_fp is not None:
+            telemetry_fp.close()
+        if args.save_run:
+            print(f"Run artifacts saved to: {run_dir}")
         print("Done.")
+        if args.save_run:
+            sys.stdout = orig_stdout
+            sys.stderr = orig_stderr
+        if terminal_log_fp is not None:
+            terminal_log_fp.close()
 
 
 if __name__ == "__main__":

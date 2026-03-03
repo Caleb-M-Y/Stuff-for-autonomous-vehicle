@@ -8,6 +8,8 @@ Used by course_autonomous_depth.py (main: depth + YOLO) and course_camera.py (ba
 
 from __future__ import annotations
 
+import re
+
 import autonomy_tuning as tune
 
 # -----------------------------------------------------------------------------
@@ -37,18 +39,96 @@ def _bbox_center(bbox) -> tuple[float, float]:
     return cx, cy
 
 
-def pick_best_detection(detections, class_substring: str, min_conf: float = MIN_CONFIDENCE):
+def _label_tokens(label: str) -> list[str]:
+    """Split a model class label into lowercase alphanumeric tokens."""
+    return [token for token in re.split(r"[^a-z0-9]+", label.lower()) if token]
+
+
+def _base_color_key(text: str) -> str:
+    """Normalize class-like strings to a color-family key (e.g. red_ball -> red)."""
+    key = text.lower().strip()
+    for suffix in ("_ball", "_bucket"):
+        if key.endswith(suffix):
+            key = key[: -len(suffix)]
+            break
+    key = key.replace("ball", " ").replace("bucket", " ")
+    key = "_".join(token for token in _label_tokens(key))
+    return key
+
+
+def _known_base_colors() -> set[str]:
+    """Return normalized base color names derived from tuning tokens."""
+    return {_base_color_key(token) for token in tune.KNOWN_COLOR_TOKENS if _base_color_key(token)}
+
+
+def _extract_color_from_label(label: str) -> str | None:
+    """Extract color family from a class label (e.g. red_ball/red_bucket -> red)."""
+    lower_label = label.lower()
+    known_bases = _known_base_colors()
+    for class_token in tune.KNOWN_COLOR_TOKENS:
+        token_l = class_token.lower()
+        if token_l in lower_label:
+            return _base_color_key(token_l)
+    label_tokens = _label_tokens(lower_label)
+    for token in label_tokens:
+        if token in ("ball", "bucket"):
+            continue
+        if token in known_bases:
+            return token
+    return None
+
+
+def _matches_required_color(label: str, required_color: str) -> bool:
+    """
+    Match required color robustly across label styles:
+    - required can be "red", "red_ball", or "red_bucket"
+    - label can be "red_ball", "ball_red", compact, etc.
+    """
+    req_key = _base_color_key(required_color)
+    if not req_key:
+        return False
+    label_key = _extract_color_from_label(label)
+    return label_key == req_key
+
+
+def _get_requested_ball_color(ud) -> str | None:
+    """
+    Return the ball color requested by tuning.
+    - If TARGET_BALL_COLOR is empty, no color preference is enforced.
+    - If TARGET_ONLY_ON_FIRST_LAP is True, enforce only while lap_counter == 0.
+    """
+    requested = str(getattr(tune, "TARGET_BALL_COLOR", "")).strip().lower()
+    if not requested:
+        return None
+    first_lap_only = bool(getattr(tune, "TARGET_ONLY_ON_FIRST_LAP", True))
+    if first_lap_only and getattr(ud, "lap_counter", 0) > 0:
+        return None
+    return requested
+
+
+def pick_best_detection(
+    detections,
+    class_substring: str,
+    min_conf: float = MIN_CONFIDENCE,
+    required_color: str | None = None,
+):
     """
     From a list of (label, confidence, bbox), keep only those whose label contains
     class_substring (e.g. 'ball' or 'bucket') and with confidence >= min_conf.
     Return the single best: highest confidence; if tie, closest to image center (0.5, 0.5).
     Return None if no valid detection.
     """
-    candidates = [
-        (label, conf, bbox)
-        for (label, conf, bbox) in detections
-        if class_substring in label and conf >= min_conf
-    ]
+    class_substring = class_substring.lower().strip()
+    required_color = required_color.lower().strip() if required_color else None
+    candidates = []
+    for (label, conf, bbox) in detections:
+        lower_label = label.lower()
+        if class_substring not in lower_label or conf < min_conf:
+            continue
+        if required_color:
+            if not _matches_required_color(label, required_color):
+                continue
+        candidates.append((label, conf, bbox))
     if not candidates:
         return None
     # Sort by confidence descending, then by distance from center ascending
@@ -74,6 +154,29 @@ def _turn_rate_from_center(center_x: float) -> float:
     if abs(err) < tune.CENTER_DEADBAND:
         return 0.0
     return _clamp(tune.STEER_KP * err, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
+
+
+def _search_motion(lost_streak: int, base_turn_rate: float, forward_lin: float, preferred_dir: float) -> tuple[float, float]:
+    """
+    Generate a phased search command when a target is missing:
+    1) narrow sweep in last-seen direction
+    2) wide sweep opposite direction
+    3) forward arc in first direction
+    4) forward arc opposite direction
+    """
+    phase_frames = max(1, int(getattr(tune, "SEARCH_PHASE_FRAMES", 24)))
+    active_lost = max(0, lost_streak - tune.SEARCH_START_FRAMES)
+    phase = (active_lost // phase_frames) % 4
+    wide_mul = float(getattr(tune, "SEARCH_WIDE_TURN_MULT", 1.45))
+    arc_turn_mul = float(getattr(tune, "SEARCH_ARC_TURN_MULT", 0.55))
+    dir_sign = -1.0 if preferred_dir < 0 else 1.0
+    if phase == 0:
+        return (0.0, dir_sign * base_turn_rate)
+    if phase == 1:
+        return (0.0, -dir_sign * base_turn_rate * wide_mul)
+    if phase == 2:
+        return (forward_lin, dir_sign * base_turn_rate * arc_turn_mul)
+    return (forward_lin, -dir_sign * base_turn_rate * arc_turn_mul)
 
 
 def _depth_median_at_center(depth_frame, cx_px: int, cy_px: int, width: int, height: int) -> float:
@@ -243,6 +346,8 @@ def handle_drop(ud) -> None:
         ud.picker_counter += 1
         if ud.picker_counter >= 40:
             ud.lap_counter += 1
+            ud.carrying_ball_color = None
+            ud.target_bucket_color = None
             if ud.lap_counter >= 4:
                 ud.mode = "swivel_large_right"
             else:
@@ -319,7 +424,23 @@ def handle_detect_ball(
     close_streak = getattr(ud, "ball_close_streak", 0)
     lost_streak = getattr(ud, "ball_lost_streak", 0)
 
-    best = pick_best_detection(detections, "ball", MIN_CONFIDENCE)
+    requested_ball_color = _get_requested_ball_color(ud)
+    best = pick_best_detection(
+        detections,
+        "ball",
+        MIN_CONFIDENCE,
+        required_color=requested_ball_color,
+    )
+    if requested_ball_color and best is None:
+        target_missing = getattr(ud, "ball_target_missing_streak", 0) + 1
+        ud.ball_target_missing_streak = target_missing
+        allow_fallback = bool(getattr(tune, "FALLBACK_TO_ANY_BALL_IF_TARGET_MISSING", True))
+        fallback_frames = max(1, int(getattr(tune, "TARGET_FALLBACK_FRAMES", 45)))
+        if allow_fallback and target_missing >= fallback_frames:
+            best = pick_best_detection(detections, "ball", MIN_CONFIDENCE)
+    else:
+        ud.ball_target_missing_streak = 0
+
     if best is None:
         ud.ball_seen_streak = 0
         ud.ball_close_streak = 0
@@ -327,7 +448,13 @@ def handle_detect_ball(
         ud.ball_lost_streak = lost_streak
         if lost_streak >= tune.SEARCH_START_FRAMES:
             search_dir = getattr(ud, "ball_search_dir", 1.0)
-            ud.latest_msg = build_msg(0.0, search_dir * tune.BALL_SEARCH_TURN_RATE, 0, 0, 0)
+            lin_cmd, ang_cmd = _search_motion(
+                lost_streak,
+                tune.BALL_SEARCH_TURN_RATE,
+                tune.BALL_SEARCH_FORWARD_LIN,
+                search_dir,
+            )
+            ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
         else:
             ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
@@ -340,6 +467,10 @@ def handle_detect_ball(
         return
 
     label, conf, bbox = best
+    detected_ball_color = _extract_color_from_label(label)
+    if detected_ball_color is None and requested_ball_color:
+        # If label taxonomy is color-implicit, preserve configured target color.
+        detected_ball_color = requested_ball_color
     dist_m, used_depth = compute_distance(
         depth_frame, depth_width, depth_height, bbox, model_height, BALL_HEIGHT_M
     )
@@ -381,6 +512,8 @@ def handle_detect_ball(
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
     ud.arm_state = "lower"
     ud.mode = "pick"
+    ud.carrying_ball_color = detected_ball_color
+    ud.target_bucket_color = detected_ball_color
     ud.ball_seen_streak = 0
     ud.ball_close_streak = 0
     ud.ball_lost_streak = 0
@@ -399,7 +532,23 @@ def handle_detect_bucket(
     close_streak = getattr(ud, "bucket_close_streak", 0)
     lost_streak = getattr(ud, "bucket_lost_streak", 0)
 
-    best = pick_best_detection(detections, "bucket", MIN_CONFIDENCE)
+    target_bucket_color = getattr(ud, "target_bucket_color", None)
+    best = pick_best_detection(
+        detections,
+        "bucket",
+        MIN_CONFIDENCE,
+        required_color=target_bucket_color,
+    )
+    if target_bucket_color and best is None:
+        target_missing = getattr(ud, "bucket_target_missing_streak", 0) + 1
+        ud.bucket_target_missing_streak = target_missing
+        allow_fallback = bool(getattr(tune, "BUCKET_FALLBACK_TO_ANY_IF_TARGET_MISSING", False))
+        fallback_frames = max(1, int(getattr(tune, "BUCKET_TARGET_FALLBACK_FRAMES", 120)))
+        if allow_fallback and target_missing >= fallback_frames:
+            best = pick_best_detection(detections, "bucket", MIN_CONFIDENCE)
+    else:
+        ud.bucket_target_missing_streak = 0
+
     if best is None:
         ud.bucket_seen_streak = 0
         ud.bucket_close_streak = 0
@@ -407,7 +556,13 @@ def handle_detect_bucket(
         ud.bucket_lost_streak = lost_streak
         if lost_streak >= tune.SEARCH_START_FRAMES:
             search_dir = getattr(ud, "bucket_search_dir", 1.0)
-            ud.latest_msg = build_msg(0.0, search_dir * tune.BUCKET_SEARCH_TURN_RATE, 0, 0, 0)
+            lin_cmd, ang_cmd = _search_motion(
+                lost_streak,
+                tune.BUCKET_SEARCH_TURN_RATE,
+                tune.BUCKET_SEARCH_FORWARD_LIN,
+                search_dir,
+            )
+            ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
         else:
             ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
         return
