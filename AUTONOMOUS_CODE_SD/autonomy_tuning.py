@@ -91,8 +91,8 @@ BALL_MID_M = 1.4
 
 # Lower bound of legal pickup distance window.
 # If robot is closer than this, code commands a brief reverse.
-BALL_PICK_MIN_M = 0.55
-BALL_PICK_MAX_M = 0.63
+BALL_PICK_MIN_M = 0.56
+BALL_PICK_MAX_M = 0.64
 BALL_TOO_CLOSE_BACKUP_LIN = 0.40
 
 # Linear speed used when ball is farther than BALL_FAR_M.
@@ -115,11 +115,11 @@ BUCKET_MID_M = 1.5
 
 # Lower bound of legal drop distance window.
 # If robot is too close, it backs up.
-BUCKET_DROP_MIN_M = 0.30
+BUCKET_DROP_MIN_M = 0.31
 
 # Upper bound of legal drop distance window.
 # If robot is farther than this, it keeps approaching.
-BUCKET_DROP_MAX_M = 0.50
+BUCKET_DROP_MAX_M = 0.51
 
 # Reverse speed when too close to bucket.
 BUCKET_TOO_CLOSE_BACKUP_LIN = 0.40
