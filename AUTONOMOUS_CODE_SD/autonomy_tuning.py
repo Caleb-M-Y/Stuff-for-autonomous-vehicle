@@ -97,7 +97,7 @@ BALL_TOO_CLOSE_BACKUP_LIN = 0.40
 
 # Linear speed used when ball is farther than BALL_FAR_M.
 # Negative means "forward" in your current platform convention.
-BALL_SPEED_FAR = -0.28
+BALL_SPEED_FAR = -0.35
 
 # Linear speed used in mid band (BALL_MID_M to BALL_FAR_M).
 BALL_SPEED_MID = -0.18
@@ -125,7 +125,7 @@ BUCKET_DROP_MAX_M = 0.51
 BUCKET_TOO_CLOSE_BACKUP_LIN = 0.40
 
 # Linear speed in far bucket band.
-BUCKET_SPEED_FAR = -0.22
+BUCKET_SPEED_FAR = -0.35
 
 # Linear speed in mid bucket band.
 BUCKET_SPEED_MID = -0.14
@@ -173,11 +173,11 @@ BUCKET_SEARCH_TURN_RATE = 0.22
 
 # Forward component during search arcs for balls.
 # Negative value drives forward in your current sign convention.
-BALL_SEARCH_FORWARD_LIN = -0.05
+BALL_SEARCH_FORWARD_LIN = -0.10
 
 # Forward component during search arcs for buckets.
 # Typically a little more aggressive because bucket detection is harder at range.
-BUCKET_SEARCH_FORWARD_LIN = -0.07
+BUCKET_SEARCH_FORWARD_LIN = -0.10
 
 # Duration (frames) of each search phase before switching pattern.
 # Lower = quicker scan changes, higher = smoother longer sweeps.
