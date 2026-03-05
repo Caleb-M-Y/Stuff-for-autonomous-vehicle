@@ -87,6 +87,10 @@ Recommended: upload images + labels to Roboflow and do a quick human correction 
 python sd_data_and_training\scripts\train_yolo.py --config sd_data_and_training\config.yaml
 ```
 
+Default training settings in `config.yaml` are tuned for an 8GB RTX 4060 (`yolov8m`, `imgsz=640`, `batch=8`, `workers=4`).
+
+If you hit CUDA errors such as `CUBLAS_STATUS_EXECUTION_FAILED` or memory allocation failures, lower `training.batch` first (for example `6` or `4`), then lower `training.workers`.
+
 ### E) Evaluate model quality
 
 ```powershell

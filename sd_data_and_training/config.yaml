@@ -52,8 +52,9 @@ training:
   model: "yolov8m.pt"
   imgsz: 640
   epochs: 120
-  batch: 16
-  workers: 8
+  # Stable default on RTX 4060 8GB at imgsz 640.
+  batch: 8
+  workers: 4
   patience: 30
   device: "0"
   run_name: "ball_bucket_vnext_m"
