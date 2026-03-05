@@ -1,0 +1,84 @@
+project:
+  name: bearcar_sd_data_training
+
+paths:
+  # Set this to your actual repository root.
+  repo_root: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle"
+
+  # Optional folders used by helper scripts.
+  unlabeled_images_dir: "C:/path/to/new_images"
+  autolabel_labels_out_dir: "C:/path/to/new_labels"
+  autolabel_preview_out_dir: "C:/path/to/autolabel_previews"
+
+  # YOLO dataset layout paths.
+  train_images_dir: "C:/path/to/dataset/images/train"
+  val_images_dir: "C:/path/to/dataset/images/val"
+  train_labels_dir: "C:/path/to/dataset/labels/train"
+  val_labels_dir: "C:/path/to/dataset/labels/val"
+
+  # Generated artifacts.
+  data_yaml_out: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/sd_data_and_training/artifacts/data.yaml"
+  train_project_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/sd_data_and_training/runs"
+  export_out_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/sd_data_and_training/exports"
+
+  # Target runtime labels file used by AUTONOMOUS_CODE_SD.
+  hailo_labels_json_out: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/AUTONOMOUS_CODE_SD/models/ball_bucket.json"
+
+classes:
+  # Keep this ordering stable across train/export/runtime.
+  train_names:
+    - blue_bucket
+    - blue_ball
+    - yellow_bucket
+    - green_ball
+    - green_bucket
+    - red_ball
+    - red_bucket
+    - yellow_ball
+
+  # Display labels for Hailo JSON. Must align 1:1 with train_names indices.
+  hailo_display_names:
+    - blue bucket
+    - blue ball
+    - yellow bucket
+    - green ball
+    - green bucket
+    - red ball
+    - red bucket
+    - yellow ball
+
+autolabel:
+  teacher_model: "yolov8s.pt"
+  conf: 0.35
+  iou: 0.50
+  imgsz: 640
+  max_det: 60
+  save_preview: true
+
+training:
+  model: "yolov8s.pt"
+  imgsz: 640
+  epochs: 120
+  batch: 16
+  workers: 8
+  patience: 30
+  device: "0"
+  run_name: "ball_bucket_vnext"
+
+evaluation:
+  split: "val"
+  conf: 0.25
+  iou: 0.60
+
+hailo:
+  detection_threshold: 0.50
+  max_boxes: 200
+
+roboflow:
+  enabled: false
+  api_key_env: "ROBOFLOW_API_KEY"
+  workspace: "your-workspace"
+  project: "your-project"
+  version: 1
+  format: "yolov8"
+  download_dir: "C:/path/to/roboflow_download"
