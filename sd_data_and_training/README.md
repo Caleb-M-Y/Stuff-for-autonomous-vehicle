@@ -3,7 +3,7 @@
 This folder is a standalone data + training workflow for your `AUTONOMOUS_CODE_SD` competition stack.
 
 It is designed around your current runtime assumptions:
-- 8 class indices must stay stable.
+- Active class indices must stay stable once deployed.
 - Runtime label matching in `AUTONOMOUS_CODE_SD/state_machine.py` depends on `ball` and `bucket` class names.
 - Hailo labels JSON should be written to `AUTONOMOUS_CODE_SD/models/ball_bucket.json`.
 
@@ -13,6 +13,7 @@ It is designed around your current runtime assumptions:
 - `requirements.txt`: Python packages for this pipeline.
 - `scripts/extract_frames.py`: Pull images from videos.
 - `scripts/roboflow_download.py`: Download Roboflow versioned dataset.
+- `scripts/convert_coco_to_yolo.py`: Convert Roboflow COCO split exports into YOLO txt labels.
 - `scripts/auto_annotate_yolo.py`: Pseudo-label new images using a teacher YOLO model.
 - `scripts/train_yolo.py`: Train a new YOLO model.
 - `scripts/evaluate_yolo.py`: Validate trained weights.
@@ -41,6 +42,15 @@ If your environment has `pip` available, `python -m pip install ...` also works.
 - `paths.train_labels_dir`
 - `paths.val_labels_dir`
 - `roboflow.*` (if using Roboflow API pull)
+
+4. If your Roboflow export is COCO (contains `_annotations.coco.json`), convert it once before training:
+
+```powershell
+python sd_data_and_training\scripts\convert_coco_to_yolo.py ^
+  --config sd_data_and_training\config.yaml ^
+  --dataset-root "C:\path\to\RoboFlowDatasets" ^
+  --clear-existing
+```
 
 ## Typical Workflow (Tonight)
 
@@ -102,14 +112,16 @@ This writes:
 Do not change class order unless you intentionally retrain and redeploy everything together.
 
 Current canonical order:
-1. `blue_bucket`
-2. `blue_ball`
-3. `yellow_bucket`
-4. `green_ball`
-5. `green_bucket`
-6. `red_ball`
-7. `red_bucket`
-8. `yellow_ball`
+1. `blue_ball`
+2. `blue_bucket`
+3. `green_ball`
+4. `green_bucket`
+5. `red_ball`
+6. `red_bucket`
+7. `yellow_ball`
+8. `yellow_bucket`
+
+The currently downloaded Roboflow export includes a `sport-ball` class entry with zero annotations in train/valid/test. It is intentionally excluded from this canonical order.
 
 ## Notes for Your Runtime
 

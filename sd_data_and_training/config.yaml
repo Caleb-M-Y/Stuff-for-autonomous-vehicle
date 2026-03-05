@@ -4,14 +4,14 @@ project:
 paths:
   repo_root: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle"
 
-  unlabeled_images_dir: "C:/path/to/new_images"
-  autolabel_labels_out_dir: "C:/path/to/new_labels"
-  autolabel_preview_out_dir: "C:/path/to/autolabel_previews"
+  unlabeled_images_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/new_unlabeled/images"
+  autolabel_labels_out_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/new_unlabeled/labels"
+  autolabel_preview_out_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/new_unlabeled/previews"
 
-  train_images_dir: "C:/path/to/dataset/images/train"
-  val_images_dir: "C:/path/to/dataset/images/val"
-  train_labels_dir: "C:/path/to/dataset/labels/train"
-  val_labels_dir: "C:/path/to/dataset/labels/val"
+  train_images_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/train"
+  val_images_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/valid"
+  train_labels_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/train"
+  val_labels_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets/valid"
 
   data_yaml_out: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/sd_data_and_training/artifacts/data.yaml"
   train_project_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/sd_data_and_training/runs"
@@ -21,24 +21,24 @@ paths:
 
 classes:
   train_names:
-    - blue_bucket
     - blue_ball
-    - yellow_bucket
+    - blue_bucket
     - green_ball
     - green_bucket
     - red_ball
     - red_bucket
     - yellow_ball
+    - yellow_bucket
 
   hailo_display_names:
-    - blue bucket
     - blue ball
-    - yellow bucket
+    - blue bucket
     - green ball
     - green bucket
     - red ball
     - red bucket
     - yellow ball
+    - yellow bucket
 
 autolabel:
   teacher_model: "yolov8s.pt"
@@ -49,14 +49,14 @@ autolabel:
   save_preview: true
 
 training:
-  model: "yolov8s.pt"
+  model: "yolov8m.pt"
   imgsz: 640
   epochs: 120
   batch: 16
   workers: 8
   patience: 30
   device: "0"
-  run_name: "ball_bucket_vnext"
+  run_name: "ball_bucket_vnext_m"
 
 evaluation:
   split: "val"
@@ -70,8 +70,8 @@ hailo:
 roboflow:
   enabled: false
   api_key_env: "ROBOFLOW_API_KEY"
-  workspace: "your-workspace"
-  project: "your-project"
-  version: 1
+  workspace: "balle"
+  project: "project1-cvmwt"
+  version: 10
   format: "yolov8"
-  download_dir: "C:/path/to/roboflow_download"
+  download_dir: "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/RoboFlowDatasets"

@@ -27,25 +27,25 @@ paths:
 classes:
   # Keep this ordering stable across train/export/runtime.
   train_names:
-    - blue_bucket
     - blue_ball
-    - yellow_bucket
+    - blue_bucket
     - green_ball
     - green_bucket
     - red_ball
     - red_bucket
     - yellow_ball
+    - yellow_bucket
 
   # Display labels for Hailo JSON. Must align 1:1 with train_names indices.
   hailo_display_names:
-    - blue bucket
     - blue ball
-    - yellow bucket
+    - blue bucket
     - green ball
     - green bucket
     - red ball
     - red bucket
     - yellow ball
+    - yellow bucket
 
 autolabel:
   teacher_model: "yolov8s.pt"
@@ -56,14 +56,14 @@ autolabel:
   save_preview: true
 
 training:
-  model: "yolov8s.pt"
+  model: "yolov8m.pt"
   imgsz: 640
   epochs: 120
   batch: 16
   workers: 8
   patience: 30
   device: "0"
-  run_name: "ball_bucket_vnext"
+  run_name: "ball_bucket_vnext_m"
 
 evaluation:
   split: "val"
