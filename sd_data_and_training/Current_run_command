@@ -1,0 +1,1 @@
+python course_autonomous_depth.py --hef-path models/2_26_26.hef --labels-json models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run
