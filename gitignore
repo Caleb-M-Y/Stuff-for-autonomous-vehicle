@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+DATA_SET_3-5-2026
 develop-eggs/
 dist/
 downloads/
@@ -18,6 +19,9 @@ lib/
 lib64/
 parts/
 sdist/
+test/
+train/
+valid/
 var/
 wheels/
 share/python-wheels/
