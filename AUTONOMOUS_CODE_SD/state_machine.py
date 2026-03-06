@@ -306,6 +306,9 @@ def handle_pause(ud):
 
 def handle_pick(ud) -> None:
     """Run arm sequence: lower -> close -> raise, then transition to fixed_back."""
+    pick_lower_frames = max(1, int(getattr(tune, "PICK_LOWER_FRAMES", 170)))
+    pick_close_frames = max(1, int(getattr(tune, "PICK_CLOSE_FRAMES", 150)))
+    pick_raise_frames = max(1, int(getattr(tune, "PICK_RAISE_FRAMES", 180)))
     if ud.arm_state == "idle":
         ud.arm_state = "lower"
         ud.picker_counter = 0
@@ -313,19 +316,19 @@ def handle_pick(ud) -> None:
     if ud.arm_state == "lower":
         ud.latest_msg = build_msg(0.0, 0.0, 3000, 0, 0)
         ud.picker_counter += 1
-        if ud.picker_counter >= 170:
+        if ud.picker_counter >= pick_lower_frames:
             ud.arm_state = "close"
             ud.picker_counter = 0
     elif ud.arm_state == "close":
         ud.latest_msg = build_msg(0.0, 0.0, 0, 3000, 0)
         ud.picker_counter += 1
-        if ud.picker_counter >= 150:
+        if ud.picker_counter >= pick_close_frames:
             ud.arm_state = "raise"
             ud.picker_counter = 0
     elif ud.arm_state == "raise":
         ud.latest_msg = build_msg(0.0, 0.0, -3000, 0, 0)
         ud.picker_counter += 1
-        if ud.picker_counter >= 180:
+        if ud.picker_counter >= pick_raise_frames:
             ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
             ud.mode = "fixed_back"
             ud.picker_counter = 0
@@ -334,21 +337,24 @@ def handle_pick(ud) -> None:
 
 def handle_drop(ud) -> None:
     """Lower arm, open claw, then go to detect (next ball) or swivel_large_right (done)."""
+    drop_lower_frames = max(1, int(getattr(tune, "DROP_LOWER_FRAMES", 40)))
+    drop_open_frames = max(1, int(getattr(tune, "DROP_OPEN_FRAMES", 40)))
+    turn_to_center_after_drop = bool(getattr(tune, "TURN_TO_CENTER_AFTER_DROP", True))
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
     if ud.arm_state == "lower":
         ud.latest_msg = build_msg(0.0, 0.0, 3000, 0, 0)
         ud.picker_counter += 1
-        if ud.picker_counter >= 40:
+        if ud.picker_counter >= drop_lower_frames:
             ud.arm_state = "open"
             ud.picker_counter = 0
     elif ud.arm_state == "open":
         ud.latest_msg = build_msg(0.0, 0.0, 0, -3000, 0)
         ud.picker_counter += 1
-        if ud.picker_counter >= 40:
+        if ud.picker_counter >= drop_open_frames:
             ud.lap_counter += 1
             ud.carrying_ball_color = None
             ud.target_bucket_color = None
-            if ud.lap_counter >= 4:
+            if turn_to_center_after_drop:
                 ud.mode = "swivel_large_right"
             else:
                 ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 10)
@@ -360,9 +366,10 @@ def handle_drop(ud) -> None:
 
 def handle_fixed_ball(ud) -> None:
     """Drive forward (encoder phase) toward center; then switch to detect."""
+    fixed_ball_frames = max(1, int(getattr(tune, "FIXED_BALL_TRAVEL_FRAMES", 500)))
     ud.latest_msg = build_msg(-0.30, 0.0, 0, 0, 10)
     ud.fixed_travel_counter += 1
-    if ud.fixed_travel_counter >= 500:
+    if ud.fixed_travel_counter >= fixed_ball_frames:
         ud.mode = "detect"
         ud.fixed_travel_counter = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
@@ -370,9 +377,10 @@ def handle_fixed_ball(ud) -> None:
 
 def handle_fixed_bucket(ud) -> None:
     """Drive forward toward bucket area; then switch to detect_bucket."""
+    fixed_bucket_frames = max(1, int(getattr(tune, "FIXED_BUCKET_TRAVEL_FRAMES", 300)))
     ud.latest_msg = build_msg(-0.30, 0.0, 0, 0, 0)
     ud.fixed_travel_counter += 1
-    if ud.fixed_travel_counter >= 300:
+    if ud.fixed_travel_counter >= fixed_bucket_frames:
         ud.mode = "detect_bucket"
         ud.fixed_travel_counter = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
@@ -380,9 +388,10 @@ def handle_fixed_bucket(ud) -> None:
 
 def handle_fixed_back(ud) -> None:
     """Back up a bit after pick; then swivel_small_left."""
+    fixed_back_frames = max(1, int(getattr(tune, "FIXED_BACK_TRAVEL_FRAMES", 80)))
     ud.latest_msg = build_msg(0.1, 0.0, 0, 0, 0)
     ud.fixed_travel_counter += 1
-    if ud.fixed_travel_counter >= 80:
+    if ud.fixed_travel_counter >= fixed_back_frames:
         ud.mode = "swivel_small_left"
         ud.fixed_travel_counter = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
@@ -390,9 +399,10 @@ def handle_fixed_back(ud) -> None:
 
 def handle_swivel_small_left(ud) -> None:
     """Turn left ~45 deg; then fixed_bucket."""
+    swivel_small_left_frames = max(1, int(getattr(tune, "SWIVEL_SMALL_LEFT_FRAMES", 95)))
     ud.latest_msg = build_msg(0.0, -0.4, 0, 0, 0)
     ud.fixed_travel_counter += 1
-    if ud.fixed_travel_counter >= 95:
+    if ud.fixed_travel_counter >= swivel_small_left_frames:
         ud.mode = "fixed_bucket"
         ud.fixed_travel_counter = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
@@ -400,9 +410,10 @@ def handle_swivel_small_left(ud) -> None:
 
 def handle_swivel_large_right(ud) -> None:
     """Turn right ~180 deg back toward center; then fixed_ball."""
+    swivel_large_right_frames = max(1, int(getattr(tune, "SWIVEL_LARGE_RIGHT_FRAMES", 540)))
     ud.latest_msg = build_msg(0.0, 0.4, 0, 0, 0)
     ud.fixed_travel_counter += 1
-    if ud.fixed_travel_counter >= 540:
+    if ud.fixed_travel_counter >= swivel_large_right_frames:
         ud.mode = "fixed_ball"
         ud.fixed_travel_counter = 0
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)

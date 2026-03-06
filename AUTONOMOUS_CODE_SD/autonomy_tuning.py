@@ -85,6 +85,39 @@ BUCKET_HEIGHT_M = 0.381
 # Raise if near-zero spikes appear; lower if camera is very close to objects.
 MIN_VALID_DEPTH_M = 0.10
 
+# -----------------------------------------------------------------------------
+# State-Machine Timing (frame counts)
+# -----------------------------------------------------------------------------
+# Initial encoder-only travel toward center before vision takes over.
+# Lower this if startup drive feels too long.
+FIXED_BALL_TRAVEL_FRAMES = 430
+
+# Travel toward bucket area before bucket detection mode starts.
+FIXED_BUCKET_TRAVEL_FRAMES = 300
+
+# Reverse after pickup before rotating toward bucket zone.
+FIXED_BACK_TRAVEL_FRAMES = 80
+
+# Small left turn toward bucket zone.
+SWIVEL_SMALL_LEFT_FRAMES = 95
+
+# Large right turn to face center/balls again.
+SWIVEL_LARGE_RIGHT_FRAMES = 540
+
+# If True, always reorient back toward center immediately after each drop.
+# This addresses the "does not turn around after drop" issue.
+TURN_TO_CENTER_AFTER_DROP = True
+
+# Pick sequence arm timing.
+# Lower PICK_LOWER_FRAMES if the arm drops too low during pickup.
+PICK_LOWER_FRAMES = 150
+PICK_CLOSE_FRAMES = 150
+PICK_RAISE_FRAMES = 180
+
+# Drop sequence arm timing.
+DROP_LOWER_FRAMES = 40
+DROP_OPEN_FRAMES = 40
+
 # Ball approach and pickup
 BALL_FAR_M = 6.0
 BALL_MID_M = 1.4
