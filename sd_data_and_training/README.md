@@ -18,6 +18,8 @@ It is designed around your current runtime assumptions:
 - `scripts/train_yolo.py`: Train a new YOLO model.
 - `scripts/evaluate_yolo.py`: Validate trained weights.
 - `scripts/export_for_hailo.py`: Export ONNX + generate Hailo labels JSON.
+- `scripts/package_model_release.py`: Build a versioned robot-ready release bundle.
+- `model_info.template.txt`: Template for release metadata.
 
 ## Quick Start
 
@@ -110,6 +112,38 @@ python sd_data_and_training\scripts\export_for_hailo.py ^
 This writes:
 - ONNX model into `paths.export_out_dir`
 - Updated labels JSON into `paths.hailo_labels_json_out`
+
+### G) Package a robot-ready model bundle
+
+```powershell
+python sd_data_and_training\scripts\package_model_release.py ^
+  --config sd_data_and_training\config.yaml
+```
+
+This creates a versioned folder (and zip) under `sd_data_and_training/artifacts/model_releases/` containing:
+- ONNX model
+- labels JSON
+- `model_info.txt` metadata
+
+Use this bundle as your deploy handoff to the robot.
+
+## Model Versioning (Simple)
+
+Treat each exported model as a versioned release, not just a file copy.
+
+- Canonical copy: the one release bundle you trust for a given model version.
+- Working copies: temporary copies on your PC, laptop, USB, or robot.
+
+Recommended release name format:
+- `ballbucket-YYYYMMDD-HHMMSS-<gitsha>`
+- Example: `ballbucket-20260305-145200-63027f1`
+
+Recommended delivery workflow:
+1. Train + evaluate.
+2. Export (`best.onnx` + `ball_bucket.json`).
+3. Package release bundle with `package_model_release.py`.
+4. Upload the zip as a GitHub Release asset (canonical copy).
+5. Copy the same zip to robot (direct download or USB), then extract.
 
 ## Important Class Order Rule
 

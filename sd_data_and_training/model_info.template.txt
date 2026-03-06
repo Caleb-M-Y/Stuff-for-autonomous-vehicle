@@ -1,0 +1,26 @@
+release_id: ballbucket-YYYYMMDD-HHMMSS-<gitsha>
+created_utc: YYYY-MM-DDTHH:MM:SSZ
+git_commit: <gitsha>
+source_run_name: ball_bucket_vnext_m
+
+onnx_file: best.onnx
+labels_json_file: ball_bucket.json
+
+classes:
+- blue_ball
+- blue_bucket
+- green_ball
+- green_bucket
+- red_ball
+- red_bucket
+- yellow_ball
+- yellow_bucket
+
+validation_metrics:
+epoch: <epoch>
+precision_B: <value>
+recall_B: <value>
+mAP50_B: <value>
+mAP50_95_B: <value>
+
+notes: <optional deployment notes>
