@@ -1,0 +1,309 @@
+ball-e@7959X:~$ cd ~/hailo8_ai_sw_suite_2025-10_docker
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ ./hailo_ai_sw_suite_docker_run.sh --resume
+Resuming an old container 
+hailo8_ai_sw_suite_2025-10_container
+
+
+Welcome to Hailo AI Software Suite Container
+To list available commands, please type:
+
+----------------------------------------------------------------------
+
+HailoRT:                                hailortcli -h
+Dataflow Compiler:                      hailo -h
+Hailo Model Zoo:                        hailomz -h
+Run TAPPAS Detection Application:       tappas/detection/detection.sh
+
+----------------------------------------------------------------------
+
+
+(hailo_virtualenv) hailo@7959X:/local/workspace$ ls
+acceleras.log    hailo_examples.log    hailo_virtualenv
+best_0307.onnx   hailo_model_zoo       tappas
+caleb_best.onnx  hailort_examples      yolov8m.har
+datasets         hailort.log           yolov8n.har
+doc              hailo_sdk.client.log
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/workspace/hailo
+hailo_examples.log    hailort_examples/     hailo_sdk.client.log
+hailo_model_zoo/      hailort.log           hailo_virtualenv/
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/workspace/hailo_uploads/ballbucket_20260307/best.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images --classes 8 --performance
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+Traceback (most recent call last):
+  File "/local/workspace/hailo_virtualenv/bin/hailomz", line 33, in <module>
+    sys.exit(load_entry_point('hailo-model-zoo', 'console_scripts', 'hailomz')())
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 122, in main
+    run(args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 111, in run
+    return handlers[args.command](args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 248, in compile
+    _ensure_optimized(runner, logger, args, network_info)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 73, in _ensure_optimized
+    _ensure_parsed(runner, logger, network_info, args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 108, in _ensure_parsed
+    parse_model(runner, network_info, ckpt_path=args.ckpt_path, results_dir=args.results_dir, logger=logger)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 126, in parse_model
+    raise Exception(f"Encountered error during parsing: {err}") from None
+Exception: Encountered error during parsing: [Errno 2] No such file or directory: '/local/workspace/hailo_uploads/ballbucket_20260307/best.onnx'
+(hailo_virtualenv) hailo@7959X:/local/workspace$ ls
+acceleras.log    hailo_examples.log    hailo_virtualenv
+best_0307.onnx   hailo_model_zoo       tappas
+caleb_best.onnx  hailort_examples      yolov8m.har
+datasets         hailort.log           yolov8n.har
+doc              hailo_sdk.client.log
+(hailo_virtualenv) hailo@7959X:/local/workspace$ mkdir -p hailo_uploads/ballbucket_20260307
+(hailo_virtualenv) hailo@7959X:/local/workspace$ ls
+acceleras.log    hailo_examples.log    hailo_uploads
+best_0307.onnx   hailo_model_zoo       hailo_virtualenv
+caleb_best.onnx  hailort_examples      tappas
+datasets         hailort.log           yolov8m.har
+doc              hailo_sdk.client.log  yolov8n.har
+(hailo_virtualenv) hailo@7959X:/local/workspace$ cp /media/$USER/*/ballbucket_20260307/best.pt ~/local/workspace/hailo_uploads/ballbucket_20260307
+cp: cannot stat '/media/hailo/*/ballbucket_20260307/best.pt': No such file or directory
+(hailo_virtualenv) hailo@7959X:/local/workspace$ cd hailo_uploads
+(hailo_virtualenv) hailo@7959X:/local/workspace/hailo_uploads$ ls
+ballbucket_20260307
+(hailo_virtualenv) hailo@7959X:/local/workspace/hailo_uploads$ cd ballbucket_20260307/
+(hailo_virtualenv) hailo@7959X:/local/workspace/hailo_uploads/ballbucket_20260307$ ls
+(hailo_virtualenv) hailo@7959X:/local/workspace/hailo_uploads/ballbucket_20260307$ cd ../..
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/workspace/hailo_uploads/ballbucket_20260307/best.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images --classes 8 --performance
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+Traceback (most recent call last):
+  File "/local/workspace/hailo_virtualenv/bin/hailomz", line 33, in <module>
+    sys.exit(load_entry_point('hailo-model-zoo', 'console_scripts', 'hailomz')())
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 122, in main
+    run(args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 111, in run
+    return handlers[args.command](args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 248, in compile
+    _ensure_optimized(runner, logger, args, network_info)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 73, in _ensure_optimized
+    _ensure_parsed(runner, logger, network_info, args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 108, in _ensure_parsed
+    parse_model(runner, network_info, ckpt_path=args.ckpt_path, results_dir=args.results_dir, logger=logger)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 126, in parse_model
+    raise Exception(f"Encountered error during parsing: {err}") from None
+Exception: Encountered error during parsing: [Errno 2] No such file or directory: '/local/workspace/hailo_uploads/ballbucket_20260307/best.onnx'
+(hailo_virtualenv) hailo@7959X:/local/workspace$ ^[[200~hailomz compile yolov8m --ckpt=/local/shared_with_docker/best.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images --classes 8 --performance
+bash: $'\E[200~hailomz': command not found
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/shared_with_docker/best.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images --classes 8 --performance
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.26)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.36)
+[info] Simplified ONNX model for a parsing retry attempt (completion time: 00:00:02.91)
+[info] According to recommendations, retrying parsing with end node names: ['/model.22/Sigmoid', '/model.22/Concat'].
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.16)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.19)
+[info] Start nodes mapped from original model: 'images': 'yolov8m/input_layer1'.
+[info] End nodes mapped from original model: '/model.22/Sigmoid', '/model.22/Concat'.
+[info] Translation completed on ONNX model yolov8m (completion time: 00:00:02.08)
+[info] Saved HAR to: /local/workspace/yolov8m.har
+<Hailo Model Zoo INFO> Using generic alls script found in /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls because there is no specific hardware alls
+<Hailo Model Zoo INFO> Preparing calibration data...
+Traceback (most recent call last):
+  File "/local/workspace/hailo_virtualenv/bin/hailomz", line 33, in <module>
+    sys.exit(load_entry_point('hailo-model-zoo', 'console_scripts', 'hailomz')())
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 122, in main
+    run(args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 111, in run
+    return handlers[args.command](args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 248, in compile
+    _ensure_optimized(runner, logger, args, network_info)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 88, in _ensure_optimized
+    calib_feed_callback = prepare_calibration_data(
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 310, in prepare_calibration_data
+    calib_feed_callback = make_calibset_callback(network_info, preproc_callback, calib_path)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 271, in make_calibset_callback
+    data_feed_cb = _make_dataset_callback(network_info, preproc_callback, calib_path, dataset_name)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 248, in _make_dataset_callback
+    return _make_data_feed_callback(
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 227, in _make_data_feed_callback
+    raise FileNotFoundError(f"Couldn't find dataset in {data_path}. Please refer to docs/DATA.rst.")
+FileNotFoundError: Couldn't find dataset in /local/workspace/datasets/balbuc_dataset/test/images. Please refer to docs/DATA.rst.
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/workspace/best_0307.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images --classes 8 --performance
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.26)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.36)
+[info] Simplified ONNX model for a parsing retry attempt (completion time: 00:00:02.84)
+[info] According to recommendations, retrying parsing with end node names: ['/model.22/Concat', '/model.22/Sigmoid'].
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.14)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.11)
+[info] Start nodes mapped from original model: 'images': 'yolov8m/input_layer1'.
+[info] End nodes mapped from original model: '/model.22/Concat', '/model.22/Sigmoid'.
+[info] Translation completed on ONNX model yolov8m (completion time: 00:00:01.95)
+[info] Saved HAR to: /local/workspace/yolov8m.har
+<Hailo Model Zoo INFO> Using generic alls script found in /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls because there is no specific hardware alls
+<Hailo Model Zoo INFO> Preparing calibration data...
+Traceback (most recent call last):
+  File "/local/workspace/hailo_virtualenv/bin/hailomz", line 33, in <module>
+    sys.exit(load_entry_point('hailo-model-zoo', 'console_scripts', 'hailomz')())
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 122, in main
+    run(args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 111, in run
+    return handlers[args.command](args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 248, in compile
+    _ensure_optimized(runner, logger, args, network_info)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 88, in _ensure_optimized
+    calib_feed_callback = prepare_calibration_data(
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 310, in prepare_calibration_data
+    calib_feed_callback = make_calibset_callback(network_info, preproc_callback, calib_path)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 271, in make_calibset_callback
+    data_feed_cb = _make_dataset_callback(network_info, preproc_callback, calib_path, dataset_name)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 248, in _make_dataset_callback
+    return _make_data_feed_callback(
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 227, in _make_data_feed_callback
+    raise FileNotFoundError(f"Couldn't find dataset in {data_path}. Please refer to docs/DATA.rst.")
+FileNotFoundError: Couldn't find dataset in /local/workspace/datasets/balbuc_dataset/test/images. Please refer to docs/DATA.rst.
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m --ckpt=/local/shared_with_docker/best.onnx --hw-arch hailo8 --calib-path /local/shared_with_docker/calib_images --classes 8 --performance
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.26)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.36)
+[info] Simplified ONNX model for a parsing retry attempt (completion time: 00:00:02.92)
+[info] According to recommendations, retrying parsing with end node names: ['/model.22/Sigmoid', '/model.22/Concat'].
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.16)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.03)
+[info] Start nodes mapped from original model: 'images': 'yolov8m/input_layer1'.
+[info] End nodes mapped from original model: '/model.22/Sigmoid', '/model.22/Concat'.
+[info] Translation completed on ONNX model yolov8m (completion time: 00:00:01.83)
+[info] Saved HAR to: /local/workspace/yolov8m.har
+<Hailo Model Zoo INFO> Using generic alls script found in /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls because there is no specific hardware alls
+<Hailo Model Zoo INFO> Preparing calibration data...
+[info] Loading model script commands to yolov8m from /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls
+[info] Loading model script commands to yolov8m from string
+Traceback (most recent call last):
+  File "/local/workspace/hailo_virtualenv/bin/hailomz", line 33, in <module>
+    sys.exit(load_entry_point('hailo-model-zoo', 'console_scripts', 'hailomz')())
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 122, in main
+    run(args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main.py", line 111, in run
+    return handlers[args.command](args)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 248, in compile
+    _ensure_optimized(runner, logger, args, network_info)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/main_driver.py", line 91, in _ensure_optimized
+    optimize_model(
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 351, in optimize_model
+    optimize_full_precision_model(runner, calib_feed_callback, logger, model_script, resize, input_conversion, classes)
+  File "/local/workspace/hailo_model_zoo/hailo_model_zoo/core/main_utils.py", line 337, in optimize_full_precision_model
+    runner.optimize_full_precision(calib_data=calib_feed_callback)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_common/states/states.py", line 16, in wrapped_func
+    return func(self, *args, **kwargs)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/runner/client_runner.py", line 2095, in optimize_full_precision
+    self._optimize_full_precision(data_continer)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/runner/client_runner.py", line 2098, in _optimize_full_precision
+    self._sdk_backend.optimize_full_precision(data_continer)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/sdk_backend.py", line 1664, in optimize_full_precision
+    model, params = self._apply_model_modification_commands(model, params, update_model_and_params)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/sdk_backend.py", line 1552, in _apply_model_modification_commands
+    model, params = command.apply(model, params, hw_consts=self.hw_arch.consts)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/script_parser/nms_postprocess_command.py", line 402, in apply
+    self._update_config_file(hailo_nn)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/script_parser/nms_postprocess_command.py", line 564, in _update_config_file
+    self._update_config_layers(hailo_nn)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/script_parser/nms_postprocess_command.py", line 614, in _update_config_layers
+    self._set_yolo_config_layers(hailo_nn)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/script_parser/nms_postprocess_command.py", line 642, in _set_yolo_config_layers
+    conv_layers = self._get_output_preds(hailo_nn)
+  File "/local/workspace/hailo_virtualenv/lib/python3.10/site-packages/hailo_sdk_client/sdk_backend/script_parser/nms_postprocess_command.py", line 624, in _get_output_preds
+    raise AllocatorScriptParserException(
+hailo_sdk_client.sdk_backend.sdk_backend_exceptions.AllocatorScriptParserException: Error in the last layers of the model, expected conv but found activation layer.
+(hailo_virtualenv) hailo@7959X:/local/workspace$ hailomz compile yolov8m \
+--ckpt=/local/shared_with_docker/best.onnx \
+--hw-arch hailo8 \
+--calib-path /local/shared_with_docker/calib_images \
+--classes 8 \
+--performance \
+--end-node-names /model.22/cv2.0/cv2.0.2/Conv /model.22/cv3.0/cv3.0.2/Conv /model.22/cv2.1/cv2.1.2/Conv /model.22/cv3.1/cv3.1.2/Conv /model.22/cv2.2/cv2.2.2/Conv /model.22/cv3.2/cv3.2.2/Conv
+[info] No GPU chosen, Selected GPU 0
+<Hailo Model Zoo INFO> Start run for network yolov8m ...
+<Hailo Model Zoo INFO> Initializing the hailo8 runner...
+[info] Translation started on ONNX model yolov8m
+[info] Restored ONNX model yolov8m (completion time: 00:00:00.26)
+[info] Extracted ONNXRuntime meta-data for Hailo model (completion time: 00:00:01.38)
+[info] Start nodes mapped from original model: 'images': 'yolov8m/input_layer1'.
+[info] End nodes mapped from original model: '/model.22/cv2.0/cv2.0.2/Conv', '/model.22/cv3.0/cv3.0.2/Conv', '/model.22/cv2.1/cv2.1.2/Conv', '/model.22/cv3.1/cv3.1.2/Conv', '/model.22/cv2.2/cv2.2.2/Conv', '/model.22/cv3.2/cv3.2.2/Conv'.
+[info] Translation completed on ONNX model yolov8m (completion time: 00:00:02.21)
+[info] Saved HAR to: /local/workspace/yolov8m.har
+<Hailo Model Zoo INFO> Using generic alls script found in /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls because there is no specific hardware alls
+<Hailo Model Zoo INFO> Preparing calibration data...
+[info] Loading model script commands to yolov8m from /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls
+[info] Loading model script commands to yolov8m from string
+[info] Found model with 3 input channels, using real RGB images for calibration instead of sampling random data.
+[info] Starting Model Optimization
+[warning] Reducing optimization level to 1 (the accuracy won't be optimized and compression won't be used) because there's less data than the recommended amount (1024)
+[info] Model received quantization params from the hn
+[info] MatmulDecompose skipped
+[info] Starting Mixed Precision
+[info] Model Optimization Algorithm Mixed Precision is done (completion time is 00:00:00.25)
+[info] LayerNorm Decomposition skipped
+[info] Starting Statistics Collector
+[info] Using dataset with 43 entries for calibration
+Calibration: 100%|███████████████| 43/43 [00:23<00:00,  1.82entries/s]
+[info] Model Optimization Algorithm Statistics Collector is done (completion time is 00:00:24.45)
+[info] Starting Fix zp_comp Encoding
+[info] Model Optimization Algorithm Fix zp_comp Encoding is done (completion time is 00:00:00.00)
+[info] Matmul Equalization skipped
+[info] Starting MatmulDecomposeFix
+[info] Model Optimization Algorithm MatmulDecomposeFix is done (completion time is 00:00:00.00)
+[info] Finetune encoding skipped
+[info] Starting Bias Correction
+[info] The algorithm Bias Correction will use up to 1.90 GB of storage space
+[info] Using dataset with 43 entries for Bias Correction
+Bias Correction: 100%|█| 93/93 [02:11<00:00,  1.42s/blocks, Layers=['y
+[info] Model Optimization Algorithm Bias Correction is done (completion time is 00:02:12.45)
+[info] Adaround skipped
+[warning] Quantization-Aware Fine-Tuning:	Dataset didn't have enough data for dataset_size of 1024 	Quantizing using calibration size of 43
+[info] Starting Quantization-Aware Fine-Tuning
+[info] Using dataset with 43 entries for finetune
+Epoch 1/4
+E0000 00:00:1772925869.172030 1333843 meta_optimizer.cc:966] layout failed: INVALID_ARGUMENT: Size of values 0 does not match size of permutation 4 @ fanin shape inStatefulPartitionedCall/SelectV2_6-2-TransposeNHWCToNCHW-LayoutOptimizer
+ 1/21 ━━━━━━━━━━━━━━━━━━━━ 25:01 75s/step - _distill_loss_yolov8m/conv51: 0.1609 - _distill_loss_yolov8m/conv57: 0.1603 - _distill_loss_yolov8m/conv58: 1.0000 - _distill_loss_yolov8m/conv64: 0.1620 - _distill_loss_yolov8m/conv70: 0.0948 - _distill_loss_yolov8m/conv71: 0.0441 - _distill_loss_yolov8m/conv77: 0.1311 - _distill_loss_yolov8m/conv82: 0.0572 - _distill_loss_yolov8m/conv83: 1.0000 - total_distill_loss: 2.810 2/21 ━━━━━━━━━━━━━━━━━━━━ 2s 138ms/step - _distill_loss_yolov8m/conv51: 0.1566 - _distill_loss_yolov8m/conv57: 0.1609 - _distill_loss_yolov8m/conv58: 0.9980 - _distill_loss_yolov8m/conv64: 0.1600 - _distill_loss_yolov8m/conv70: 0.1017 - _distill_loss_yolov8m/conv71: 0.0779 - _distill_loss_yolov8m/conv77: 0.1295 - _distill_loss_yolov8m/conv82: 0.0564 - _distill_loss_yolov8m/conv83: 1.0000 - total_distill_loss: 2.8410 3/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1539 - _distill_loss_yolov8m/conv57: 0.1629 - _distill_loss_yolov8m/conv58: 0.9986 - _distill_loss_yolov8m/conv64: 0.1567 - _distill_loss_yolov8m/conv70: 0.0974 - _distill_loss_yolov8m/conv71: 0.0907 - _distill_loss_yolov8m/conv77: 0.1257 - _distill_loss_yolov8m/conv82: 0.05 4/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1506 - _distill_loss_yolov8m/conv57: 0.1584 - _distill_loss_yolov8m/conv58: 0.9986 - _distill_loss_yolov8m/conv64: 0.1571 - _distill_loss_yolov8m/conv70: 0.0940 - _distill_loss_yolov8m/conv71: 0.3180 - _distill_loss_yolov8m/conv77: 0.1312 - _distill_loss_yolov8m/conv82: 0.06 5/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1491 - _distill_loss_yolov8m/conv57: 0.1576 - _distill_loss_yolov8m/conv58: 0.9980 - _distill_loss_yolov8m/conv64: 0.1562 - _distill_loss_yolov8m/conv70: 0.0904 - _distill_loss_yolov8m/conv71: 0.4544 - _distill_loss_yolov8m/conv77: 0.1324 - _distill_loss_yolov8m/conv82: 0.06 6/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1504 - _distill_loss_yolov8m/conv57: 0.1590 - _distill_loss_yolov8m/conv58: 0.9967 - _distill_loss_yolov8m/conv64: 0.1572 - _distill_loss_yolov8m/conv70: 0.0935 - _distill_loss_yolov8m/conv71: 0.5453 - _distill_loss_yolov8m/conv77: 0.1333 - _distill_loss_yolov8m/conv82: 0.06 7/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1493 - _distill_loss_yolov8m/conv57: 0.1569 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1573 - _distill_loss_yolov8m/conv70: 0.0945 - _distill_loss_yolov8m/conv71: 0.4880 - _distill_loss_yolov8m/conv77: 0.1336 - _distill_loss_yolov8m/conv82: 0.06 8/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1489 - _distill_loss_yolov8m/conv57: 0.1571 - _distill_loss_yolov8m/conv58: 0.9975 - _distill_loss_yolov8m/conv64: 0.1573 - _distill_loss_yolov8m/conv70: 0.0965 - _distill_loss_yolov8m/conv71: 0.4446 - _distill_loss_yolov8m/conv77: 0.1335 - _distill_loss_yolov8m/conv82: 0.06 9/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1490 - _distill_loss_yolov8m/conv57: 0.1586 - _distill_loss_yolov8m/conv58: 0.9978 - _distill_loss_yolov8m/conv64: 0.1570 - _distill_loss_yolov8m/conv70: 0.0966 - _distill_loss_yolov8m/conv71: 0.4031 - _distill_loss_yolov8m/conv77: 0.1322 - _distill_loss_yolov8m/conv82: 0.0610/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1468 - _distill_loss_yolov8m/conv57: 0.1556 - _distill_loss_yolov8m/conv58: 0.9980 - _distill_loss_yolov8m/conv64: 0.1541 - _distill_loss_yolov8m/conv70: 0.0949 - _distill_loss_yolov8m/conv71: 0.3779 - _distill_loss_yolov8m/conv77: 0.1277 - _distill_loss_yolov8m/conv82: 0.0611/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1446 - _distill_loss_yolov8m/conv57: 0.1540 - _distill_loss_yolov8m/conv58: 0.9982 - _distill_loss_yolov8m/conv64: 0.1509 - _distill_loss_yolov8m/conv70: 0.0933 - _distill_loss_yolov8m/conv71: 0.4345 - _distill_loss_yolov8m/conv77: 0.1234 - _distill_loss_yolov8m/conv82: 0.0512/21 ━━━━━━━━━━━━━━━━━━━━ 1s 135ms/step - _distill_loss_yolov8m/conv51: 0.1431 - _distill_loss_yolov8m/conv57: 0.1517 - _distill_loss_yolov8m/conv58: 0.9984 - _distill_loss_yolov8m/conv64: 0.1491 - _distill_loss_yolov8m/conv70: 0.0922 - _distill_loss_yolov8m/conv71: 0.4282 - _distill_loss_yolov8m/conv77: 0.1207 - _distill_loss_yolov8m/conv82: 0.0513/21 ━━━━━━━━━━━━━━━━━━━━ 1s 135ms/step - _distill_loss_yolov8m/conv51: 0.1423 - _distill_loss_yolov8m/conv57: 0.1495 - _distill_loss_yolov8m/conv58: 0.9985 - _distill_loss_yolov8m/conv64: 0.1489 - _distill_loss_yolov8m/conv70: 0.0925 - _distill_loss_yolov8m/conv71: 0.4117 - _distill_loss_yolov8m/conv77: 0.1199 - _distill_loss_yolov8m/conv82: 0.0514/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1421 - _distill_loss_yolov8m/conv57: 0.1477 - _distill_loss_yolov8m/conv58: 0.9979 - _distill_loss_yolov8m/conv64: 0.1493 - _distill_loss_yolov8m/conv70: 0.0924 - _distill_loss_yolov8m/conv71: 0.3965 - _distill_loss_yolov8m/conv77: 0.1201 - _distill_loss_yolov8m/conv82: 0.0515/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1415 - _distill_loss_yolov8m/conv57: 0.1458 - _distill_loss_yolov8m/conv58: 0.9976 - _distill_loss_yolov8m/conv64: 0.1491 - _distill_loss_yolov8m/conv70: 0.0924 - _distill_loss_yolov8m/conv71: 0.4367 - _distill_loss_yolov8m/conv77: 0.1192 - _distill_loss_yolov8m/conv82: 0.0516/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1407 - _distill_loss_yolov8m/conv57: 0.1443 - _distill_loss_yolov8m/conv58: 0.9974 - _distill_loss_yolov8m/conv64: 0.1490 - _distill_loss_yolov8m/conv70: 0.0922 - _distill_loss_yolov8m/conv71: 0.4720 - _distill_loss_yolov8m/conv77: 0.1195 - _distill_loss_yolov8m/conv82: 0.0517/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1401 - _distill_loss_yolov8m/conv57: 0.1428 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1490 - _distill_loss_yolov8m/conv70: 0.0929 - _distill_loss_yolov8m/conv71: 1.7819 - _distill_loss_yolov8m/conv77: 0.1197 - _distill_loss_yolov8m/conv82: 0.0518/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1394 - _distill_loss_yolov8m/conv57: 0.1413 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1490 - _distill_loss_yolov8m/conv70: 0.0934 - _distill_loss_yolov8m/conv71: 1.6965 - _distill_loss_yolov8m/conv77: 0.1198 - _distill_loss_yolov8m/conv82: 0.0519/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1386 - _distill_loss_yolov8m/conv57: 0.1402 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1478 - _distill_loss_yolov8m/conv70: 0.0936 - _distill_loss_yolov8m/conv71: 1.6148 - _distill_loss_yolov8m/conv77: 0.1182 - _distill_loss_yolov8m/conv82: 0.0520/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1380 - _distill_loss_yolov8m/conv57: 0.1394 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1467 - _distill_loss_yolov8m/conv70: 0.0930 - _distill_loss_yolov8m/conv71: 1.5840 - _distill_loss_yolov8m/conv77: 0.1167 - _distill_loss_yolov8m/conv82: 0.0521/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1375 - _distill_loss_yolov8m/conv57: 0.1378 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1468 - _distill_loss_yolov8m/conv70: 0.0941 - _distill_loss_yolov8m/conv71: 1.5562 - _distill_loss_yolov8m/conv77: 0.1163 - _distill_loss_yolov8m/conv82: 0.0421/21 ━━━━━━━━━━━━━━━━━━━━ 78s 136ms/step - _distill_loss_yolov8m/conv51: 0.1371 - _distill_loss_yolov8m/conv57: 0.1364 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1469 - _distill_loss_yolov8m/conv70: 0.0951 - _distill_loss_yolov8m/conv71: 1.5309 - _distill_loss_yolov8m/conv77: 0.1160 - _distill_loss_yolov8m/conv82: 0.0494 - _distill_loss_yolov8m/conv83: 0.7354 - total_distill_loss: 3.9446
+Epoch 2/4
+ 1/21 ━━━━━━━━━━━━━━━━━━━━ 2s 135ms/step - _distill_loss_yolov8m/conv51: 0.1408 - _distill_loss_yolov8m/conv57: 0.1267 - _distill_loss_yolov8m/conv58: 0.9988 - _distill_loss_yolov8m/conv64: 0.1704 - _distill_loss_yolov8m/conv70: 0.1469 - _distill_loss_yolov8m/conv71: 0.1692 - _distill_loss_yolov8m/conv77: 0.1363 - _distill_loss_yolov8m/conv82: 0.05 2/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1386 - _distill_loss_yolov8m/conv57: 0.1179 - _distill_loss_yolov8m/conv58: 0.9976 - _distill_loss_yolov8m/conv64: 0.1599 - _distill_loss_yolov8m/conv70: 0.1208 - _distill_loss_yolov8m/conv71: 0.0920 - _distill_loss_yolov8m/conv77: 0.1238 - _distill_loss_yolov8m/conv82: 0.04 3/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1359 - _distill_loss_yolov8m/conv57: 0.1182 - _distill_loss_yolov8m/conv58: 0.9969 - _distill_loss_yolov8m/conv64: 0.1550 - _distill_loss_yolov8m/conv70: 0.1143 - _distill_loss_yolov8m/conv71: 0.0986 - _distill_loss_yolov8m/conv77: 0.1166 - _distill_loss_yolov8m/conv82: 0.04 4/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1370 - _distill_loss_yolov8m/conv57: 0.1148 - _distill_loss_yolov8m/conv58: 0.9971 - _distill_loss_yolov8m/conv64: 0.1597 - _distill_loss_yolov8m/conv70: 0.1135 - _distill_loss_yolov8m/conv71: 0.1030 - _distill_loss_yolov8m/conv77: 0.1209 - _distill_loss_yolov8m/conv82: 0.04 5/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1386 - _distill_loss_yolov8m/conv57: 0.1161 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1644 - _distill_loss_yolov8m/conv70: 0.1164 - _distill_loss_yolov8m/conv71: 0.2824 - _distill_loss_yolov8m/conv77: 0.1250 - _distill_loss_yolov8m/conv82: 0.05 6/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1403 - _distill_loss_yolov8m/conv57: 0.1178 - _distill_loss_yolov8m/conv58: 0.9961 - _distill_loss_yolov8m/conv64: 0.1699 - _distill_loss_yolov8m/conv70: 0.1253 - _distill_loss_yolov8m/conv71: 0.4020 - _distill_loss_yolov8m/conv77: 0.1291 - _distill_loss_yolov8m/conv82: 0.05 7/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1435 - _distill_loss_yolov8m/conv57: 0.1211 - _distill_loss_yolov8m/conv58: 0.9953 - _distill_loss_yolov8m/conv64: 0.1735 - _distill_loss_yolov8m/conv70: 0.1284 - _distill_loss_yolov8m/conv71: 0.3575 - _distill_loss_yolov8m/conv77: 0.1331 - _distill_loss_yolov8m/conv82: 0.05 8/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1443 - _distill_loss_yolov8m/conv57: 0.1213 - _distill_loss_yolov8m/conv58: 0.9958 - _distill_loss_yolov8m/conv64: 0.1758 - _distill_loss_yolov8m/conv70: 0.1314 - _distill_loss_yolov8m/conv71: 0.3348 - _distill_loss_yolov8m/conv77: 0.1353 - _distill_loss_yolov8m/conv82: 0.05 9/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1460 - _distill_loss_yolov8m/conv57: 0.1224 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1770 - _distill_loss_yolov8m/conv70: 0.1321 - _distill_loss_yolov8m/conv71: 0.3143 - _distill_loss_yolov8m/conv77: 0.1361 - _distill_loss_yolov8m/conv82: 0.0510/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1454 - _distill_loss_yolov8m/conv57: 0.1216 - _distill_loss_yolov8m/conv58: 0.9967 - _distill_loss_yolov8m/conv64: 0.1763 - _distill_loss_yolov8m/conv70: 0.1300 - _distill_loss_yolov8m/conv71: 0.2990 - _distill_loss_yolov8m/conv77: 0.1352 - _distill_loss_yolov8m/conv82: 0.0511/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1435 - _distill_loss_yolov8m/conv57: 0.1199 - _distill_loss_yolov8m/conv58: 0.9970 - _distill_loss_yolov8m/conv64: 0.1727 - _distill_loss_yolov8m/conv70: 0.1262 - _distill_loss_yolov8m/conv71: 0.3627 - _distill_loss_yolov8m/conv77: 0.1314 - _distill_loss_yolov8m/conv82: 0.0512/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1422 - _distill_loss_yolov8m/conv57: 0.1194 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1697 - _distill_loss_yolov8m/conv70: 0.1217 - _distill_loss_yolov8m/conv71: 0.4159 - _distill_loss_yolov8m/conv77: 0.1288 - _distill_loss_yolov8m/conv82: 0.0513/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1422 - _distill_loss_yolov8m/conv57: 0.1198 - _distill_loss_yolov8m/conv58: 0.9974 - _distill_loss_yolov8m/conv64: 0.1694 - _distill_loss_yolov8m/conv70: 0.1203 - _distill_loss_yolov8m/conv71: 0.4070 - _distill_loss_yolov8m/conv77: 0.1279 - _distill_loss_yolov8m/conv82: 0.0514/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1426 - _distill_loss_yolov8m/conv57: 0.1201 - _distill_loss_yolov8m/conv58: 0.9976 - _distill_loss_yolov8m/conv64: 0.1707 - _distill_loss_yolov8m/conv70: 0.1216 - _distill_loss_yolov8m/conv71: 0.3964 - _distill_loss_yolov8m/conv77: 0.1289 - _distill_loss_yolov8m/conv82: 0.0515/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1425 - _distill_loss_yolov8m/conv57: 0.1196 - _distill_loss_yolov8m/conv58: 0.9972 - _distill_loss_yolov8m/conv64: 0.1714 - _distill_loss_yolov8m/conv70: 0.1219 - _distill_loss_yolov8m/conv71: 0.4366 - _distill_loss_yolov8m/conv77: 0.1294 - _distill_loss_yolov8m/conv82: 0.0516/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1429 - _distill_loss_yolov8m/conv57: 0.1199 - _distill_loss_yolov8m/conv58: 0.9968 - _distill_loss_yolov8m/conv64: 0.1719 - _distill_loss_yolov8m/conv70: 0.1206 - _distill_loss_yolov8m/conv71: 0.4718 - _distill_loss_yolov8m/conv77: 0.1299 - _distill_loss_yolov8m/conv82: 0.0517/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1429 - _distill_loss_yolov8m/conv57: 0.1206 - _distill_loss_yolov8m/conv58: 0.9966 - _distill_loss_yolov8m/conv64: 0.1725 - _distill_loss_yolov8m/conv70: 0.1219 - _distill_loss_yolov8m/conv71: 0.5029 - _distill_loss_yolov8m/conv77: 0.1302 - _distill_loss_yolov8m/conv82: 0.0518/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1428 - _distill_loss_yolov8m/conv57: 0.1204 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1731 - _distill_loss_yolov8m/conv70: 0.1227 - _distill_loss_yolov8m/conv71: 0.4777 - _distill_loss_yolov8m/conv77: 0.1309 - _distill_loss_yolov8m/conv82: 0.0519/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1427 - _distill_loss_yolov8m/conv57: 0.1203 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1735 - _distill_loss_yolov8m/conv70: 0.1232 - _distill_loss_yolov8m/conv71: 0.4621 - _distill_loss_yolov8m/conv77: 0.1309 - _distill_loss_yolov8m/conv82: 0.0520/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1415 - _distill_loss_yolov8m/conv57: 0.1200 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1706 - _distill_loss_yolov8m/conv70: 0.1206 - _distill_loss_yolov8m/conv71: 0.4692 - _distill_loss_yolov8m/conv77: 0.1283 - _distill_loss_yolov8m/conv82: 0.0521/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1413 - _distill_loss_yolov8m/conv57: 0.1197 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1699 - _distill_loss_yolov8m/conv70: 0.1205 - _distill_loss_yolov8m/conv71: 0.4944 - _distill_loss_yolov8m/conv77: 0.1273 - _distill_loss_yolov8m/conv82: 0.0521/21 ━━━━━━━━━━━━━━━━━━━━ 3s 136ms/step - _distill_loss_yolov8m/conv51: 0.1411 - _distill_loss_yolov8m/conv57: 0.1195 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1692 - _distill_loss_yolov8m/conv70: 0.1205 - _distill_loss_yolov8m/conv71: 0.5174 - _distill_loss_yolov8m/conv77: 0.1265 - _distill_loss_yolov8m/conv82: 0.0519 - _distill_loss_yolov8m/conv83: 0.6969 - total_distill_loss: 2.9394
+Epoch 3/4
+ 1/21 ━━━━━━━━━━━━━━━━━━━━ 2s 142ms/step - _distill_loss_yolov8m/conv51: 0.1462 - _distill_loss_yolov8m/conv57: 0.1149 - _distill_loss_yolov8m/conv58: 0.9969 - _distill_loss_yolov8m/conv64: 0.1667 - _distill_loss_yolov8m/conv70: 0.1273 - _distill_loss_yolov8m/conv71: 0.1819 - _distill_loss_yolov8m/conv77: 0.1150 - _distill_loss_yolov8m/conv82: 0.04 2/21 ━━━━━━━━━━━━━━━━━━━━ 2s 139ms/step - _distill_loss_yolov8m/conv51: 0.1480 - _distill_loss_yolov8m/conv57: 0.1163 - _distill_loss_yolov8m/conv58: 0.9985 - _distill_loss_yolov8m/conv64: 0.1724 - _distill_loss_yolov8m/conv70: 0.1320 - _distill_loss_yolov8m/conv71: 0.1130 - _distill_loss_yolov8m/conv77: 0.1261 - _distill_loss_yolov8m/conv82: 0.05 3/21 ━━━━━━━━━━━━━━━━━━━━ 2s 138ms/step - _distill_loss_yolov8m/conv51: 0.1486 - _distill_loss_yolov8m/conv57: 0.1199 - _distill_loss_yolov8m/conv58: 0.9978 - _distill_loss_yolov8m/conv64: 0.1719 - _distill_loss_yolov8m/conv70: 0.1324 - _distill_loss_yolov8m/conv71: 0.1111 - _distill_loss_yolov8m/conv77: 0.1260 - _distill_loss_yolov8m/conv82: 0.05 4/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1452 - _distill_loss_yolov8m/conv57: 0.1175 - _distill_loss_yolov8m/conv58: 0.9974 - _distill_loss_yolov8m/conv64: 0.1671 - _distill_loss_yolov8m/conv70: 0.1183 - _distill_loss_yolov8m/conv71: 0.1124 - _distill_loss_yolov8m/conv77: 0.1223 - _distill_loss_yolov8m/conv82: 0.05 5/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1456 - _distill_loss_yolov8m/conv57: 0.1169 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1706 - _distill_loss_yolov8m/conv70: 0.1153 - _distill_loss_yolov8m/conv71: 0.2899 - _distill_loss_yolov8m/conv77: 0.1265 - _distill_loss_yolov8m/conv82: 0.05 6/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1460 - _distill_loss_yolov8m/conv57: 0.1180 - _distill_loss_yolov8m/conv58: 0.9970 - _distill_loss_yolov8m/conv64: 0.1731 - _distill_loss_yolov8m/conv70: 0.1157 - _distill_loss_yolov8m/conv71: 0.4083 - _distill_loss_yolov8m/conv77: 0.1293 - _distill_loss_yolov8m/conv82: 0.05 7/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1481 - _distill_loss_yolov8m/conv57: 0.1220 - _distill_loss_yolov8m/conv58: 0.9958 - _distill_loss_yolov8m/conv64: 0.1749 - _distill_loss_yolov8m/conv70: 0.1169 - _distill_loss_yolov8m/conv71: 0.4928 - _distill_loss_yolov8m/conv77: 0.1316 - _distill_loss_yolov8m/conv82: 0.05 8/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1486 - _distill_loss_yolov8m/conv57: 0.1224 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1764 - _distill_loss_yolov8m/conv70: 0.1196 - _distill_loss_yolov8m/conv71: 0.4507 - _distill_loss_yolov8m/conv77: 0.1334 - _distill_loss_yolov8m/conv82: 0.05 9/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1484 - _distill_loss_yolov8m/conv57: 0.1213 - _distill_loss_yolov8m/conv58: 0.9967 - _distill_loss_yolov8m/conv64: 0.1762 - _distill_loss_yolov8m/conv70: 0.1195 - _distill_loss_yolov8m/conv71: 0.4193 - _distill_loss_yolov8m/conv77: 0.1338 - _distill_loss_yolov8m/conv82: 0.0510/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1485 - _distill_loss_yolov8m/conv57: 0.1217 - _distill_loss_yolov8m/conv58: 0.9970 - _distill_loss_yolov8m/conv64: 0.1758 - _distill_loss_yolov8m/conv70: 0.1196 - _distill_loss_yolov8m/conv71: 0.3879 - _distill_loss_yolov8m/conv77: 0.1331 - _distill_loss_yolov8m/conv82: 0.0511/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1470 - _distill_loss_yolov8m/conv57: 0.1201 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1735 - _distill_loss_yolov8m/conv70: 0.1172 - _distill_loss_yolov8m/conv71: 0.3727 - _distill_loss_yolov8m/conv77: 0.1308 - _distill_loss_yolov8m/conv82: 0.0512/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1448 - _distill_loss_yolov8m/conv57: 0.1187 - _distill_loss_yolov8m/conv58: 0.9975 - _distill_loss_yolov8m/conv64: 0.1696 - _distill_loss_yolov8m/conv70: 0.1138 - _distill_loss_yolov8m/conv71: 0.4249 - _distill_loss_yolov8m/conv77: 0.1274 - _distill_loss_yolov8m/conv82: 0.0513/21 ━━━━━━━━━━━━━━━━━━━━ 1s 137ms/step - _distill_loss_yolov8m/conv51: 0.1438 - _distill_loss_yolov8m/conv57: 0.1181 - _distill_loss_yolov8m/conv58: 0.9977 - _distill_loss_yolov8m/conv64: 0.1677 - _distill_loss_yolov8m/conv70: 0.1115 - _distill_loss_yolov8m/conv71: 0.4241 - _distill_loss_yolov8m/conv77: 0.1255 - _distill_loss_yolov8m/conv82: 0.0514/21 ━━━━━━━━━━━━━━━━━━━━ 0s 137ms/step - _distill_loss_yolov8m/conv51: 0.1435 - _distill_loss_yolov8m/conv57: 0.1176 - _distill_loss_yolov8m/conv58: 0.9979 - _distill_loss_yolov8m/conv64: 0.1680 - _distill_loss_yolov8m/conv70: 0.1137 - _distill_loss_yolov8m/conv71: 0.4078 - _distill_loss_yolov8m/conv77: 0.1254 - _distill_loss_yolov8m/conv82: 0.0515/21 ━━━━━━━━━━━━━━━━━━━━ 0s 137ms/step - _distill_loss_yolov8m/conv51: 0.1435 - _distill_loss_yolov8m/conv57: 0.1169 - _distill_loss_yolov8m/conv58: 0.9975 - _distill_loss_yolov8m/conv64: 0.1687 - _distill_loss_yolov8m/conv70: 0.1129 - _distill_loss_yolov8m/conv71: 0.3944 - _distill_loss_yolov8m/conv77: 0.1258 - _distill_loss_yolov8m/conv82: 0.0516/21 ━━━━━━━━━━━━━━━━━━━━ 0s 137ms/step - _distill_loss_yolov8m/conv51: 0.1434 - _distill_loss_yolov8m/conv57: 0.1164 - _distill_loss_yolov8m/conv58: 0.9970 - _distill_loss_yolov8m/conv64: 0.1687 - _distill_loss_yolov8m/conv70: 0.1115 - _distill_loss_yolov8m/conv71: 0.4322 - _distill_loss_yolov8m/conv77: 0.1259 - _distill_loss_yolov8m/conv82: 0.0517/21 ━━━━━━━━━━━━━━━━━━━━ 0s 137ms/step - _distill_loss_yolov8m/conv51: 0.1434 - _distill_loss_yolov8m/conv57: 0.1166 - _distill_loss_yolov8m/conv58: 0.9968 - _distill_loss_yolov8m/conv64: 0.1689 - _distill_loss_yolov8m/conv70: 0.1103 - _distill_loss_yolov8m/conv71: 0.4656 - _distill_loss_yolov8m/conv77: 0.1264 - _distill_loss_yolov8m/conv82: 0.0518/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1433 - _distill_loss_yolov8m/conv57: 0.1165 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1696 - _distill_loss_yolov8m/conv70: 0.1114 - _distill_loss_yolov8m/conv71: 0.4953 - _distill_loss_yolov8m/conv77: 0.1269 - _distill_loss_yolov8m/conv82: 0.0519/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1432 - _distill_loss_yolov8m/conv57: 0.1161 - _distill_loss_yolov8m/conv58: 0.9964 - _distill_loss_yolov8m/conv64: 0.1701 - _distill_loss_yolov8m/conv70: 0.1121 - _distill_loss_yolov8m/conv71: 0.4763 - _distill_loss_yolov8m/conv77: 0.1274 - _distill_loss_yolov8m/conv82: 0.0520/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1423 - _distill_loss_yolov8m/conv57: 0.1157 - _distill_loss_yolov8m/conv58: 0.9964 - _distill_loss_yolov8m/conv64: 0.1684 - _distill_loss_yolov8m/conv70: 0.1113 - _distill_loss_yolov8m/conv71: 0.4624 - _distill_loss_yolov8m/conv77: 0.1256 - _distill_loss_yolov8m/conv82: 0.0521/21 ━━━━━━━━━━━━━━━━━━━━ 0s 136ms/step - _distill_loss_yolov8m/conv51: 0.1417 - _distill_loss_yolov8m/conv57: 0.1157 - _distill_loss_yolov8m/conv58: 0.9966 - _distill_loss_yolov8m/conv64: 0.1668 - _distill_loss_yolov8m/conv70: 0.1100 - _distill_loss_yolov8m/conv71: 0.4880 - _distill_loss_yolov8m/conv77: 0.1238 - _distill_loss_yolov8m/conv82: 0.0521/21 ━━━━━━━━━━━━━━━━━━━━ 3s 136ms/step - _distill_loss_yolov8m/conv51: 0.1411 - _distill_loss_yolov8m/conv57: 0.1157 - _distill_loss_yolov8m/conv58: 0.9967 - _distill_loss_yolov8m/conv64: 0.1654 - _distill_loss_yolov8m/conv70: 0.1089 - _distill_loss_yolov8m/conv71: 0.5113 - _distill_loss_yolov8m/conv77: 0.1223 - _distill_loss_yolov8m/conv82: 0.0497 - _distill_loss_yolov8m/conv83: 0.6937 - total_distill_loss: 2.9048
+Epoch 4/4
+ 1/21 ━━━━━━━━━━━━━━━━━━━━ 2s 140ms/step - _distill_loss_yolov8m/conv51: 0.1337 - _distill_loss_yolov8m/conv57: 0.0991 - _distill_loss_yolov8m/conv58: 0.9958 - _distill_loss_yolov8m/conv64: 0.1542 - _distill_loss_yolov8m/conv70: 0.1125 - _distill_loss_yolov8m/conv71: 1.0000 - _distill_loss_yolov8m/conv77: 0.1106 - _distill_loss_yolov8m/conv82: 0.04 2/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1424 - _distill_loss_yolov8m/conv57: 0.1174 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1650 - _distill_loss_yolov8m/conv70: 0.1143 - _distill_loss_yolov8m/conv71: 0.5846 - _distill_loss_yolov8m/conv77: 0.1231 - _distill_loss_yolov8m/conv82: 0.04 3/21 ━━━━━━━━━━━━━━━━━━━━ 2s 137ms/step - _distill_loss_yolov8m/conv51: 0.1432 - _distill_loss_yolov8m/conv57: 0.1141 - _distill_loss_yolov8m/conv58: 0.9970 - _distill_loss_yolov8m/conv64: 0.1633 - _distill_loss_yolov8m/conv70: 0.1091 - _distill_loss_yolov8m/conv71: 0.3944 - _distill_loss_yolov8m/conv77: 0.1193 - _distill_loss_yolov8m/conv82: 0.04 4/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1416 - _distill_loss_yolov8m/conv57: 0.1152 - _distill_loss_yolov8m/conv58: 0.9969 - _distill_loss_yolov8m/conv64: 0.1603 - _distill_loss_yolov8m/conv70: 0.1135 - _distill_loss_yolov8m/conv71: 0.3227 - _distill_loss_yolov8m/conv77: 0.1164 - _distill_loss_yolov8m/conv82: 0.04 5/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1411 - _distill_loss_yolov8m/conv57: 0.1127 - _distill_loss_yolov8m/conv58: 0.9968 - _distill_loss_yolov8m/conv64: 0.1616 - _distill_loss_yolov8m/conv70: 0.1074 - _distill_loss_yolov8m/conv71: 0.2814 - _distill_loss_yolov8m/conv77: 0.1186 - _distill_loss_yolov8m/conv82: 0.04 6/21 ━━━━━━━━━━━━━━━━━━━━ 2s 136ms/step - _distill_loss_yolov8m/conv51: 0.1408 - _distill_loss_yolov8m/conv57: 0.1130 - _distill_loss_yolov8m/conv58: 0.9969 - _distill_loss_yolov8m/conv64: 0.1609 - _distill_loss_yolov8m/conv70: 0.1014 - _distill_loss_yolov8m/conv71: 0.4012 - _distill_loss_yolov8m/conv77: 0.1201 - _distill_loss_yolov8m/conv82: 0.04 7/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1409 - _distill_loss_yolov8m/conv57: 0.1152 - _distill_loss_yolov8m/conv58: 0.9959 - _distill_loss_yolov8m/conv64: 0.1617 - _distill_loss_yolov8m/conv70: 0.1028 - _distill_loss_yolov8m/conv71: 0.4867 - _distill_loss_yolov8m/conv77: 0.1199 - _distill_loss_yolov8m/conv82: 0.04 8/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1408 - _distill_loss_yolov8m/conv57: 0.1148 - _distill_loss_yolov8m/conv58: 0.9952 - _distill_loss_yolov8m/conv64: 0.1630 - _distill_loss_yolov8m/conv70: 0.1058 - _distill_loss_yolov8m/conv71: 0.4424 - _distill_loss_yolov8m/conv77: 0.1213 - _distill_loss_yolov8m/conv82: 0.04 9/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1398 - _distill_loss_yolov8m/conv57: 0.1135 - _distill_loss_yolov8m/conv58: 0.9958 - _distill_loss_yolov8m/conv64: 0.1627 - _distill_loss_yolov8m/conv70: 0.1068 - _distill_loss_yolov8m/conv71: 0.4138 - _distill_loss_yolov8m/conv77: 0.1207 - _distill_loss_yolov8m/conv82: 0.0410/21 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step - _distill_loss_yolov8m/conv51: 0.1394 - _distill_loss_yolov8m/conv57: 0.1125 - _distill_loss_yolov8m/conv58: 0.9962 - _distill_loss_yolov8m/conv64: 0.1617 - _distill_loss_yolov8m/conv70: 0.1050 - _distill_loss_yolov8m/conv71: 0.3882 - _distill_loss_yolov8m/conv77: 0.1198 - _distill_loss_yolov8m/conv82: 0.0411/21 ━━━━━━━━━━━━━━━━━━━━ 1s 135ms/step - _distill_loss_yolov8m/conv51: 0.1384 - _distill_loss_yolov8m/conv57: 0.1118 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1605 - _distill_loss_yolov8m/conv70: 0.1059 - _distill_loss_yolov8m/conv71: 0.3683 - _distill_loss_yolov8m/conv77: 0.1182 - _distill_loss_yolov8m/conv82: 0.0412/21 ━━━━━━━━━━━━━━━━━━━━ 1s 135ms/step - _distill_loss_yolov8m/conv51: 0.1367 - _distill_loss_yolov8m/conv57: 0.1102 - _distill_loss_yolov8m/conv58: 0.9968 - _distill_loss_yolov8m/conv64: 0.1575 - _distill_loss_yolov8m/conv70: 0.1035 - _distill_loss_yolov8m/conv71: 0.4209 - _distill_loss_yolov8m/conv77: 0.1153 - _distill_loss_yolov8m/conv82: 0.0413/21 ━━━━━━━━━━━━━━━━━━━━ 1s 135ms/step - _distill_loss_yolov8m/conv51: 0.1353 - _distill_loss_yolov8m/conv57: 0.1094 - _distill_loss_yolov8m/conv58: 0.9971 - _distill_loss_yolov8m/conv64: 0.1550 - _distill_loss_yolov8m/conv70: 0.1008 - _distill_loss_yolov8m/conv71: 0.4655 - _distill_loss_yolov8m/conv77: 0.1131 - _distill_loss_yolov8m/conv82: 0.0414/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1350 - _distill_loss_yolov8m/conv57: 0.1093 - _distill_loss_yolov8m/conv58: 0.9973 - _distill_loss_yolov8m/conv64: 0.1543 - _distill_loss_yolov8m/conv70: 0.0996 - _distill_loss_yolov8m/conv71: 0.4528 - _distill_loss_yolov8m/conv77: 0.1121 - _distill_loss_yolov8m/conv82: 0.0415/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1351 - _distill_loss_yolov8m/conv57: 0.1097 - _distill_loss_yolov8m/conv58: 0.9975 - _distill_loss_yolov8m/conv64: 0.1547 - _distill_loss_yolov8m/conv70: 0.0995 - _distill_loss_yolov8m/conv71: 0.4364 - _distill_loss_yolov8m/conv77: 0.1127 - _distill_loss_yolov8m/conv82: 0.0416/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1351 - _distill_loss_yolov8m/conv57: 0.1093 - _distill_loss_yolov8m/conv58: 0.9971 - _distill_loss_yolov8m/conv64: 0.1550 - _distill_loss_yolov8m/conv70: 0.0985 - _distill_loss_yolov8m/conv71: 0.4716 - _distill_loss_yolov8m/conv77: 0.1133 - _distill_loss_yolov8m/conv82: 0.0417/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1351 - _distill_loss_yolov8m/conv57: 0.1093 - _distill_loss_yolov8m/conv58: 0.9968 - _distill_loss_yolov8m/conv64: 0.1553 - _distill_loss_yolov8m/conv70: 0.0983 - _distill_loss_yolov8m/conv71: 0.5027 - _distill_loss_yolov8m/conv77: 0.1137 - _distill_loss_yolov8m/conv82: 0.0418/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1349 - _distill_loss_yolov8m/conv57: 0.1095 - _distill_loss_yolov8m/conv58: 0.9966 - _distill_loss_yolov8m/conv64: 0.1554 - _distill_loss_yolov8m/conv70: 0.0981 - _distill_loss_yolov8m/conv71: 0.5303 - _distill_loss_yolov8m/conv77: 0.1140 - _distill_loss_yolov8m/conv82: 0.0419/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1348 - _distill_loss_yolov8m/conv57: 0.1091 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1559 - _distill_loss_yolov8m/conv70: 0.0982 - _distill_loss_yolov8m/conv71: 0.5030 - _distill_loss_yolov8m/conv77: 0.1144 - _distill_loss_yolov8m/conv82: 0.0420/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1348 - _distill_loss_yolov8m/conv57: 0.1090 - _distill_loss_yolov8m/conv58: 0.9963 - _distill_loss_yolov8m/conv64: 0.1561 - _distill_loss_yolov8m/conv70: 0.0979 - _distill_loss_yolov8m/conv71: 0.4862 - _distill_loss_yolov8m/conv77: 0.1145 - _distill_loss_yolov8m/conv82: 0.0421/21 ━━━━━━━━━━━━━━━━━━━━ 0s 135ms/step - _distill_loss_yolov8m/conv51: 0.1338 - _distill_loss_yolov8m/conv57: 0.1086 - _distill_loss_yolov8m/conv58: 0.9965 - _distill_loss_yolov8m/conv64: 0.1539 - _distill_loss_yolov8m/conv70: 0.0964 - _distill_loss_yolov8m/conv71: 0.4893 - _distill_loss_yolov8m/conv77: 0.1125 - _distill_loss_yolov8m/conv82: 0.0421/21 ━━━━━━━━━━━━━━━━━━━━ 3s 135ms/step - _distill_loss_yolov8m/conv51: 0.1329 - _distill_loss_yolov8m/conv57: 0.1082 - _distill_loss_yolov8m/conv58: 0.9967 - _distill_loss_yolov8m/conv64: 0.1519 - _distill_loss_yolov8m/conv70: 0.0951 - _distill_loss_yolov8m/conv71: 0.4922 - _distill_loss_yolov8m/conv77: 0.1107 - _distill_loss_yolov8m/conv82: 0.0428 - _distill_loss_yolov8m/conv83: 0.7362 - total_distill_loss: 2.8666
+[info] Model Optimization Algorithm Quantization-Aware Fine-Tuning is done (completion time is 00:01:27.72)
+[info] Starting Layer Noise Analysis
+Full Quant Analysis: 100%|██████| 8/8 [00:56<00:00,  7.03s/iterations]
+[info] Model Optimization Algorithm Layer Noise Analysis is done (completion time is 00:00:58.17)
+[info] Model Optimization is done
+[info] Saved HAR to: /local/workspace/yolov8m.har
+<Hailo Model Zoo INFO> Using generic alls script found in /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls because there is no specific hardware alls
+[info] Loading model script commands to yolov8m from /local/workspace/hailo_model_zoo/hailo_model_zoo/cfg/alls/generic/yolov8m.alls
+[info] ParsedPerformanceParam command, setting optimization_level(max=2)
+[info] Appending model script commands to yolov8m from string
+[info] ParsedPerformanceParam command, setting optimization_level(max=2)
+[info] Loading network parameters
+[info] Starting Hailo allocation and compilation flow
+[info] Adding an output layer after conv57
+[info] Adding an output layer after conv58
+[info] Adding an output layer after conv70
+[info] Adding an output layer after conv71
+[info] Adding an output layer after conv82
+[info] Adding an output layer after conv83
+[info] Building optimization options for network layers...
+[info] Successfully built optimization options - 8s 875ms
+[error] Mapping Failed (allocation time: 9s)
+Performance Flow requires automatic resource utilization
+
+[error] Failed to produce compiled graph
+[error] BackendAllocatorException: Compilation failed: Performance Flow requires automatic resource utilization
+(hailo_virtualenv) hailo@7959X:/local/workspace$ 
