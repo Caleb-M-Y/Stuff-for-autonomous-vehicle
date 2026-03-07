@@ -1,60 +1,117 @@
-# Retrain an Object Detection Model using YOLO 
-Do following on the desktop in Robotics Lab.
+# USB -> Auto-Label -> Train -> Hailo Compile (Current Workflow)
 
-## Copy Dataset to Docker
-```bash
-cd ~
-docker cp ~/balbuc_dataset/ hailo8_ai_sw_suite_2025-10_container:/local/workspace/datasets/
+This guide reflects the current repository pipeline in `sd_data_and_training/`.
+
+## 1) Stage raw USB images into this repo (Windows)
+
+Example with USB drive `E:`:
+
+```powershell
+robocopy E:\images_16 RoboFlowDatasets\new_unlabeled\images\images_16 /E
+robocopy E:\images_17 RoboFlowDatasets\new_unlabeled\images\images_17 /E
+robocopy E:\images_18 RoboFlowDatasets\new_unlabeled\images\images_18 /E
 ```
 
-## Launch Docker
+Important:
+- Keep subfolder structure (`images_16`, `images_17`, etc).
+- Do not flatten filenames. Many files repeat names across folders.
 
-```bash
-cd ~/hailo8_ai_sw_suite_2025-10_docker
-./hailo_ai_sw_suite_docker_run.sh --resume
-```
-> [!NOTE]
-> Your command line prompt became `(hailo_virtualenv) hailo@<hostname>:/local/workspace$`
+## 2) Auto-annotate with best checkpoint
 
-## (In Docker) Launch the Retraining 
-```bash
-cd /local/workspace/hailo_model_zoo/training/yolov8
-yolo detect train data=/local/workspace/datasets/balbuc_dataset/data.yaml model=yolov8m.pt name=balbuc_yolov8m epochs=50 batch=16
-```
-> [!TIP]
-> use `model=yolov8s.pt` if you need a lighter weighted model.
-
-
-### Validate the new checkpoint 
-
-```bash
-ls /local/workspace/datasets/balbuc_dataset/valid/images  # use any jpg file for next step
-yolo predict task=detect source=/local/workspace/datasets/buckets_dataset/valid/images/IMG_4511_jpg.rf.a1ce9a90595b28c828cbe7cd098bca9d.jpg model=/local/workspace/hailo_model_zoo/training/yolov8/runs/detect/bucket_yolov8s/weights/best.pt
+```powershell
+"C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/.venv/Scripts/python.exe" sd_data_and_training/scripts/auto_annotate_yolo.py ^
+	--config sd_data_and_training/config.yaml ^
+	--images-dir RoboFlowDatasets/new_unlabeled/images ^
+	--labels-out RoboFlowDatasets/new_unlabeled/labels ^
+	--teacher-model sd_data_and_training/runs/ball_bucket_vnext_m/weights/best.pt ^
+	--conf 0.40 ^
+	--iou 0.50 ^
+	--imgsz 640 ^
+	--max-det 60 ^
+	--no-preview
 ```
 
-### Export the model to ONNX
+## 3) Build a review subset before final training
 
-```bash
-yolo export model=/local/workspace/hailo_model_zoo/training/yolov8/runs/detect/balbuc_yolov8m/weights/best.pt imgsz=640 format=onnx opset=11
+```powershell
+"C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/.venv/Scripts/python.exe" sd_data_and_training/scripts/build_review_set.py ^
+	--config sd_data_and_training/config.yaml ^
+	--images-dir RoboFlowDatasets/new_unlabeled/images ^
+	--labels-dir RoboFlowDatasets/new_unlabeled/labels ^
+	--out-dir RoboFlowDatasets/new_unlabeled/review_subset ^
+	--sample-n 500 ^
+	--empty-sample-n 180
 ```
 
-## Copy the ONNX to a dedicated directory
+Review outputs:
+- `RoboFlowDatasets/new_unlabeled/review_subset/non_empty/`
+- `RoboFlowDatasets/new_unlabeled/review_subset/empty/`
+- `RoboFlowDatasets/new_unlabeled/review_subset/review_manifest.csv`
 
-```bash
-cd /local/workspace/hailo_model_zoo/training/yolov8/bucket_models
-cp ../runs/detect/bucket_yolov8s/weights/best.onnx ./bucket_detector.onnx
+Correction options:
+- Fastest: upload `images` + generated `labels` to Roboflow and correct there.
+- Or fix YOLO txt files directly and retrain.
+
+## 4) Train on original + new USB pseudo-labels
+
+Use a combined `data.yaml` that includes both:
+- `RoboFlowDatasets/train`
+- `RoboFlowDatasets/new_unlabeled/images`
+
+Example command:
+
+```powershell
+"C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/.venv/Scripts/python.exe" sd_data_and_training/scripts/train_yolo.py ^
+	--config sd_data_and_training/config.yaml ^
+	--data-yaml sd_data_and_training/artifacts/data_train_plus_usb_autolabel_20260306.yaml ^
+	--model sd_data_and_training/runs/ball_bucket_vnext_m/weights/best.pt ^
+	--run-name ball_bucket_vnext_m_usb_autolabel_20260306 ^
+	--epochs 120 ^
+	--batch 8 ^
+	--workers 4
 ```
 
+## 5) Export ONNX + labels JSON for deployment
 
-## Convert the model to Hailo 
+```powershell
+"C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/.venv/Scripts/python.exe" sd_data_and_training/scripts/export_for_hailo.py ^
+	--config sd_data_and_training/config.yaml ^
+	--weights sd_data_and_training/runs/<run_name>/weights/best.pt ^
+	--opset 11 ^
+	--no-simplify
+```
 
-Use the Hailo Model Zoo command (this can take up to 30 minutes):
+Outputs:
+- ONNX in `sd_data_and_training/exports/`
+- runtime labels JSON at `AUTONOMOUS_CODE_SD/models/ball_bucket.json`
+
+## 6) Compile to HEF in Hailo Docker
 
 ```bash
-hailomz compile yolov8m --ckpt=/local/workspace/hailo_model_zoo/training/yolov8/runs/detect/balbuc_yolov8m/weights/best.onnx --hw-arch hailo8 --calib-path /local/workspace/datasets/balbuc_dataset/test/images/ --classes 8 --performance
+hailomz compile yolov8m --ckpt=/local/workspace/path/to/best.onnx --hw-arch hailo8 --calib-path /local/workspace/path/to/calib/images --classes 8 --performance
 ```
-> [!NOTE]
-> This will take quite a while.
-> Make a coffee, stretch your legs.
-> But after the conversion,you will get the `yolov8m.hef` in current directory.
-This is the model file can be used on the Hailo AI HAT on top of Raspberry Pi 5.
+
+If your trained model is `yolov8s`, use `yolov8s` in the command.
+
+## 7) Fix for professor error (`expected conv but found activation layer`)
+
+If you get:
+
+`AllocatorScriptParserException: expected conv but found activation layer`
+
+Do these in order:
+1. Re-export ONNX from `.pt` with `--opset 11 --no-simplify`.
+2. Ensure `hailomz compile yolov8*` matches your training backbone (`yolov8m` vs `yolov8s`).
+3. Use the newly exported ONNX, not an older copied file.
+4. Re-run compile.
+
+## 8) Yellow bucket missing-label issue (robot)
+
+Potential root causes:
+- Label-map mismatch between `.hef` class indices and `models/ball_bucket.json` order.
+- Runtime using an old/hand-edited JSON instead of exported JSON.
+
+Fix:
+1. Always deploy `AUTONOMOUS_CODE_SD/models/ball_bucket.json` generated by `export_for_hailo.py` from the same model version.
+2. Keep class order stable across train/export/runtime.
+3. If logs show unlabeled detections like `;:0.62`, treat it as label-map mismatch and regenerate/redeploy model + JSON as a pair.

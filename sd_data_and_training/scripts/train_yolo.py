@@ -13,6 +13,17 @@ def main() -> None:
     parser.add_argument("--config", type=str, required=True, help="Path to config YAML.")
     parser.add_argument("--data-yaml", type=str, default=None, help="Optional existing data.yaml override.")
     parser.add_argument("--model", type=str, default=None, help="Base model or checkpoint override.")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume an interrupted run from a checkpoint instead of starting a new train call.",
+    )
+    parser.add_argument(
+        "--resume-from",
+        type=str,
+        default=None,
+        help="Optional checkpoint path for --resume. Defaults to <project>/<run-name>/weights/last.pt.",
+    )
     parser.add_argument("--epochs", type=int, default=None, help="Epoch count override.")
     parser.add_argument("--batch", type=int, default=None, help="Batch size override.")
     parser.add_argument("--imgsz", type=int, default=None, help="Image size override.")
@@ -45,10 +56,28 @@ def main() -> None:
     patience = int(args.patience if args.patience is not None else train_cfg.get("patience", 30))
     device = str(args.device if args.device is not None else train_cfg.get("device", "0"))
     run_name = args.run_name or train_cfg.get("run_name", "ball_bucket_vnext")
+    run_dir = train_project_dir / run_name
+
+    if args.resume:
+        checkpoint_path = Path(args.resume_from).expanduser() if args.resume_from else run_dir / "weights" / "last.pt"
+        if not checkpoint_path.exists():
+            raise FileNotFoundError(f"Resume checkpoint not found: {checkpoint_path}")
+
+        print(f"Resuming from checkpoint: {checkpoint_path}")
+        print(f"Run output: {run_dir}")
+        model = YOLO(str(checkpoint_path))
+        model.train(resume=True)
+
+        best_path = run_dir / "weights" / "best.pt"
+        last_path = run_dir / "weights" / "last.pt"
+        print("Resume complete.")
+        print(f"best.pt: {best_path}")
+        print(f"last.pt: {last_path}")
+        return
 
     print(f"Training model: {model_path}")
     print(f"Data YAML: {data_yaml}")
-    print(f"Run output: {train_project_dir / run_name}")
+    print(f"Run output: {run_dir}")
 
     model = YOLO(model_path)
     model.train(
@@ -64,7 +93,6 @@ def main() -> None:
         exist_ok=True,
     )
 
-    run_dir = train_project_dir / run_name
     best_path = run_dir / "weights" / "best.pt"
     last_path = run_dir / "weights" / "last.pt"
 

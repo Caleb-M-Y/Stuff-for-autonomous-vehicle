@@ -335,6 +335,13 @@ def main():
             engine.push_frame(rgb_640)
             detections = engine.get_latest()
             frame_index += 1
+            unlabeled_count = sum(1 for label, _, _ in detections if not str(label).strip())
+            if unlabeled_count and (frame_index % 30) == 0:
+                print(
+                    "[WARN] Received detections with empty labels. "
+                    "This usually indicates model/labels JSON mismatch. "
+                    f"unlabeled={unlabeled_count}"
+                )
 
             # 3) Dispatch by mode (centralized state machine)
             if user_data.mode == "pause":
@@ -387,7 +394,10 @@ def main():
 
             if telemetry_writer is not None:
                 dist_src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
-                detection_summary = ";".join(f"{label}:{conf:.2f}" for label, conf, _ in detections[:12])
+                detection_summary = ";".join(
+                    f"{(label if str(label).strip() else '<unlabeled>')}:{conf:.2f}"
+                    for label, conf, _ in detections[:12]
+                )
                 telemetry_writer.writerow(
                     [
                         datetime.now().isoformat(timespec="milliseconds"),
@@ -412,6 +422,7 @@ def main():
                 for label, conf, bbox in detections:
                     if conf < 0.25:
                         continue
+                    display_label = label if str(label).strip() else "<unlabeled>"
                     x1 = int(bbox.xmin() * depth_width)
                     y1 = int(bbox.ymin() * depth_height)
                     x2 = int(bbox.xmax() * depth_width)
@@ -423,7 +434,7 @@ def main():
                     cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     cv2.putText(
                         frame_bgr,
-                        f"{label} {conf:.2f}",
+                        f"{display_label} {conf:.2f}",
                         (x1, max(20, y1 - 8)),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.55,

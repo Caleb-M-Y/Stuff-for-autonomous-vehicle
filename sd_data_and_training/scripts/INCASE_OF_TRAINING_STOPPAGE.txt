@@ -1,0 +1,19 @@
+Incase the training gets interupted like what happened to me see below: 
+
+****************************************************************************************
+FIRST OPTION:
+
+run this: 
+
+& "C:/Users/hogwi/OneDrive/VSCode GitHub Repos/Stuff-for-autonomous-vehicle/.venv/Scripts/python.exe" `
+  sd_data_and_training/scripts/train_yolo.py `
+  --config sd_data_and_training/config.yaml `
+  --run-name ball_bucket_vnext_m_usb_autolabel_20260306 `
+  --resume
+
+  *****************************************************************************************
+    SECOND OPTION: 
+
+    run this: 
+
+    --resume-from sd_data_and_training/runs/ball_bucket_vnext_m_usb_autolabel_20260306/weights/last.pt

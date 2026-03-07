@@ -40,11 +40,13 @@ def main() -> None:
     train_names: list[str] = classes_cfg["train_names"]
     target_map = class_name_map(train_names)
 
-    images_dir = Path(args.images_dir or paths_cfg["unlabeled_images_dir"])
-    labels_out = Path(args.labels_out or paths_cfg["autolabel_labels_out_dir"])
+    # list_image_paths() returns absolute resolved paths, so resolve roots too.
+    # This prevents relpath failures that can silently flatten nested labels.
+    images_dir = Path(args.images_dir or paths_cfg["unlabeled_images_dir"]).resolve()
+    labels_out = Path(args.labels_out or paths_cfg["autolabel_labels_out_dir"]).resolve()
 
     save_preview = bool(auto_cfg.get("save_preview", True)) and not args.no_preview
-    preview_out = Path(args.preview_out or paths_cfg.get("autolabel_preview_out_dir", labels_out / "_preview"))
+    preview_out = Path(args.preview_out or paths_cfg.get("autolabel_preview_out_dir", labels_out / "_preview")).resolve()
 
     teacher_model = args.teacher_model or auto_cfg.get("teacher_model", "yolov8s.pt")
     conf = float(args.conf if args.conf is not None else auto_cfg.get("conf", 0.35))
@@ -73,8 +75,10 @@ def main() -> None:
     for image_path in tqdm(image_paths, desc="Auto-labeling", unit="img"):
         try:
             rel = image_path.relative_to(images_dir)
-        except ValueError:
-            rel = Path(image_path.name)
+        except ValueError as exc:
+            raise RuntimeError(
+                f"Image path is outside images_dir. image={image_path} images_dir={images_dir}"
+            ) from exc
 
         label_path = labels_out / rel.with_suffix(".txt")
         ensure_dir(label_path.parent)

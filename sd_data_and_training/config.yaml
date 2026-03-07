@@ -67,6 +67,9 @@ evaluation:
 hailo:
   detection_threshold: 0.50
   max_boxes: 200
+  # Hailo-compat defaults: avoid ONNX simplify unless you have validated it.
+  export_opset: 11
+  export_simplify: false
 
 roboflow:
   enabled: false

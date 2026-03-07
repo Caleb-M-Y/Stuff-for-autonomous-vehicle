@@ -14,8 +14,13 @@ def main() -> None:
     parser.add_argument("--config", type=str, required=True, help="Path to config YAML.")
     parser.add_argument("--weights", type=str, required=True, help="Path to trained best.pt.")
     parser.add_argument("--imgsz", type=int, default=None, help="Export image size override.")
+    parser.add_argument("--opset", type=int, default=None, help="ONNX opset override.")
     parser.add_argument("--out-dir", type=str, default=None, help="ONNX output directory override.")
     parser.add_argument("--labels-json-out", type=str, default=None, help="Hailo labels JSON path override.")
+    simplify_group = parser.add_mutually_exclusive_group()
+    simplify_group.add_argument("--simplify", dest="simplify", action="store_true", help="Enable ONNX graph simplify.")
+    simplify_group.add_argument("--no-simplify", dest="simplify", action="store_false", help="Disable ONNX graph simplify.")
+    parser.set_defaults(simplify=None)
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -29,17 +34,21 @@ def main() -> None:
         raise FileNotFoundError(f"weights not found: {weights}")
 
     imgsz = int(args.imgsz if args.imgsz is not None else train_cfg.get("imgsz", 640))
+    opset = int(args.opset if args.opset is not None else hailo_cfg.get("export_opset", 11))
+    simplify = bool(args.simplify) if args.simplify is not None else bool(hailo_cfg.get("export_simplify", False))
     out_dir = ensure_dir(args.out_dir or paths_cfg["export_out_dir"])
 
     print(f"Exporting ONNX from: {weights}")
+    print(f"Export params: imgsz={imgsz}, opset={opset}, simplify={simplify}")
     model = YOLO(str(weights))
     export_path = Path(
         model.export(
             format="onnx",
             imgsz=imgsz,
-            opset=12,
-            simplify=True,
+            opset=opset,
+            simplify=simplify,
             dynamic=False,
+            nms=False,
         )
     )
 

@@ -15,6 +15,7 @@ It is designed around your current runtime assumptions:
 - `scripts/roboflow_download.py`: Download Roboflow versioned dataset.
 - `scripts/convert_coco_to_yolo.py`: Convert Roboflow COCO split exports into YOLO txt labels.
 - `scripts/auto_annotate_yolo.py`: Pseudo-label new images using a teacher YOLO model.
+- `scripts/build_review_set.py`: Build a sampled visual QA set from YOLO labels.
 - `scripts/train_yolo.py`: Train a new YOLO model.
 - `scripts/evaluate_yolo.py`: Validate trained weights.
 - `scripts/export_for_hailo.py`: Export ONNX + generate Hailo labels JSON.
@@ -83,6 +84,25 @@ python sd_data_and_training\scripts\auto_annotate_yolo.py ^
 
 Recommended: upload images + labels to Roboflow and do a quick human correction pass before training.
 
+If your raw images come from multiple subfolders and repeated filenames (for example `images_16/image_000001.jpg`, `images_17/image_000001.jpg`), keep directory structure when copying. The auto-label script preserves subfolders and writes matching nested labels.
+
+### C2) Build a fast review subset before full retrain
+
+```powershell
+python sd_data_and_training\scripts\build_review_set.py ^
+  --config sd_data_and_training\config.yaml ^
+  --images-dir "C:\path\to\new_images" ^
+  --labels-dir "C:\path\to\new_labels" ^
+  --out-dir "C:\path\to\review_subset" ^
+  --sample-n 500 ^
+  --empty-sample-n 180
+```
+
+This creates:
+- `review_subset/non_empty/` with drawn boxes
+- `review_subset/empty/` with samples that received no boxes
+- `review_subset/review_manifest.csv` for traceability
+
 ### D) Train a new model
 
 ```powershell
@@ -107,6 +127,17 @@ python sd_data_and_training\scripts\evaluate_yolo.py ^
 python sd_data_and_training\scripts\export_for_hailo.py ^
   --config sd_data_and_training\config.yaml ^
   --weights "C:\path\to\best.pt"
+```
+
+For Hailo conversion compatibility, this pipeline defaults to `opset=11` and `simplify=false`.
+You can override if needed:
+
+```powershell
+python sd_data_and_training\scripts\export_for_hailo.py ^
+  --config sd_data_and_training\config.yaml ^
+  --weights "C:\path\to\best.pt" ^
+  --opset 11 ^
+  --no-simplify
 ```
 
 This writes:
@@ -166,6 +197,7 @@ The currently downloaded Roboflow export includes a `sport-ball` class entry wit
 - Your runtime color/target matching in `AUTONOMOUS_CODE_SD/state_machine.py` can parse labels with spaces or underscores.
 - `export_for_hailo.py` writes display labels with spaces to match your current `ball_bucket.json` convention.
 - If you change class names, update `classes.train_names` and `classes.hailo_display_names` together.
+- If telemetry ever contains unlabeled detections (for example `;:0.62`), treat it as a label-map mismatch signal and re-export/copy a fresh `ball_bucket.json` from this pipeline before field runs.
 
 ## Suggested Next Upgrade
 
