@@ -1,0 +1,186 @@
+ball-e@7959X:~$ ls\
+> 
+ 4.5.2.zip
+ balbuc_test.hef
+ ball-e@192.168.0.244
+ ball-e_dataset
+ balle_detector.hef
+ best_0307.onnx
+ best.onnx
+ Desktop
+ Documents
+ Downloads
+ hailo8_ai_sw_suite_2025-10_docker
+'~hailo_uploads'
+ hailo_uploads
+ IMG_8599_jpg.rf.2fea3724ffe3d47ca4b345b51d8a823a.jpg
+ Music
+ opencv-4.5.2
+ Pictures
+ Public
+ snap
+ Templates
+ Videos
+ball-e@7959X:~$ ls
+ 4.5.2.zip
+ balbuc_test.hef
+ ball-e@192.168.0.244
+ ball-e_dataset
+ balle_detector.hef
+ best_0307.onnx
+ best.onnx
+ Desktop
+ Documents
+ Downloads
+ hailo8_ai_sw_suite_2025-10_docker
+'~hailo_uploads'
+ hailo_uploads
+ IMG_8599_jpg.rf.2fea3724ffe3d47ca4b345b51d8a823a.jpg
+ Music
+ opencv-4.5.2
+ Pictures
+ Public
+ snap
+ Templates
+ Videos
+ball-e@7959X:~$ rmdir hailo_uploads
+rmdir: failed to remove 'hailo_uploads': Directory not empty
+ball-e@7959X:~$ rmdir ~hailo_uploads
+rmdir: failed to remove '~hailo_uploads': Directory not empty
+ball-e@7959X:~$ rm -r \~hailo_uploads/
+ball-e@7959X:~$ fm -r hailo_uploads/
+Command 'fm' not found, but can be installed with:
+sudo apt install fmtools
+ball-e@7959X:~$ rm -r hailo_uploads/
+ball-e@7959X:~$ ls
+4.5.2.zip
+balbuc_test.hef
+ball-e@192.168.0.244
+ball-e_dataset
+balle_detector.hef
+best_0307.onnx
+best.onnx
+Desktop
+Documents
+Downloads
+hailo8_ai_sw_suite_2025-10_docker
+IMG_8599_jpg.rf.2fea3724ffe3d47ca4b345b51d8a823a.jpg
+Music
+opencv-4.5.2
+Pictures
+Public
+snap
+Templates
+Videos
+ball-e@7959X:~$ mkdir -p ~/hailo_uploads/ballbucket_20260307
+ball-e@7959X:~$ ls
+4.5.2.zip
+balbuc_test.hef
+ball-e@192.168.0.244
+ball-e_dataset
+balle_detector.hef
+best_0307.onnx
+best.onnx
+Desktop
+Documents
+Downloads
+hailo8_ai_sw_suite_2025-10_docker
+hailo_uploads
+IMG_8599_jpg.rf.2fea3724ffe3d47ca4b345b51d8a823a.jpg
+Music
+opencv-4.5.2
+Pictures
+Public
+snap
+Templates
+Videos
+ball-e@7959X:~$ cp /media/$USER/*/ballbucket_20260307/best.pt ~/hailo_uploads/ballbucket_20260307/
+ball-e@7959X:~$ cp /media/$USER/*/ballbucket_20260307/best.onnx ~/hailo_uploads/ballbucket_20260307/
+ball-e@7959X:~$ cp /media/$USER/*/ballbucket_20260307/ball_bucket.json ~/hailo_uploads/ballbucket_20260307/
+ball-e@7959X:~$ cd ~/hailo8_ai_sw_suite_2025-10_docker
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ cp /media/$USER/*/ballbucket_20260307/best.onnx ./shared_with_docker/
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ cp /media/$USER/*/ballbucket_20260307/best.pt ./shared_with_docker/
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ cp /media/$USER/*/ballbucket_20260307/ball_bucket.json ./shared_with_docker/
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ mkdir -p ~/hailo8_ai_sw_suite_2025-10_docker/shared_with_docker/calib_images
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ cp ~/ball-e_dataset/test/images/*.jpg ~/hailo8_ai_sw_suite_2025-10_docker/shared_with_docker/calib_images/
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ ls
+hailo8_ai_sw_suite_2025-10         shared_with_docker
+hailo8_ai_sw_suite_2025-10.tar.gz  system_reqs_results.log
+hailo_ai_sw_suite_docker_run.sh
+ball-e@7959X:~/hailo8_ai_sw_suite_2025-10_docker$ cd ..
+ball-e@7959X:~$ ls
+4.5.2.zip
+balbuc_test.hef
+ball-e@192.168.0.244
+ball-e_dataset
+balle_detector.hef
+best_0307.onnx
+best.onnx
+Desktop
+Documents
+Downloads
+hailo8_ai_sw_suite_2025-10_docker
+hailo_uploads
+IMG_8599_jpg.rf.2fea3724ffe3d47ca4b345b51d8a823a.jpg
+Music
+opencv-4.5.2
+Pictures
+Public
+snap
+Templates
+Videos
+ball-e@7959X:~$ cd ball-e_dataset/
+ball-e@7959X:~/ball-e_dataset$ ls
+data.yaml           README.roboflow.txt  train
+README.dataset.txt  test                 valid
+ball-e@7959X:~/ball-e_dataset$ cd test
+ball-e@7959X:~/ball-e_dataset/test$ ls
+images  labels
+ball-e@7959X:~/ball-e_dataset/test$ cd images
+ball-e@7959X:~/ball-e_dataset/test/images$ ls
+IMG_8518_jpg.rf.dc93e5a47134893df5991277527ae09b.jpg
+IMG_8531_jpg.rf.39cb44e58661a33489d80c4d4da0a847.jpg
+IMG_8580_jpg.rf.ec72d276a38e03aa900465f16bd019f0.jpg
+IMG_8585_jpg.rf.1cf54695b247e4c36679f10c94c0dfc0.jpg
+IMG_8796_jpg.rf.7b3f824f1fdf4c9f9cf947504acc847d.jpg
+IMG_8798_jpg.rf.fe1ef2a9f72ba3eda396a89607b8eb9b.jpg
+IMG_8799_jpg.rf.5d05a3ef01bcb91704cabd30df1d540f.jpg
+IMG_8801_jpg.rf.249a8935617348fa62f190429086af69.jpg
+IMG_8802_jpg.rf.bc3da3f5236cda1f98b883b1f7f7e9a2.jpg
+IMG_8807_jpg.rf.e207febaaa1361beb7e98fde901f13e7.jpg
+IMG_8809_jpg.rf.ff76803af543a2f01fc836a463d1774f.jpg
+IMG_8810_jpg.rf.5e22d3c4931e551dae9248bee87e8ee1.jpg
+IMG_8811_jpg.rf.724f0de1009b1c469b25c8cd9b3a6d94.jpg
+IMG_8812_jpg.rf.cededef1e1600413b5f0511a64fdc895.jpg
+IMG_8813_jpg.rf.71b412525c3f846ce23f60853438495d.jpg
+IMG_8815_jpg.rf.a492901994cd96fbcb680d3f4fc76f77.jpg
+IMG_8816_jpg.rf.d9d69afd400d4189347ea946c76f6993.jpg
+IMG_8817_jpg.rf.b55c8c401a3ac9f2bfcc7ef1ae020fdb.jpg
+IMG_8819_jpg.rf.650a879d4f93e10b42ba6019ddc82738.jpg
+IMG_8820_jpg.rf.9248eb53fbb9cf68f6686a6a97652d1f.jpg
+IMG_8821_jpg.rf.cc6fc0cba727f30afb07b48d805a5d9d.jpg
+IMG_8823_jpg.rf.8eae6cd809fd5979780b886332119660.jpg
+IMG_8824_jpg.rf.eab7950084f90589958b152bae0efe83.jpg
+IMG_8825_jpg.rf.dd71c763c8150dc0281af378b848c4a3.jpg
+IMG_8826_jpg.rf.d0b983b97cd1a3322a4ec32443fca3f0.jpg
+IMG_8827_jpg.rf.d9bc8279e078bfea48b4982c1f265848.jpg
+IMG_8829_jpg.rf.0035b47878cef6b8c373ecfda6aa31dc.jpg
+IMG_8830_jpg.rf.32fad04fa78e052bbb7dc493e6ceab7f.jpg
+IMG_8831_jpg.rf.3f998c557710e6a5294709cb5772d395.jpg
+IMG_8832_jpg.rf.67b8f942137000694b5b24f7586094c7.jpg
+IMG_8833_jpg.rf.61dea4dd1bdcbcabaf6cf114313bb45c.jpg
+IMG_8834_jpg.rf.4be15fc654e90a6f0fe82659b23c7531.jpg
+IMG_8835_jpg.rf.96c4ca128ecd037d09a8204fa8c7e714.jpg
+IMG_8840_jpg.rf.ba25dee3c0357d143e8275219a7669bb.jpg
+IMG_8841_jpg.rf.75bef66186b3ef0610974fae06d30875.jpg
+IMG_8842_jpg.rf.69c27c411251c65c76333db385fe473c.jpg
+IMG_8845_jpg.rf.4b391c2d44f4899ab9dd8a17d9e9a864.jpg
+IMG_8847_jpg.rf.3a5254c0972ac543df69a1e0a00a3e5f.jpg
+IMG_8848_jpg.rf.0d7140f6137fc4ee2c27642bb7ae6f87.jpg
+IMG_8849_jpg.rf.da20f8b5727f75fa47bc7b3f7e8f1492.jpg
+IMG_8860_jpg.rf.f4362ce5a745a7b95a906682dea12975.jpg
+IMG_8866_jpg.rf.6fa88ac5e9d61fbb07f75656e234ed60.jpg
+IMG_8873_jpg.rf.48098c1f57cd050f156ebf661dee07cb.jpg
+ball-e@7959X:~/ball-e_dataset/test/images$ cd
+ball-e@7959X:~$ 
+
