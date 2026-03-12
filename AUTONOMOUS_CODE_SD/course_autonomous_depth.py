@@ -11,6 +11,7 @@ import os
 import sys
 import csv
 import json
+import hashlib
 import argparse
 import threading
 from datetime import datetime
@@ -80,6 +81,54 @@ def _jsonify(value):
     if isinstance(value, dict):
         return {str(k): _jsonify(v) for k, v in value.items()}
     return str(value)
+
+
+EXPECTED_LABELS = [
+    "blue ball",
+    "blue bucket",
+    "green ball",
+    "green bucket",
+    "red ball",
+    "red bucket",
+    "yellow ball",
+    "yellow bucket",
+]
+
+
+def _sha256_file(file_path: Path) -> str:
+    sha = hashlib.sha256()
+    with open(file_path, "rb") as fp:
+        for chunk in iter(lambda: fp.read(1024 * 1024), b""):
+            sha.update(chunk)
+    return sha.hexdigest()
+
+
+def _normalize_label(label: str) -> str:
+    return str(label).replace("_", " ").strip().lower()
+
+
+def _load_hailo_labels(labels_path: Path):
+    with open(labels_path, "r", encoding="utf-8") as fp:
+        cfg = json.load(fp)
+    labels = cfg.get("labels")
+    if not isinstance(labels, list) or not labels:
+        raise ValueError("labels JSON must contain a non-empty 'labels' list")
+    return [str(label) for label in labels]
+
+
+def _validate_label_contract(actual_labels, expected_labels, strict=True):
+    normalized_actual = [_normalize_label(label) for label in actual_labels]
+    normalized_expected = [_normalize_label(label) for label in expected_labels]
+    if normalized_actual == normalized_expected:
+        return
+
+    msg = (
+        "Label-order contract mismatch between runtime labels JSON and expected class order. "
+        f"expected={normalized_expected} actual={normalized_actual}"
+    )
+    if strict:
+        raise RuntimeError(msg)
+    print(f"[WARN] {msg}")
 
 # -----------------------------------------------------------------------------
 # Hailo inference engine: YOLO on 640x640 RGB frames via GStreamer
@@ -213,11 +262,17 @@ def main():
     parser.add_argument("--run-name", default=None, help="Optional run folder name (default: timestamp)")
     parser.add_argument("--no-video-log", action="store_true", help="Disable POV video recording when --save-run is enabled")
     parser.add_argument("--video-fps", type=float, default=15.0, help="FPS for saved POV video")
+    parser.add_argument(
+        "--allow-label-mismatch",
+        action="store_true",
+        help="Allow runtime to continue even when labels JSON order does not match expected class order.",
+    )
     args = parser.parse_args()
 
     orig_stdout = sys.stdout
     orig_stderr = sys.stderr
     run_dir = None
+    metadata_path = None
     terminal_log_fp = None
     telemetry_fp = None
     telemetry_writer = None
@@ -261,7 +316,8 @@ def main():
             "args": _jsonify(vars(args)),
             "tuning": tune_snapshot,
         }
-        with open(run_dir / "metadata.json", "w", encoding="utf-8") as meta_fp:
+        metadata_path = run_dir / "metadata.json"
+        with open(metadata_path, "w", encoding="utf-8") as meta_fp:
             json.dump(metadata, meta_fp, indent=2)
 
         record_video = not args.no_video_log
@@ -290,6 +346,47 @@ def main():
     if not labels_path.exists():
         print(f"Labels not found: {labels_path}")
         sys.exit(1)
+
+    try:
+        runtime_labels = _load_hailo_labels(labels_path)
+    except Exception as exc:
+        print(f"Failed to load labels JSON ({labels_path}): {exc}")
+        sys.exit(1)
+
+    try:
+        _validate_label_contract(
+            runtime_labels,
+            EXPECTED_LABELS,
+            strict=not args.allow_label_mismatch,
+        )
+    except RuntimeError as exc:
+        print(f"[ERROR] {exc}")
+        print("Refusing to start with mismatched labels. Use --allow-label-mismatch to override.")
+        sys.exit(1)
+
+    hef_sha256 = _sha256_file(hef_path)
+    labels_sha256 = _sha256_file(labels_path)
+    print(f"HEF path: {hef_path}")
+    print(f"HEF sha256: {hef_sha256}")
+    print(f"Labels path: {labels_path}")
+    print(f"Labels sha256: {labels_sha256}")
+    print(f"Labels order: {runtime_labels}")
+
+    if metadata_path is not None:
+        with open(metadata_path, "r", encoding="utf-8") as meta_fp:
+            metadata = json.load(meta_fp)
+        metadata["artifacts"] = {
+            "hef": {"path": str(hef_path), "sha256": hef_sha256},
+            "labels": {
+                "path": str(labels_path),
+                "sha256": labels_sha256,
+                "labels": runtime_labels,
+            },
+            "expected_labels": EXPECTED_LABELS,
+            "label_contract_enforced": not args.allow_label_mismatch,
+        }
+        with open(metadata_path, "w", encoding="utf-8") as meta_fp:
+            json.dump(metadata, meta_fp, indent=2)
 
     # Hailo
     engine = HailoInference(str(hef_path), str(labels_path))

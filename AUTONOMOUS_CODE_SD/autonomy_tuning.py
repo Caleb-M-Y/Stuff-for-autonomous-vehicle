@@ -31,14 +31,14 @@ CLOSE_CONFIRM_FRAMES = 3
 # These can be full class names (e.g. red_ball, red_bucket) and the state
 # machine will map them to the same color family automatically.
 KNOWN_COLOR_TOKENS = (
-    "blue bucket",
     "blue ball",
-    "yellow bucket",
+    "blue bucket",
     "green ball",
     "green bucket",
     "red ball",
     "red bucket",
     "yellow ball",
+    "yellow bucket",
 )
 
 # Requested first ball color/class. Use "" to disable color priority entirely.
