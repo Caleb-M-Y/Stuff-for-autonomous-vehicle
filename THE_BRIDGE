@@ -45,3 +45,159 @@ print("unlabeled_hits=",u)
 print("detect_only_bucket_rows=",detect_only_bucket)
 print("detect_bucket_only_ball_rows=",detect_bucket_only_ball)
 PY
+
+
+********************************************************************
+
+ERRORS FROM TESTING:
+
+1. 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python3 camera_test2.py --hef-path models/calebv8m.hef --labels-json models/ball_bucket.json
+[HailoRT] [error] CHECK failed - Error opening file models/calebv8m.hef
+[HailoRT] [error] CHECK_SUCCESS failed with status=HAILO_OPEN_FILE_FAILURE(13)
+[HailoRT] [error] Failed parsing HEF file
+[HailoRT] [error] Failed creating HEF
+[HailoRT] [error] CHECK_SUCCESS failed with status=HAILO_OPEN_FILE_FAILURE(13)
+[HailoRT] [error] CHECK_SUCCESS failed with status=HAILO_OPEN_FILE_FAILURE(13)
+[HailoRT] [error] CHECK_SUCCESS failed with status=HAILO_OPEN_FILE_FAILURE(13)
+CHECK_EXPECTED failed with status=13
+Segmentation fault
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+
+
+2. 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python3 course_autonomous_depth.py   --hef models/calebv8m.hef   --labels models/ball_bucket.json   --save-run   --run-root /home/ball-e/ball-e/python_scripts/run_logs   --run-name debug_map_1   --no-display
+Run artifact capture enabled: /home/ball-e/ball-e/python_scripts/run_logs/debug_map_1
+HEF path: /home/ball-e/ball-e/models/calebv8m.hef
+HEF sha256: c93368b43d419bfb0112f2eada2cdde79d2e96ea71c7943001bc4406f6cf8d8e
+Labels path: /home/ball-e/ball-e/models/ball_bucket.json
+Labels sha256: 340c0f47164f1ddc2ca92be458d80bf22a00f26f8da7318a1bb0e9452ec2ef20
+Labels order: ['blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball', 'yellow bucket']
+Hailo inference started.
+RealSense D455 started (color + depth).
+Pico messenger: /dev/ttyACM0
+Main loop running. Use Ctrl+C to stop.
+POV video recording: /home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/pov_annotated.mp4
+[detect] dist=0.00m (geom) target_ball=red ball carrying=None target_bucket=None msg=0.00, 0.00, 0, 0, 0
+[detect] dist=0.00m (geom) target_ball=red ball carrying=None target_bucket=None msg=0.00, 0.00, 0, 0, 0
+[detect] dist=0.67m (depth) target_ball=red ball carrying=None target_bucket=None msg=0.00, -0.14, 0, 0, 0
+[detect] dist=0.66m (depth) target_ball=red ball carrying=None target_bucket=None msg=0.00, -0.12, 0, 0, 0
+[detect] dist=0.65m (depth) target_ball=red ball carrying=None target_bucket=None msg=0.00, -0.11, 0, 0, 0
+^CStopping.
+Run artifacts saved to: /home/ball-e/ball-e/python_scripts/run_logs/debug_map_1
+Done.
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ grep -E "HEF path|HEF sha256|Labels path|Labels sha256|Labels order|WARN|ERROR" \
+/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/terminal.log
+[ERROR] Label-order contract mismatch between runtime labels JSON and expected class order. expected=['blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball', 'yellow bucket'] actual=['blue bucket', 'blue ball', 'yellow bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball']
+HEF path: /home/ball-e/ball-e/models/calebv8m.hef
+HEF sha256: c93368b43d419bfb0112f2eada2cdde79d2e96ea71c7943001bc4406f6cf8d8e
+Labels path: /home/ball-e/ball-e/models/ball_bucket.json
+Labels sha256: 340c0f47164f1ddc2ca92be458d80bf22a00f26f8da7318a1bb0e9452ec2ef20
+Labels order: ['blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball', 'yellow bucket']
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+
+3. 
+
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ grep -nE "<unlabeled>|;:[0-9]|,:[0-9]" \
+/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/telemetry.csv | head -50
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ grep -nE "<unlabeled>|;:[0-9]|,:[0-9]" /home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/telemetry.csv | head -50
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python3 - <<'PY'
+import csv,re
+p="/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/telemetry.csv"
+u=0
+detect_only_bucket=0
+detect_bucket_only_ball=0
+for r in csv.DictReader(open(p, newline="", encoding="utf-8")):
+    d=r["detections"]
+    mode=r["mode"]
+    has_ball=" ball:" in d
+    has_bucket=" bucket:" in d
+    if "<unlabeled>" in d or re.search(r'(^|;):[0-9]', d):
+        u+=1
+    if mode=="detect" and has_bucket and not has_ball:
+        detect_only_bucket+=1
+    if mode=="detect_bucket" and has_ball and not has_bucket:
+        detect_bucket_only_ball+=1
+print("unlabeled_hits=",u)
+print("detect_only_bucket_rows=",detect_only_bucket)
+print("detect_bucket_only_ball_rows=",detect_bucket_only_ball)
+PY
+unlabeled_hits= 0
+detect_only_bucket_rows= 0
+detect_bucket_only_ball_rows= 0
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+
+
+**********************************************************************************************8
+
+FROM THESE RUNS I WASNT ABLE TO USE THE YELLOW BUCKET TO CATCH THE UNLABELED
+ID. PLEASE IGNORE THE RESULTS FROM TEST 3. 
+
+THE (venv_hailo_rpi_examples) ENVIRONMENT is set up using the two commands below:
+file path - /home/ball-e/hailo-rpi5-examples/
+upon opening terminal I type: cd hailo-rpi5-examples/
+then I activate the venv using: source setup_env.sh
+
+BELOW YOU WILL SEE THE FILE PATHS AND WHAT FILES ARE IN WHAT: 
+***********************************************************************************************
+
+INSIDE OF THE hailo-rpi5-examples DIRECTORY, I HAVE THE FOLLOWING FILES:
+
+ball-e@BALL-E:~ $ cd hailo-rpi5-examples/
+ball-e@BALL-E:~/hailo-rpi5-examples $ ls
+basic_pipelines               hailort.log           resources
+ci.yaml                       hailo_temp_resources  run_tests.sh
+community_projects            install.sh            setup_env.sh
+config.yaml                   LICENSE               tests
+doc                           local_resources       venv_hailo_rpi_examples
+download_resources.sh         README.md
+hailo_python_installation.sh  requirements.txt
+
+********************************************************************************************
+
+INSIDE OF THE MODELS FOLDER (~/ball-e/models) there is: 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e $ cd models
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/models $ ls
+12_8_25.hef  2_26_26.hef     ball_bucket.json    calebv8m.hef
+2-25-26.hef  3-12-caleb.hef  balle_detector.hef  yolov8s_11_4_25.hef
+
+*********************************************************************************
+
+INSIDE OF THE PYTHON_SCRIPTS FOLDER THERE IS: 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e $ cd models
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/models $ ls
+12_8_25.hef  2_26_26.hef     ball_bucket.json    calebv8m.hef
+2-25-26.hef  3-12-caleb.hef  balle_detector.hef  yolov8s_11_4_25.hef
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/models $ cd ../python_scripts/
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ ls
+ arm_test.py                     hailort.1.log                   state_machine_el.py
+ autonomy_tuning_el.py           hailort.log                     state_machine.py
+ autonomy_tuning.py              image_collection.py             swivel_test.py
+ camera_test2.py                 img_col.py                      talker_thread.py
+ camera_test.py                 'import pyrealsense2 as rs.py'   talker_w_servos.py
+ configs.json                    pico_scripts                    test_arm_talker.py
+ course_autonomous_depth_el.py   __pycache__                     test_ball_detection.py
+ course_autonomous_depth.py      pyrealsense_test.py             test_ball_detect_talker.py
+ course_camera.py                rd455_1.py                      test_ball_detect_talker_realsense.py
+ course_nav_talker_arm.py        realsense2.py                   test_ball_detect_talker_revision.py
+ course_nav_talker_full.py       realsense.py                    test_detection.py
+ course_nav_talker.py            run_logs                        test_usb_comm.py
+ course_nav_talker_rev.py        senior_design_data              TUNING_GUIDE.md
+ detection.py                    simple_odometry.py
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+
+**************************************************************************************************************8
+
