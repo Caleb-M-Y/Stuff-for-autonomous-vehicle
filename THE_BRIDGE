@@ -1,0 +1,47 @@
+1. 
+
+cd /home/ball-e/ball-e/python_scripts/AUTONOMOUS_CODE_SD
+python3 camera_test2.py --hef-path models/yolov8m.hef --labels-json models/ball_bucket.json
+
+
+2. 
+
+cd /home/ball-e/ball-e/python_scripts/AUTONOMOUS_CODE_SD
+python3 course_autonomous_depth.py \
+  --hef models/yolov8m.hef \
+  --labels models/ball_bucket.json \
+  --save-run \
+  --run-root /home/ball-e/ball-e/python_scripts/run_logs \
+  --run-name debug_map_1 \
+  --no-display
+
+grep -E "HEF path|HEF sha256|Labels path|Labels sha256|Labels order|WARN|ERROR" \
+/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/terminal.log
+
+
+3. 
+
+grep -nE "<unlabeled>|;:[0-9]|,:[0-9]" \
+/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/telemetry.csv | head -50
+
+python3 - <<'PY'
+import csv,re
+p="/home/ball-e/ball-e/python_scripts/run_logs/debug_map_1/telemetry.csv"
+u=0
+detect_only_bucket=0
+detect_bucket_only_ball=0
+for r in csv.DictReader(open(p, newline="", encoding="utf-8")):
+    d=r["detections"]
+    mode=r["mode"]
+    has_ball=" ball:" in d
+    has_bucket=" bucket:" in d
+    if "<unlabeled>" in d or re.search(r'(^|;):[0-9]', d):
+        u+=1
+    if mode=="detect" and has_bucket and not has_ball:
+        detect_only_bucket+=1
+    if mode=="detect_bucket" and has_ball and not has_bucket:
+        detect_bucket_only_ball+=1
+print("unlabeled_hits=",u)
+print("detect_only_bucket_rows=",detect_only_bucket)
+print("detect_bucket_only_ball_rows=",detect_bucket_only_ball)
+PY
