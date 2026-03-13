@@ -3,7 +3,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import stat
 import shutil
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -104,6 +107,26 @@ def ensure_split_dirs(root: Path) -> None:
     for split in ("train", "valid", "test"):
         (root / split / "images").mkdir(parents=True, exist_ok=True)
         (root / split / "labels").mkdir(parents=True, exist_ok=True)
+
+
+def _remove_readonly_retry(func, path: str, _exc_info: object) -> None:
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def remove_tree_with_retries(path: Path, retries: int = 10, delay_seconds: float = 0.5) -> None:
+    if not path.exists():
+        return
+    for attempt in range(retries):
+        try:
+            shutil.rmtree(path, onexc=_remove_readonly_retry)
+            return
+        except FileNotFoundError:
+            return
+        except OSError:
+            if attempt == retries - 1:
+                raise
+            time.sleep(delay_seconds)
 
 
 def default_sources(repo_root: Path) -> list[SourceSpec]:
@@ -279,7 +302,7 @@ def main() -> None:
     report_json_path = Path(args.report_json).resolve() if args.report_json else (out_dir / "merge_report.json")
 
     if out_dir.exists() and args.clear_output:
-        shutil.rmtree(out_dir)
+        remove_tree_with_retries(out_dir)
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
