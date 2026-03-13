@@ -254,6 +254,7 @@ sd_data_and_training/runs/
 sd_data_and_training/exports/
 runs/
 *.cache
+*.mp4
 
 # Model/export binaries
 *.pt
