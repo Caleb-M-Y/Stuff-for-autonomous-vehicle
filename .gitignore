@@ -255,6 +255,8 @@ sd_data_and_training/exports/
 runs/
 *.cache
 *.mp4
+.hef_calibration_images
+
 
 # Model/export binaries
 *.pt
