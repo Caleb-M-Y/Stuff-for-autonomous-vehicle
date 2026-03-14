@@ -27,8 +27,10 @@ function Write-Log([string]$Message) {
 
 function Get-TrainProcesses {
     @(Get-CimInstance Win32_Process -Filter "name = 'python.exe'" | Where-Object {
-        $_.CommandLine -like '*sd_data_and_training/scripts/train_yolo.py*' -and
-        $_.CommandLine -like "*--run-name $RunName*"
+        $cmd = $_.CommandLine
+        $hasTrainScript = $cmd -like '*sd_data_and_training/scripts/train_yolo.py*' -or $cmd -like '*sd_data_and_training\scripts\train_yolo.py*'
+        $hasRunName = $cmd -like "*--run-name $RunName*" -or $cmd -like "*--run-name '$RunName'*" -or $cmd -like "*--run-name `"$RunName`"*"
+        $hasTrainScript -and $hasRunName
     })
 }
 

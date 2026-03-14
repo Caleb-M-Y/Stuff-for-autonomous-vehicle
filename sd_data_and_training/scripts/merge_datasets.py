@@ -315,7 +315,16 @@ def main() -> None:
         "repo_root": str(repo_root),
         "out_dir": str(out_dir),
         "data_yaml": str(data_yaml_path),
-        "sources": [asdict(source) for source in sources],
+        "sources": [
+            {
+                "name": source.name,
+                "split": source.split,
+                "images_dir": str(source.images_dir),
+                "labels_dir": str(source.labels_dir),
+                "recursive": source.recursive,
+            }
+            for source in sources
+        ],
         "source_stats": [asdict(stat) for stat in source_stats],
         "split_summary": split_summary,
         "class_names": CLASS_NAMES,
