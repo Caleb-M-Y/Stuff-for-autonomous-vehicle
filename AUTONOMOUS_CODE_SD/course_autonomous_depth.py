@@ -1,10 +1,19 @@
 """
-Autonomous course runner: depth-first navigation with geometry fallback.
-- Uses Intel RealSense D455 for color + depth; runs YOLO (Hailo) on color.
-- Distance: hardware depth when valid, else geometry (focal length + bbox height).
-- Picks the best ball/bucket detection by confidence (not the last one).
-- Centralized state machine in state_machine.py (same flow as course_camera.py).
-Run from repo root or AUTONOMOUS_CODE_SD; ensure 2-25-26.hef and labels JSON path are correct.
+Autonomous course runner: RealSense + Hailo YOLO + Pico control thread.
+
+High-level architecture:
+1) Acquire aligned color/depth frames from Intel RealSense D455.
+2) Run YOLO via Hailo GStreamer pipeline on color frames.
+3) Forward detections/depth into state_machine handlers to compute control commands.
+4) Continuously stream latest command to Pico over serial from a background thread.
+
+Design notes:
+- Distance is depth-first (hardware depth when valid) with geometry fallback handled in
+    state_machine.py.
+- Runtime behavior is tuned primarily through autonomy_tuning.py constants.
+- Optional run logging captures terminal output, telemetry CSV, metadata, and annotated video.
+
+Run from repo root or AUTONOMOUS_CODE_SD; ensure HEF and labels JSON paths are valid.
 """
 
 import os
@@ -46,7 +55,12 @@ from state_machine import (
 
 
 class _TeeStream:
-    """Duplicate text writes to multiple streams (console + log file)."""
+    """
+    Duplicate text writes to multiple streams (console + log file).
+
+    Used when `--save-run` is enabled so normal terminal output is preserved while also
+    being archived in run artifacts for later debugging/repro.
+    """
 
     def __init__(self, *streams):
         self.streams = streams
@@ -71,7 +85,7 @@ class _TeeStream:
 
 
 def _jsonify(value):
-    """Convert common Python objects to JSON-safe values."""
+    """Convert common Python objects to JSON-safe values for metadata snapshots."""
     if isinstance(value, (str, int, float, bool)) or value is None:
         return value
     if isinstance(value, Path):
@@ -93,9 +107,12 @@ EXPECTED_LABELS = [
     "yellow ball",
     "yellow bucket",
 ]
+# IMPORTANT: this order is the class-index contract expected by the runtime and should
+# match the labels JSON used by hailofilter post-process.
 
 
 def _sha256_file(file_path: Path) -> str:
+    """Hash model/config artifacts so each run records exactly what binaries were used."""
     sha = hashlib.sha256()
     with open(file_path, "rb") as fp:
         for chunk in iter(lambda: fp.read(1024 * 1024), b""):
@@ -104,10 +121,12 @@ def _sha256_file(file_path: Path) -> str:
 
 
 def _normalize_label(label: str) -> str:
+    """Normalize label formatting to compare contracts robustly (underscore/space variants)."""
     return str(label).replace("_", " ").strip().lower()
 
 
 def _load_hailo_labels(labels_path: Path):
+    """Load labels list from Hailo post-process config JSON."""
     with open(labels_path, "r", encoding="utf-8") as fp:
         cfg = json.load(fp)
     labels = cfg.get("labels")
@@ -117,6 +136,7 @@ def _load_hailo_labels(labels_path: Path):
 
 
 def _validate_label_contract(actual_labels, expected_labels, strict=True):
+    """Validate runtime labels order against expected class order for safe class decoding."""
     normalized_actual = [_normalize_label(label) for label in actual_labels]
     normalized_expected = [_normalize_label(label) for label in expected_labels]
     if normalized_actual == normalized_expected:
@@ -134,12 +154,24 @@ def _validate_label_contract(actual_labels, expected_labels, strict=True):
 # Hailo inference engine: YOLO on 640x640 RGB frames via GStreamer
 # -----------------------------------------------------------------------------
 class HailoInference:
-    """Run YOLO detection on numpy frames; results as list of (label, confidence, bbox)."""
+    """
+    Run YOLO detection on numpy RGB frames through a Hailo GStreamer graph.
+
+    Input contract:
+    - `push_frame()` expects 640x640 RGB uint8 frame.
+
+    Output contract:
+    - `get_latest()` returns list of `(label, confidence, bbox)` objects from Hailo ROI API.
+    """
 
     def __init__(self, hef_path: str, labels_json: str):
+        # GStreamer must be initialized before pipeline construction.
         Gst.init(None)
+        # Single-slot queue keeps only freshest detections; low latency > full history.
         self.detection_queue = __import__("queue").Queue(maxsize=1)
         post_process_so = "/usr/lib/aarch64-linux-gnu/hailo/tappas/post_processes/libyolo_hailortpp_post.so"
+        # Pipeline stages:
+        # appsrc -> videoconvert/caps -> hailonet(HEF) -> hailofilter(labels JSON) -> appsink.
         pipeline_str = f"""
             appsrc name=source is-live=true block=true format=GST_FORMAT_TIME ! \
             videoconvert ! video/x-raw,format=RGB,width=640,height=640 ! \
@@ -152,10 +184,12 @@ class HailoInference:
         self.appsrc = self.pipeline.get_by_name("source")
         self.appsink = self.pipeline.get_by_name("sink")
         self.appsink.connect("new-sample", self._on_sample)
+        # Keep appsrc caps explicit to match model input tensor dimensions.
         caps = Gst.Caps.from_string("video/x-raw,format=RGB,width=640,height=640,framerate=30/1")
         self.appsrc.set_property("caps", caps)
 
     def _on_sample(self, sink):
+        # Called by appsink when a new inference result is available.
         sample = sink.emit("pull-sample")
         if sample is None:
             return Gst.FlowReturn.OK
@@ -163,15 +197,15 @@ class HailoInference:
         roi = hailo.get_roi_from_buffer(buf)
         dets = roi.get_objects_typed(hailo.HAILO_DETECTION)
         
-        # --- DEBUG PRINT ADDED HERE ---
+        # Debug aid: reveals unlabeled/mismatched outputs with raw class ID.
         for d in dets:
             lbl = d.get_label()
-            # If the label is empty or not in your expected list, print its secret ID!
+            # Empty/unknown labels often indicate HEF <-> labels JSON contract mismatch.
             if not lbl or lbl not in EXPECTED_LABELS:
                 print(f"\n[DEBUG] Mystery Object Detected! Raw Label: '{lbl}' | Class ID: {d.get_class_id()}\n")
-        # ------------------------------
 
         results = [(d.get_label(), d.get_confidence(), d.get_bbox()) for d in dets]
+        # Drop stale queue entry so caller always reads the newest inference packet.
         if self.detection_queue.full():
             try:
                 self.detection_queue.get_nowait()
@@ -205,10 +239,16 @@ class HailoInference:
 # User data: shared state for state machine and Pico thread
 # -----------------------------------------------------------------------------
 class UserData:
+    """Shared mutable runtime state passed into all state_machine handlers."""
+
     def __init__(self, serial_port: str = "/dev/ttyACM0"):
+        # Serial link to Pico firmware that consumes command messages.
         self.messenger = serial.Serial(port=serial_port, baudrate=115200)
         print(f"Pico messenger: {self.messenger.name}")
+        # Latest command packet; send_loop keeps pushing this at fixed rate.
         self.latest_msg = "0.0, 0.0, 0, 0, 0\n".encode("utf-8")
+
+        # Finite-state-machine mode fields consumed by state_machine.py.
         self.mode = "fixed_ball"
         self.arm_state = "idle"
         self.fixed_travel_counter = 0
@@ -223,6 +263,7 @@ class UserData:
     def send_loop(self):
         """Background: send latest_msg to Pico at ~50 Hz; drain feedback."""
         while self._running:
+            # Drain inbound bytes to avoid serial buffer growth; feedback not parsed here.
             if self.messenger.in_waiting > 0:
                 try:
                     self.messenger.readline()
@@ -232,6 +273,7 @@ class UserData:
                 self.messenger.write(self.latest_msg)
             except Exception:
                 pass
+            # 20 ms cadence ~= 50 Hz command refresh.
             sleep(0.02)
 
     def stop(self):
@@ -242,6 +284,7 @@ class UserData:
 # Main: RealSense + Hailo + state machine loop
 # -----------------------------------------------------------------------------
 def main():
+    """Program entry point: initialize subsystems, then run the perception-control loop."""
     script_dir = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Autonomous course with depth + YOLO")
     parser.add_argument(
@@ -278,6 +321,7 @@ def main():
     )
     args = parser.parse_args()
 
+    # Preserve original stdio so we can tee logs and restore cleanly on exit.
     orig_stdout = sys.stdout
     orig_stderr = sys.stderr
     run_dir = None
@@ -290,6 +334,7 @@ def main():
     frame_index = 0
 
     if args.save_run:
+        # Build run artifact folder and wire up logging outputs.
         run_name = args.run_name or datetime.now().strftime("%Y%m%d_%H%M%S")
         run_dir = Path(args.run_root) / run_name
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -300,6 +345,7 @@ def main():
 
         telemetry_fp = open(run_dir / "telemetry.csv", "w", newline="", encoding="utf-8")
         telemetry_writer = csv.writer(telemetry_fp)
+        # Telemetry schema is intentionally stable for downstream analysis scripts.
         telemetry_writer.writerow(
             [
                 "timestamp_iso",
@@ -317,6 +363,7 @@ def main():
             ]
         )
 
+        # Capture tuning constants at runtime so logs can be reproduced later.
         tune_snapshot = {name: _jsonify(getattr(tune, name)) for name in dir(tune) if name.isupper()}
         metadata = {
             "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -332,7 +379,7 @@ def main():
         record_video = not args.no_video_log
         print(f"Run artifact capture enabled: {run_dir}")
 
-    # Resolve model path: allow same dir or repo-level models/
+    # Resolve model path from CLI/default, supporting both local and repo-level models/.
     hef_path = Path(args.hef)
     if not hef_path.is_absolute():
         hef_candidates = [
@@ -356,6 +403,7 @@ def main():
         print(f"Labels not found: {labels_path}")
         sys.exit(1)
 
+    # Validate class index contract before starting motors/camera loop.
     try:
         runtime_labels = _load_hailo_labels(labels_path)
     except Exception as exc:
@@ -373,6 +421,7 @@ def main():
         print("Refusing to start with mismatched labels. Use --allow-label-mismatch to override.")
         sys.exit(1)
 
+    # Print and store hashes for model/config provenance.
     hef_sha256 = _sha256_file(hef_path)
     labels_sha256 = _sha256_file(labels_path)
     print(f"HEF path: {hef_path}")
@@ -397,12 +446,12 @@ def main():
         with open(metadata_path, "w", encoding="utf-8") as meta_fp:
             json.dump(metadata, meta_fp, indent=2)
 
-    # Hailo
+    # Hailo YOLO engine setup.
     engine = HailoInference(str(hef_path), str(labels_path))
     engine.start()
     print("Hailo inference started.")
 
-    # RealSense: color + depth aligned to color (640x480)
+    # RealSense setup: aligned depth means bbox center from color can be sampled in depth.
     rs_config = rs.config()
     rs_config.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
     rs_config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
@@ -411,7 +460,7 @@ def main():
     align_to_color = rs.align(rs.stream.color)
     print("RealSense D455 started (color + depth).")
 
-    # User state and Pico thread
+    # User state + serial sender thread (control messages emitted continuously).
     user_data = UserData(args.port)
     pico_thread = threading.Thread(target=user_data.send_loop, daemon=True)
     pico_thread.start()
@@ -428,7 +477,7 @@ def main():
     try:
         print("Main loop running. Use Ctrl+C to stop.")
         while True:
-            # 1) Capture
+            # 1) Capture aligned sensor frames.
             frames = rs_pipeline.wait_for_frames()
             aligned = align_to_color.process(frames)
             color_frame = aligned.get_color_frame()
@@ -436,7 +485,7 @@ def main():
             if not color_frame:
                 continue
             color_np = np.asanyarray(color_frame.get_data())
-            # 2) Resize to 640x640 for YOLO (stretch)
+            # 2) Prepare YOLO input tensor shape expected by Hailo graph.
             rgb_640 = cv2.resize(color_np, (640, 640))
             engine.push_frame(rgb_640)
             detections = engine.get_latest()
@@ -449,7 +498,7 @@ def main():
                     f"unlabeled={unlabeled_count}"
                 )
 
-            # 3) Dispatch by mode (centralized state machine)
+            # 3) Dispatch by current behavior mode; handlers update latest_msg and state.
             if user_data.mode == "pause":
                 handle_pause(user_data)
             elif user_data.mode == "pick":
@@ -487,7 +536,7 @@ def main():
             else:
                 handle_pause(user_data)
 
-            # Optional: print mode and distance when in detect modes
+            # Optional console trace during active detection phases.
             if user_data.mode in ("detect", "detect_bucket") and detections:
                 src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
                 print(
@@ -499,6 +548,7 @@ def main():
                 )
 
             if telemetry_writer is not None:
+                # Compact detection summary for quick timeline scans.
                 dist_src = "depth" if getattr(user_data, "distance_from_depth", False) else "geom"
                 detection_summary = ";".join(
                     f"{(label if str(label).strip() else '<unlabeled>')}:{conf:.2f}"
@@ -521,9 +571,11 @@ def main():
                     ]
                 )
                 if (frame_index % 15) == 0:
+                    # Periodic flush limits data loss on abrupt stop.
                     telemetry_fp.flush()
 
             if show_display or record_video:
+                # Visualization uses original 640x480 camera frame; boxes are remapped to that space.
                 frame_bgr = cv2.cvtColor(color_np, cv2.COLOR_RGB2BGR)
                 for label, conf, bbox in detections:
                     if conf < 0.25:
@@ -625,6 +677,7 @@ def main():
 
                 if record_video:
                     if video_writer is None:
+                        # Lazy-open writer only after we know frame dimensions.
                         h, w = frame_bgr.shape[:2]
                         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
                         video_path = run_dir / "pov_annotated.mp4"
@@ -645,6 +698,7 @@ def main():
     except KeyboardInterrupt:
         print("Stopping.")
     finally:
+        # Safe shutdown order: stop command loop, send neutral command, then release devices.
         user_data.stop()
         user_data.latest_msg = "0.0, 0.0, 0, 0, 0\n".encode("utf-8")
         try:

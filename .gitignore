@@ -256,6 +256,9 @@ runs/
 *.cache
 *.mp4
 .hef_calibration_images
+*.zip
+*.tar.gz
+*.sh
 
 
 # Model/export binaries
