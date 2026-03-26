@@ -201,6 +201,232 @@ def _turn_rate_from_center(center_x: float) -> float:
     return _clamp(tune.STEER_KP * err, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
 
 
+def _increment_counter(ud, name: str, amount: int = 1) -> None:
+    """Safely increment telemetry/debug counters on user_data."""
+    value = int(getattr(ud, name, 0)) + amount
+    setattr(ud, name, value)
+
+
+def _snapshot_and_maybe_reset_odom_counters(ud, reason: str) -> None:
+    """
+    Capture odom debug counters at key lifecycle events (for example lap complete).
+
+    This keeps field-test analysis simple by preserving a per-lap snapshot timeline.
+    """
+    snapshot = {
+        "reason": reason,
+        "lap_counter": int(getattr(ud, "lap_counter", 0)),
+        "odom_goal_update_count": int(getattr(ud, "odom_goal_update_count", 0)),
+        "odom_goal_color_reject_count": int(getattr(ud, "odom_goal_color_reject_count", 0)),
+        "odom_goal_depth_invalid_count": int(getattr(ud, "odom_goal_depth_invalid_count", 0)),
+        "odom_goal_error_count": int(getattr(ud, "odom_goal_error_count", 0)),
+        "odom_goal_hysteresis_hold_count": int(getattr(ud, "odom_goal_hysteresis_hold_count", 0)),
+        "ball_odom_fallback_count": int(getattr(ud, "ball_odom_fallback_count", 0)),
+        "bucket_odom_fallback_count": int(getattr(ud, "bucket_odom_fallback_count", 0)),
+    }
+    snapshots = getattr(ud, "odom_counter_snapshots", None)
+    if not isinstance(snapshots, list):
+        snapshots = []
+        ud.odom_counter_snapshots = snapshots
+    snapshots.append(snapshot)
+
+    if not bool(getattr(tune, "ODOM_RESET_COUNTERS_EACH_LAP", True)):
+        return
+
+    for key in (
+        "odom_goal_update_count",
+        "odom_goal_color_reject_count",
+        "odom_goal_depth_invalid_count",
+        "odom_goal_error_count",
+        "odom_goal_hysteresis_hold_count",
+        "ball_odom_fallback_count",
+        "bucket_odom_fallback_count",
+    ):
+        setattr(ud, key, 0)
+
+
+def _depth_median_for_goal(depth_frame, cx_px: int, cy_px: int, width: int, height: int) -> float:
+    """
+    Compute median depth around target center for odom-goal generation.
+
+    This path uses a dedicated kernel radius so goal updates can be tuned
+    independently from the distance-estimation kernel used elsewhere.
+    """
+    if depth_frame is None:
+        return 0.0
+    radius = max(0, int(getattr(tune, "ODOM_GOAL_DEPTH_KERNEL_RADIUS", 0)))
+    min_depth = float(getattr(tune, "MIN_VALID_DEPTH_M", 0.10))
+    dvals = []
+    for y in range(cy_px - radius, cy_px + radius + 1):
+        if y < 0 or y >= height:
+            continue
+        for x in range(cx_px - radius, cx_px + radius + 1):
+            if x < 0 or x >= width:
+                continue
+            try:
+                d = depth_frame.get_distance(x, y)
+            except Exception:
+                d = 0.0
+            if d > min_depth:
+                dvals.append(d)
+    if not dvals:
+        return 0.0
+    dvals.sort()
+    return dvals[len(dvals) // 2]
+
+
+def _maybe_update_odom_goal_from_ball_bbox(
+    ud,
+    depth_frame,
+    depth_width: int,
+    depth_height: int,
+    bbox,
+    label: str,
+    objective_color: str | None,
+) -> bool:
+    """
+    Update odom goal from the current best ball detection when depth is valid.
+
+    Returns True when a usable odom goal is available after processing.
+    """
+    if not bool(getattr(ud, "odom_enabled", False)):
+        return False
+    odom = getattr(ud, "odom", None)
+    if odom is None or depth_frame is None:
+        return False
+
+    cx_norm = (bbox.xmin() + bbox.xmax()) / 2.0
+    cy_norm = (bbox.ymin() + bbox.ymax()) / 2.0
+    cx_px = int(_clamp(cx_norm * depth_width, 0, depth_width - 1))
+    cy_px = int(_clamp(cy_norm * depth_height, 0, depth_height - 1))
+
+    enforce_color = bool(getattr(tune, "ODOM_GOAL_RESPECT_COLOR_FILTER", True))
+    if enforce_color and objective_color:
+        if not _matches_required_color(label, objective_color):
+            _increment_counter(ud, "odom_goal_color_reject_count")
+            return bool(getattr(odom, "goal_active", False))
+
+    depth_m = _depth_median_for_goal(depth_frame, cx_px, cy_px, depth_width, depth_height)
+
+    if depth_m <= tune.MIN_VALID_DEPTH_M:
+        _increment_counter(ud, "odom_goal_depth_invalid_count")
+        return bool(getattr(odom, "goal_active", False))
+
+    try:
+        intr = depth_frame.profile.as_video_stream_profile().intrinsics
+        fx = float(getattr(intr, "fx", 0.0))
+        fy = float(getattr(intr, "fy", 0.0))
+        ppx = float(getattr(intr, "ppx", 0.0))
+        ppy = float(getattr(intr, "ppy", 0.0))
+        if fx <= 1e-6 or fy <= 1e-6:
+            return bool(getattr(odom, "goal_active", False))
+
+        cam_x = (cx_px - ppx) / fx * depth_m
+        cam_y = (cy_px - ppy) / fy * depth_m
+        cam_z = depth_m
+        goal_x, goal_y, _ = odom.transform_cam_to_odom((cam_x, cam_y, cam_z))
+
+        update_delta = float(getattr(tune, "ODOM_GOAL_UPDATE_MIN_DELTA_M", 0.02))
+        if getattr(odom, "goal_active", False):
+            prev_x = float(getattr(odom, "goal_x", 0.0))
+            prev_y = float(getattr(odom, "goal_y", 0.0))
+            delta = ((goal_x - prev_x) ** 2 + (goal_y - prev_y) ** 2) ** 0.5
+            if bool(getattr(tune, "ODOM_GOAL_HYSTERESIS_ENABLE", True)):
+                hysteresis_m = float(getattr(tune, "ODOM_GOAL_HYSTERESIS_M", 0.12))
+                if delta < hysteresis_m:
+                    _increment_counter(ud, "odom_goal_hysteresis_hold_count")
+                    return bool(getattr(odom, "goal_active", False))
+            if delta >= update_delta:
+                odom.set_goal(goal_x, goal_y)
+                _increment_counter(ud, "odom_goal_update_count")
+        else:
+            odom.set_goal(goal_x, goal_y)
+            _increment_counter(ud, "odom_goal_update_count")
+
+        ud.ball_odom_goal_x = goal_x
+        ud.ball_odom_goal_y = goal_y
+        return bool(getattr(odom, "goal_active", False))
+    except Exception:
+        _increment_counter(ud, "odom_goal_error_count")
+        return bool(getattr(odom, "goal_active", False))
+
+
+def _maybe_update_odom_goal_from_bucket_bbox(
+    ud,
+    depth_frame,
+    depth_width: int,
+    depth_height: int,
+    bbox,
+    label: str,
+    objective_color: str | None,
+) -> bool:
+    """
+    Update odom goal from the current best bucket detection when depth is valid.
+
+    Returns True when a usable odom goal is available after processing.
+    """
+    if not bool(getattr(ud, "odom_enabled", False)):
+        return False
+    odom = getattr(ud, "odom", None)
+    if odom is None or depth_frame is None:
+        return False
+
+    cx_norm = (bbox.xmin() + bbox.xmax()) / 2.0
+    cy_norm = (bbox.ymin() + bbox.ymax()) / 2.0
+    cx_px = int(_clamp(cx_norm * depth_width, 0, depth_width - 1))
+    cy_px = int(_clamp(cy_norm * depth_height, 0, depth_height - 1))
+
+    enforce_color = bool(getattr(tune, "ODOM_GOAL_RESPECT_COLOR_FILTER", True))
+    if enforce_color and objective_color:
+        if not _matches_required_color(label, objective_color):
+            _increment_counter(ud, "odom_goal_color_reject_count")
+            return bool(getattr(odom, "goal_active", False))
+
+    depth_m = _depth_median_for_goal(depth_frame, cx_px, cy_px, depth_width, depth_height)
+
+    if depth_m <= tune.MIN_VALID_DEPTH_M:
+        _increment_counter(ud, "odom_goal_depth_invalid_count")
+        return bool(getattr(odom, "goal_active", False))
+
+    try:
+        intr = depth_frame.profile.as_video_stream_profile().intrinsics
+        fx = float(getattr(intr, "fx", 0.0))
+        fy = float(getattr(intr, "fy", 0.0))
+        ppx = float(getattr(intr, "ppx", 0.0))
+        ppy = float(getattr(intr, "ppy", 0.0))
+        if fx <= 1e-6 or fy <= 1e-6:
+            return bool(getattr(odom, "goal_active", False))
+
+        cam_x = (cx_px - ppx) / fx * depth_m
+        cam_y = (cy_px - ppy) / fy * depth_m
+        cam_z = depth_m
+        goal_x, goal_y, _ = odom.transform_cam_to_odom((cam_x, cam_y, cam_z))
+
+        update_delta = float(getattr(tune, "ODOM_GOAL_UPDATE_MIN_DELTA_M", 0.02))
+        if getattr(odom, "goal_active", False):
+            prev_x = float(getattr(odom, "goal_x", 0.0))
+            prev_y = float(getattr(odom, "goal_y", 0.0))
+            delta = ((goal_x - prev_x) ** 2 + (goal_y - prev_y) ** 2) ** 0.5
+            if bool(getattr(tune, "ODOM_GOAL_HYSTERESIS_ENABLE", True)):
+                hysteresis_m = float(getattr(tune, "ODOM_GOAL_HYSTERESIS_M", 0.12))
+                if delta < hysteresis_m:
+                    _increment_counter(ud, "odom_goal_hysteresis_hold_count")
+                    return bool(getattr(odom, "goal_active", False))
+            if delta >= update_delta:
+                odom.set_goal(goal_x, goal_y)
+                _increment_counter(ud, "odom_goal_update_count")
+        else:
+            odom.set_goal(goal_x, goal_y)
+            _increment_counter(ud, "odom_goal_update_count")
+
+        ud.bucket_odom_goal_x = goal_x
+        ud.bucket_odom_goal_y = goal_y
+        return bool(getattr(odom, "goal_active", False))
+    except Exception:
+        _increment_counter(ud, "odom_goal_error_count")
+        return bool(getattr(odom, "goal_active", False))
+
+
 def _search_motion(lost_streak: int, base_turn_rate: float, forward_lin: float, preferred_dir: float) -> tuple[float, float]:
     """
     Generate a phased search command when a target is missing:
@@ -414,6 +640,7 @@ def handle_drop(ud) -> None:
         ud.picker_counter += 1
         if ud.picker_counter >= drop_open_frames:
             ud.lap_counter += 1
+            _snapshot_and_maybe_reset_odom_counters(ud, reason="lap_complete")
             ud.carrying_ball_color = None
             ud.target_bucket_color = None
             if turn_to_center_after_drop:
@@ -513,6 +740,7 @@ def handle_detect_ball(
         MIN_CONFIDENCE,
         required_color=requested_ball_color,
     )
+    used_ball_color_fallback = False
     if requested_ball_color and best is None:
         # If requested color is missing for long enough, optional fallback can widen to any ball.
         target_missing = getattr(ud, "ball_target_missing_streak", 0) + 1
@@ -521,6 +749,7 @@ def handle_detect_ball(
         fallback_frames = max(1, int(getattr(tune, "TARGET_FALLBACK_FRAMES", 45)))
         if allow_fallback and target_missing >= fallback_frames:
             best = pick_best_detection(detections, "ball", MIN_CONFIDENCE)
+            used_ball_color_fallback = best is not None
     else:
         ud.ball_target_missing_streak = 0
 
@@ -528,6 +757,14 @@ def handle_detect_ball(
         # Target lost: ramp into an active search pattern after configurable grace period.
         ud.ball_seen_streak = 0
         ud.ball_close_streak = 0
+        if bool(getattr(tune, "ODOM_CLEAR_GOAL_WHEN_BALL_LOST", True)):
+            odom = getattr(ud, "odom", None)
+            if odom is not None:
+                try:
+                    odom.clear_goal()
+                except Exception:
+                    pass
+        ud.ball_odom_assist_active = False
         lost_streak += 1
         ud.ball_lost_streak = lost_streak
         if lost_streak >= tune.SEARCH_START_FRAMES:
@@ -565,6 +802,9 @@ def handle_detect_ball(
 
     ud.distance = dist_m
     ud.distance_from_depth = used_depth
+    use_ball_odom_assist = bool(getattr(tune, "ODOM_ASSIST_BALL_ENABLE", False)) and bool(
+        getattr(ud, "odom_enabled", False)
+    )
 
     # Farther than pick window: approach with speed bands and steering.
     if dist_m > tune.BALL_PICK_MAX_M:
@@ -577,12 +817,46 @@ def handle_detect_ball(
             lin_cmd = tune.BALL_SPEED_NEAR
         if abs(center_x - 0.5) > tune.MISALIGN_ERR_FOR_SLOWDOWN:
             lin_cmd *= tune.MISALIGN_LINEAR_SCALE
+
+        # Optional odom-assisted command path for smoother global approach behavior.
+        if use_ball_odom_assist:
+            odom_goal_ok = _maybe_update_odom_goal_from_ball_bbox(
+                ud,
+                depth_frame,
+                depth_width,
+                depth_height,
+                bbox,
+                label=label,
+                objective_color=None if used_ball_color_fallback else requested_ball_color,
+            )
+            odom = getattr(ud, "odom", None)
+            if odom_goal_ok and odom is not None:
+                try:
+                    odom_lin, odom_ang = odom.compute_goal_velocity()
+                    cmd_eps = float(getattr(tune, "ODOM_CMD_EPSILON", 0.01))
+                    if abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
+                        lin_cmd = odom_lin
+                        ang_cmd = _clamp(odom_ang, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
+                        ud.ball_odom_assist_active = True
+                    else:
+                        ud.ball_odom_assist_active = False
+                        _increment_counter(ud, "ball_odom_fallback_count")
+                except Exception:
+                    ud.ball_odom_assist_active = False
+                    _increment_counter(ud, "ball_odom_fallback_count")
+            else:
+                ud.ball_odom_assist_active = False
+                _increment_counter(ud, "ball_odom_fallback_count")
+        else:
+            ud.ball_odom_assist_active = False
+
         ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
         return
 
     # Inside too-close zone: back up slightly while still trying to steer on target.
     if dist_m < tune.BALL_PICK_MIN_M:
         ud.ball_close_streak = 0
+        ud.ball_odom_assist_active = False
         ud.latest_msg = build_msg(tune.BALL_TOO_CLOSE_BACKUP_LIN, ang_cmd * 0.5, 0, 0, 0)
         return
 
@@ -594,6 +868,7 @@ def handle_detect_ball(
     ud.ball_close_streak = close_streak
 
     if close_streak < CLOSE_CONFIRM_FRAMES:
+        ud.ball_odom_assist_active = False
         ud.latest_msg = build_msg(0.0, ang_cmd, 0, 0, 0)
         return
 
@@ -603,6 +878,13 @@ def handle_detect_ball(
     ud.mode = "pick"
     ud.carrying_ball_color = detected_ball_color
     ud.target_bucket_color = detected_ball_color
+    odom = getattr(ud, "odom", None)
+    if odom is not None:
+        try:
+            odom.clear_goal()
+        except Exception:
+            pass
+    ud.ball_odom_assist_active = False
     ud.ball_seen_streak = 0
     ud.ball_close_streak = 0
     ud.ball_lost_streak = 0
@@ -634,6 +916,7 @@ def handle_detect_bucket(
         MIN_CONFIDENCE,
         required_color=target_bucket_color,
     )
+    used_bucket_color_fallback = False
     if target_bucket_color and best is None:
         # Optional widening to any bucket after missing desired color long enough.
         target_missing = getattr(ud, "bucket_target_missing_streak", 0) + 1
@@ -642,6 +925,7 @@ def handle_detect_bucket(
         fallback_frames = max(1, int(getattr(tune, "BUCKET_TARGET_FALLBACK_FRAMES", 120)))
         if allow_fallback and target_missing >= fallback_frames:
             best = pick_best_detection(detections, "bucket", MIN_CONFIDENCE)
+            used_bucket_color_fallback = best is not None
     else:
         ud.bucket_target_missing_streak = 0
 
@@ -649,6 +933,14 @@ def handle_detect_bucket(
         # Missing target: eventually switch from hold to active scan pattern.
         ud.bucket_seen_streak = 0
         ud.bucket_close_streak = 0
+        if bool(getattr(tune, "ODOM_CLEAR_GOAL_WHEN_BUCKET_LOST", True)):
+            odom = getattr(ud, "odom", None)
+            if odom is not None:
+                try:
+                    odom.clear_goal()
+                except Exception:
+                    pass
+        ud.bucket_odom_assist_active = False
         lost_streak += 1
         ud.bucket_lost_streak = lost_streak
         if lost_streak >= tune.SEARCH_START_FRAMES:
@@ -682,6 +974,9 @@ def handle_detect_bucket(
 
     ud.distance = dist_m
     ud.distance_from_depth = used_depth
+    use_bucket_odom_assist = bool(getattr(tune, "ODOM_ASSIST_BUCKET_ENABLE", False)) and bool(
+        getattr(ud, "odom_enabled", False)
+    )
 
     # Too far to drop: approach with tuned speed bands.
     if dist_m > tune.BUCKET_DROP_MAX_M:
@@ -694,12 +989,46 @@ def handle_detect_bucket(
             lin_cmd = tune.BUCKET_SPEED_NEAR
         if abs(center_x - 0.5) > tune.MISALIGN_ERR_FOR_SLOWDOWN:
             lin_cmd *= tune.MISALIGN_LINEAR_SCALE
+
+        # Optional odom-assisted command path for bucket approach.
+        if use_bucket_odom_assist:
+            odom_goal_ok = _maybe_update_odom_goal_from_bucket_bbox(
+                ud,
+                depth_frame,
+                depth_width,
+                depth_height,
+                bbox,
+                label=label,
+                objective_color=None if used_bucket_color_fallback else target_bucket_color,
+            )
+            odom = getattr(ud, "odom", None)
+            if odom_goal_ok and odom is not None:
+                try:
+                    odom_lin, odom_ang = odom.compute_goal_velocity()
+                    cmd_eps = float(getattr(tune, "ODOM_CMD_EPSILON", 0.01))
+                    if abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
+                        lin_cmd = odom_lin
+                        ang_cmd = _clamp(odom_ang, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
+                        ud.bucket_odom_assist_active = True
+                    else:
+                        ud.bucket_odom_assist_active = False
+                        _increment_counter(ud, "bucket_odom_fallback_count")
+                except Exception:
+                    ud.bucket_odom_assist_active = False
+                    _increment_counter(ud, "bucket_odom_fallback_count")
+            else:
+                ud.bucket_odom_assist_active = False
+                _increment_counter(ud, "bucket_odom_fallback_count")
+        else:
+            ud.bucket_odom_assist_active = False
+
         ud.latest_msg = build_msg(lin_cmd, ang_cmd, 0, 0, 0)
         return
 
     # Too close: small backup to re-enter drop window.
     if dist_m < tune.BUCKET_DROP_MIN_M:
         ud.bucket_close_streak = 0
+        ud.bucket_odom_assist_active = False
         ud.latest_msg = build_msg(tune.BUCKET_TOO_CLOSE_BACKUP_LIN, ang_cmd * 0.5, 0, 0, 0)
         return
 
@@ -711,12 +1040,20 @@ def handle_detect_bucket(
     ud.bucket_close_streak = close_streak
 
     if close_streak < CLOSE_CONFIRM_FRAMES:
+        ud.bucket_odom_assist_active = False
         ud.latest_msg = build_msg(0.0, ang_cmd, 0, 0, 0)
         return
 
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
     ud.arm_state = "lower"
     ud.mode = "drop"
+    odom = getattr(ud, "odom", None)
+    if odom is not None:
+        try:
+            odom.clear_goal()
+        except Exception:
+            pass
+    ud.bucket_odom_assist_active = False
     ud.bucket_seen_streak = 0
     ud.bucket_close_streak = 0
     ud.bucket_lost_streak = 0

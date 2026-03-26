@@ -230,3 +230,62 @@ SEARCH_ARC_TURN_MULT = 0.55
 # 2 means a 5x5 sample window.
 # Raise if depth is noisy; lower if objects are tiny and nearby clutter leaks in.
 DEPTH_KERNEL_RADIUS = 2
+
+
+# -----------------------------------------------------------------------------
+# Odometry / Camera Transform (staged merge support)
+# -----------------------------------------------------------------------------
+# Enable host-side odom integration and telemetry parsing from Pico feedback.
+ODOM_ENABLE = True
+
+# Camera translation relative to robot base center (validated from gb_follower tests).
+ODOM_CAM_OFFSET_X_M = -0.64
+ODOM_CAM_OFFSET_Y_M = 0.0
+ODOM_CAM_OFFSET_Z_M = 0.2
+
+# Odometry goal controller gains and limits.
+ODOM_KP_V = 0.5
+ODOM_KP_W = 0.5
+ODOM_MAX_V = 0.30
+ODOM_MAX_W = 0.60
+ODOM_GOAL_TOLERANCE_M = 0.05
+
+# In current robot convention, negative linear command drives forward.
+ODOM_FORWARD_IS_NEGATIVE = True
+
+# If True, enable odom-assisted velocity output in ball detect mode only.
+# If False, state_machine keeps using vision steering only.
+ODOM_ASSIST_BALL_ENABLE = True
+
+# Minimum XY delta before replacing current odom goal from a new ball observation.
+ODOM_GOAL_UPDATE_MIN_DELTA_M = 0.02
+
+# Tiny-command deadband for accepting odom controller outputs.
+ODOM_CMD_EPSILON = 0.01
+
+# If True, odom-goal updates are rejected when detection color does not match
+# current mission objective color (unless color fallback mode is active).
+ODOM_GOAL_RESPECT_COLOR_FILTER = True
+
+# Kernel radius used for odom-goal depth sampling around detection center.
+# 0 = single pixel, 1 = 3x3 median, 2 = 5x5 median.
+ODOM_GOAL_DEPTH_KERNEL_RADIUS = 1
+
+# If True, keep the current odom goal when new candidates move only slightly.
+# This reduces target jitter when multiple similar detections are clustered.
+ODOM_GOAL_HYSTERESIS_ENABLE = True
+
+# Radius (meters) inside which new goal candidates are ignored while a goal is active.
+ODOM_GOAL_HYSTERESIS_M = 0.12
+
+# If True, clear odom goal when no valid ball target is detected.
+ODOM_CLEAR_GOAL_WHEN_BALL_LOST = True
+
+# If True, enable odom-assisted velocity output in bucket detect mode.
+ODOM_ASSIST_BUCKET_ENABLE = True
+
+# If True, clear odom goal when no valid bucket target is detected.
+ODOM_CLEAR_GOAL_WHEN_BUCKET_LOST = True
+
+# If True, snapshot and reset odom debug counters after each completed lap/drop.
+ODOM_RESET_COUNTERS_EACH_LAP = True

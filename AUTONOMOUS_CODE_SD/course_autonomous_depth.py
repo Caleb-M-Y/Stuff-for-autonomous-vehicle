@@ -24,7 +24,7 @@ import hashlib
 import argparse
 import threading
 from datetime import datetime
-from time import sleep
+from time import sleep, monotonic
 from pathlib import Path
 
 import numpy as np
@@ -38,6 +38,7 @@ import serial
 # Hailo inference (same pattern as camera_test2)
 import hailo
 import autonomy_tuning as tune
+from odom_autonomous_bridge import OdomAutonomousBridge
 
 # Local state machine: best detection, distance depth/geometry, mode handlers
 from state_machine import (
@@ -258,15 +259,65 @@ class UserData:
         self.distance_from_depth = False
         self.carrying_ball_color = None
         self.target_bucket_color = None
+
+        # Odom bridge: keeps a host-side pose estimate from Pico feedback.
+        self.odom_enabled = bool(getattr(tune, "ODOM_ENABLE", True))
+        self.odom = OdomAutonomousBridge(
+            cam_offset_x_m=float(getattr(tune, "ODOM_CAM_OFFSET_X_M", -0.64)),
+            cam_offset_y_m=float(getattr(tune, "ODOM_CAM_OFFSET_Y_M", 0.0)),
+            cam_offset_z_m=float(getattr(tune, "ODOM_CAM_OFFSET_Z_M", 0.2)),
+            kp_v=float(getattr(tune, "ODOM_KP_V", 0.5)),
+            kp_w=float(getattr(tune, "ODOM_KP_W", 0.5)),
+            max_v=float(getattr(tune, "ODOM_MAX_V", 0.30)),
+            max_w=float(getattr(tune, "ODOM_MAX_W", 0.60)),
+            distance_tolerance_m=float(getattr(tune, "ODOM_GOAL_TOLERANCE_M", 0.05)),
+            forward_is_negative=bool(getattr(tune, "ODOM_FORWARD_IS_NEGATIVE", True)),
+        )
+        self.motion_feedback = {"meas_lin_vel": 0.0, "fuse_ang_vel": 0.0}
+        self.feedback_rx_count = 0
+        self.feedback_parse_errors = 0
+        self.odom_goal_update_count = 0
+        self.odom_goal_color_reject_count = 0
+        self.odom_goal_depth_invalid_count = 0
+        self.odom_goal_error_count = 0
+        self.odom_goal_hysteresis_hold_count = 0
+        self.ball_odom_fallback_count = 0
+        self.bucket_odom_fallback_count = 0
+        self.odom_counter_snapshots = []
+        self._last_odom_update_t = monotonic()
         self._running = True
 
+    @staticmethod
+    def _parse_motion_feedback(line: str):
+        """Parse Pico feedback line format: lin_vel,ang_vel."""
+        parts = [segment.strip() for segment in line.split(",")]
+        if len(parts) < 2:
+            return None
+        try:
+            return float(parts[0]), float(parts[1])
+        except Exception:
+            return None
+
     def send_loop(self):
-        """Background: send latest_msg to Pico at ~50 Hz; drain feedback."""
+        """Background: send latest_msg to Pico at ~50 Hz and integrate feedback odometry."""
         while self._running:
-            # Drain inbound bytes to avoid serial buffer growth; feedback not parsed here.
             if self.messenger.in_waiting > 0:
                 try:
-                    self.messenger.readline()
+                    line = self.messenger.readline().decode("utf-8", "ignore").strip()
+                    if line:
+                        parsed = self._parse_motion_feedback(line)
+                        if parsed is not None:
+                            meas_lin_vel, fuse_ang_vel = parsed
+                            self.motion_feedback["meas_lin_vel"] = meas_lin_vel
+                            self.motion_feedback["fuse_ang_vel"] = fuse_ang_vel
+                            self.feedback_rx_count += 1
+                            if self.odom_enabled:
+                                now_t = monotonic()
+                                dt_s = now_t - self._last_odom_update_t
+                                self._last_odom_update_t = now_t
+                                self.odom.update_pose_from_feedback(meas_lin_vel, fuse_ang_vel, dt_s)
+                        else:
+                            self.feedback_parse_errors += 1
                 except Exception:
                     pass
             try:
@@ -354,6 +405,21 @@ def main():
                 "arm_state",
                 "distance_m",
                 "distance_src",
+                "odom_x_m",
+                "odom_y_m",
+                "odom_theta_rad",
+                "feedback_lin_mps",
+                "feedback_ang_rps",
+                "ball_odom_assist_active",
+                "bucket_odom_assist_active",
+                "odom_goal_update_count",
+                "odom_goal_color_reject_count",
+                "odom_goal_depth_invalid_count",
+                "odom_goal_error_count",
+                "odom_goal_hysteresis_hold_count",
+                "ball_odom_fallback_count",
+                "bucket_odom_fallback_count",
+                "odom_snapshot_count",
                 "target_ball_requested",
                 "carrying_ball_color",
                 "target_bucket_color",
@@ -562,6 +628,21 @@ def main():
                         user_data.arm_state,
                         f"{getattr(user_data, 'distance', 0.0):.3f}",
                         dist_src,
+                        f"{user_data.odom.pose.x:.3f}",
+                        f"{user_data.odom.pose.y:.3f}",
+                        f"{user_data.odom.pose.theta:.3f}",
+                        f"{user_data.motion_feedback['meas_lin_vel']:.3f}",
+                        f"{user_data.motion_feedback['fuse_ang_vel']:.3f}",
+                        bool(getattr(user_data, "ball_odom_assist_active", False)),
+                        bool(getattr(user_data, "bucket_odom_assist_active", False)),
+                        int(getattr(user_data, "odom_goal_update_count", 0)),
+                        int(getattr(user_data, "odom_goal_color_reject_count", 0)),
+                        int(getattr(user_data, "odom_goal_depth_invalid_count", 0)),
+                        int(getattr(user_data, "odom_goal_error_count", 0)),
+                        int(getattr(user_data, "odom_goal_hysteresis_hold_count", 0)),
+                        int(getattr(user_data, "ball_odom_fallback_count", 0)),
+                        int(getattr(user_data, "bucket_odom_fallback_count", 0)),
+                        len(getattr(user_data, "odom_counter_snapshots", [])),
                         getattr(tune, "TARGET_BALL_COLOR", "") or "any",
                         getattr(user_data, "carrying_ball_color", None),
                         getattr(user_data, "target_bucket_color", None),
@@ -667,8 +748,53 @@ def main():
                 )
                 cv2.putText(
                     frame_bgr,
-                    "Press q to quit",
+                    f"odom x/y/th={user_data.odom.pose.x:.2f}/{user_data.odom.pose.y:.2f}/{user_data.odom.pose.theta:.2f}",
                     (10, 206),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.50,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"ball odom assist={'ON' if bool(getattr(user_data, 'ball_odom_assist_active', False)) else 'off'}",
+                    (10, 232),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.50,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"bucket odom assist={'ON' if bool(getattr(user_data, 'bucket_odom_assist_active', False)) else 'off'}",
+                    (10, 258),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.50,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"odom upd/rej/depth/err/hold={int(getattr(user_data, 'odom_goal_update_count', 0))}/{int(getattr(user_data, 'odom_goal_color_reject_count', 0))}/{int(getattr(user_data, 'odom_goal_depth_invalid_count', 0))}/{int(getattr(user_data, 'odom_goal_error_count', 0))}/{int(getattr(user_data, 'odom_goal_hysteresis_hold_count', 0))}",
+                    (10, 284),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.48,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    f"odom fallback ball/bucket={int(getattr(user_data, 'ball_odom_fallback_count', 0))}/{int(getattr(user_data, 'bucket_odom_fallback_count', 0))} snaps={len(getattr(user_data, 'odom_counter_snapshots', []))}",
+                    (10, 308),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.48,
+                    (255, 255, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame_bgr,
+                    "Press q to quit",
+                    (10, 332),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.55,
                     (255, 255, 255),
@@ -715,6 +841,24 @@ def main():
             cv2.destroyAllWindows()
         if telemetry_fp is not None:
             telemetry_fp.close()
+        if metadata_path is not None:
+            try:
+                with open(metadata_path, "r", encoding="utf-8") as meta_fp:
+                    metadata = json.load(meta_fp)
+                metadata["odom_summary"] = {
+                    "goal_update_count": int(getattr(user_data, "odom_goal_update_count", 0)),
+                    "goal_color_reject_count": int(getattr(user_data, "odom_goal_color_reject_count", 0)),
+                    "goal_depth_invalid_count": int(getattr(user_data, "odom_goal_depth_invalid_count", 0)),
+                    "goal_error_count": int(getattr(user_data, "odom_goal_error_count", 0)),
+                    "goal_hysteresis_hold_count": int(getattr(user_data, "odom_goal_hysteresis_hold_count", 0)),
+                    "ball_fallback_count": int(getattr(user_data, "ball_odom_fallback_count", 0)),
+                    "bucket_fallback_count": int(getattr(user_data, "bucket_odom_fallback_count", 0)),
+                    "counter_snapshots": _jsonify(getattr(user_data, "odom_counter_snapshots", [])),
+                }
+                with open(metadata_path, "w", encoding="utf-8") as meta_fp:
+                    json.dump(metadata, meta_fp, indent=2)
+            except Exception:
+                pass
         if args.save_run:
             print(f"Run artifacts saved to: {run_dir}")
         print("Done.")
