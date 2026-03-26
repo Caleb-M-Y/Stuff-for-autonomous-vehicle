@@ -13,7 +13,7 @@ Units:
 # Minimum detector confidence accepted as a "real" object.
 # Raise this if you get false positives on the carpet/background.
 # Lower this if true balls/buckets are being ignored too often.
-MIN_CONFIDENCE = 0.50
+MIN_CONFIDENCE = 0.35
 
 # Number of consecutive frames a target must be seen before motion is allowed.
 # Raise for more stability under flicker; lower for faster response.
@@ -251,7 +251,7 @@ ODOM_MAX_W = 0.60
 ODOM_GOAL_TOLERANCE_M = 0.05
 
 # In current robot convention, negative linear command drives forward.
-ODOM_FORWARD_IS_NEGATIVE = True
+ODOM_FORWARD_IS_NEGATIVE = False
 
 # If True, enable odom-assisted velocity output in ball detect mode only.
 # If False, state_machine keeps using vision steering only.
