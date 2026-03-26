@@ -17,10 +17,10 @@ Notes:
 import select
 import sys
 
-from ac2 import ArmController
-from diff_drive_controller import DiffDriveController
+from mobile_base.ac2 import ArmController
+from mobile_base.diff_drive_controller import DiffDriveController
 from machine import freq
-from odom_autonomous_inertial_sensor import MPU6050
+from perception.odom_autonomous_inertial_sensor import MPU6050
 from utime import ticks_diff, ticks_us
 
 
@@ -118,3 +118,4 @@ while True:
 
         sys.stdout.write(f"{meas_lin_vel:.3f}, {fused_ang_vel:.3f}\n")
         last_feedback_t = now
+
