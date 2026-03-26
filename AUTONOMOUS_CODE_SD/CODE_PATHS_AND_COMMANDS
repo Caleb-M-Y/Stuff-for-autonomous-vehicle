@@ -1,0 +1,73 @@
+### This file contains file paths and run commands for the autonomous code that uses odometry ###
+
+The purpose is to give AI in VSCode proper path context.
+*************************************************************************************************************
+
+BELOW LINES SHOW SET UP OF VENV AND RUNNING THE CODE
+Note: the code is started using the terminal. Before starting the code I start a virtual environment. 
+
+Virtual environment start and running the code: 
+- cd hailo-rpi5-examples
+- source setup_env.sh
+- the above command returns: 
+Setting up the environment...
+Checking kernel version...
+Project directory added to PYTHONPATH for this session:
+/home/ball-e/hailo-rpi5-examples
+Virtual environment 'venv_hailo_rpi_examples' activated
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/hailo-rpi5-examples $
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/hailo-rpi5-examples $ cd
+(venv_hailo_rpi_examples) ball-e@BALL-E:~ $ cd ball-e/python_scripts/
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef-path models/calebv8m.hef --labels-json models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run --allow-label-mismatch
+
+*************************************************************************************************************
+
+BELOW LINES SHOW THE FILE PATHS FOR EACH KEY FILE USED ON THE RASPBERRY PI:
+
+autonomy_tuning.py --> /home/ball-e/ball-e/python_scripts/autonomy_tuning.py
+odom_autonomous_bridge.py --> /home/ball-e/ball-e/python_scripts/odom_autonomous_bridge.py
+course_autonomous_depth.py --> /home/ball-e/ball-e/python_scripts/course_autonomous_depth.py
+state_machine.py --> /home/ball-e/ball-e/python_scripts/state_machine.py
+
+calebv8m.hef --> /home/ball-e/ball-e/models/calebv8m.hef
+yolov8l.hef --> /home/ball-e/ball-e/models/yolov8l.hef
+ball_bucket.json --> /home/ball-e/ball-e/models/ball_bucket.json
+Note: ball_bucket.json configs do not match the codes which is something we cant figure out
+
+The pico files stay updated inside of a folder with path: /home/ball-e/ball-e/python_scripts/pico_scripts
+However, these files are read on the pico and have their own file structure on the pico. This is below
+
+*************************************************************************************************************
+
+BELOW LINES SHOW THE FILE PATHS FOR EACH PICO SCRIPT USED: 
+
+The Pico has the main.py file and then 2 folders. 
+
+The first folder is called mobile_base. This contains the driving codes like diff_drive_controller.py, 
+motor_driver.py, wheel_driver.py, wheel_controller.py, and sensored_motor_driver.py. 
+It also contains the main arm driving code ac2.py. 
+
+The second folder called perception contains the odom_autonomous_inertial_sensor.py file
+
+**************************************************************************************************************
+
+NOTES ON THE LATEST TEST RUN AND MORE: 
+
+During the latest run the robot's wheels spin backward at the start of the code for some reason. 
+To counter this I changed a setting inside of autonomy_tuning.py and it changed nothing. 
+This forced me to place the robot on a box to prevent that from causing the robot to hit something. 
+Once on the box I moved a red ball and bucket and the odometry was very slow to respond. 
+I moved the red ball too close to the bot and it thought that it picked it up, but the arm or claw never moved. 
+Then I let the robot off the box and placed the red bucket in front of it and it approached it. 
+IT got to a distance then started turning as if it couldnt see it. I reviewed the .mp4 video. 
+It couldnt see the ball unless it was ~1m away or less. this might be a model issue. 
+It could see the red bucket and the other buckets behind it very well which is good. The yellow was unlabeled. 
+Then it went into a search mode or something. 
+
+
+
+
+
+
+
+
