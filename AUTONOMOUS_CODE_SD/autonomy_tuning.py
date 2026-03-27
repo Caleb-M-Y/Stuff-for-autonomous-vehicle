@@ -8,6 +8,19 @@ Units:
 """
 
 # -----------------------------------------------------------------------------
+# Command Mapping
+# -----------------------------------------------------------------------------
+# Global linear command multiplier applied before sending to Pico.
+# Keep -1.0 for the current codebase convention (forward commands are negative).
+# If robot drives backward when tracking a target, flip this to 1.0.
+HOST_LINEAR_CMD_SCALE = -1.0
+
+# Arm command magnitudes sent to Pico during pick/drop phases.
+# Raise these if servos do not move reliably under load.
+ARM_SHOULDER_CMD = 12000
+ARM_CLAW_CMD = 12000
+
+# -----------------------------------------------------------------------------
 # Detection Quality Gates
 # -----------------------------------------------------------------------------
 # Minimum detector confidence accepted as a "real" object.

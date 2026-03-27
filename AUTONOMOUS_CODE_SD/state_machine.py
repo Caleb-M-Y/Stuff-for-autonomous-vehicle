@@ -35,6 +35,9 @@ FOCAL_PX = tune.FOCAL_PX
 MIN_CONFIDENCE = tune.MIN_CONFIDENCE
 CONFIRM_FRAMES = tune.CONFIRM_FRAMES
 CLOSE_CONFIRM_FRAMES = tune.CLOSE_CONFIRM_FRAMES
+HOST_LINEAR_CMD_SCALE = float(getattr(tune, "HOST_LINEAR_CMD_SCALE", 1.0))
+ARM_SHOULDER_CMD = int(getattr(tune, "ARM_SHOULDER_CMD", 3000))
+ARM_CLAW_CMD = int(getattr(tune, "ARM_CLAW_CMD", 3000))
 
 # Pico message format: "lin_vel, ang_vel, shoulder_cmd, claw_cmd, arm_state\n"
 # arm_state: 0 = idle, 10 = neutral/return
@@ -47,7 +50,8 @@ def build_msg(lin_vel: float, ang_vel: float, shoulder: int, claw: int, arm_stat
     - `shoulder`, `claw`: arm motor command magnitudes (signed setpoints expected by Pico code).
     - `arm_state`: lightweight mode flag used by lower-level arm logic (0=idle, 10=neutral/return).
     """
-    return f"{lin_vel:.2f}, {ang_vel:.2f}, {shoulder}, {claw}, {arm_state}\n".encode("utf-8")
+    lin_wire = float(lin_vel) * HOST_LINEAR_CMD_SCALE
+    return f"{lin_wire:.2f}, {ang_vel:.2f}, {shoulder}, {claw}, {arm_state}\n".encode("utf-8")
 
 
 # -----------------------------------------------------------------------------
@@ -599,21 +603,21 @@ def handle_pick(ud) -> None:
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
     if ud.arm_state == "lower":
         # Shoulder down command amplitude is firmware-specific (expected by Pico control loop).
-        ud.latest_msg = build_msg(0.0, 0.0, 3000, 0, 0)
+        ud.latest_msg = build_msg(0.0, 0.0, ARM_SHOULDER_CMD, 0, 0)
         ud.picker_counter += 1
         if ud.picker_counter >= pick_lower_frames:
             ud.arm_state = "close"
             ud.picker_counter = 0
     elif ud.arm_state == "close":
         # Close claw while holding shoulder command neutral.
-        ud.latest_msg = build_msg(0.0, 0.0, 0, 3000, 0)
+        ud.latest_msg = build_msg(0.0, 0.0, 0, ARM_CLAW_CMD, 0)
         ud.picker_counter += 1
         if ud.picker_counter >= pick_close_frames:
             ud.arm_state = "raise"
             ud.picker_counter = 0
     elif ud.arm_state == "raise":
         # Shoulder up command (negative direction by current motor convention).
-        ud.latest_msg = build_msg(0.0, 0.0, -3000, 0, 0)
+        ud.latest_msg = build_msg(0.0, 0.0, -ARM_SHOULDER_CMD, 0, 0)
         ud.picker_counter += 1
         if ud.picker_counter >= pick_raise_frames:
             ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
@@ -630,13 +634,13 @@ def handle_drop(ud) -> None:
     turn_to_center_after_drop = bool(getattr(tune, "TURN_TO_CENTER_AFTER_DROP", True))
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
     if ud.arm_state == "lower":
-        ud.latest_msg = build_msg(0.0, 0.0, 3000, 0, 0)
+        ud.latest_msg = build_msg(0.0, 0.0, ARM_SHOULDER_CMD, 0, 0)
         ud.picker_counter += 1
         if ud.picker_counter >= drop_lower_frames:
             ud.arm_state = "open"
             ud.picker_counter = 0
     elif ud.arm_state == "open":
-        ud.latest_msg = build_msg(0.0, 0.0, 0, -3000, 0)
+        ud.latest_msg = build_msg(0.0, 0.0, 0, -ARM_CLAW_CMD, 0)
         ud.picker_counter += 1
         if ud.picker_counter >= drop_open_frames:
             ud.lap_counter += 1
@@ -741,6 +745,11 @@ def handle_detect_ball(
     seen_streak = getattr(ud, "ball_seen_streak", 0)
     close_streak = getattr(ud, "ball_close_streak", 0)
     lost_streak = getattr(ud, "ball_lost_streak", 0)
+
+    # Safety gate: if arm is in an active phase, force full stop and skip ball updates.
+    if getattr(ud, "arm_state", "idle") != "idle":
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
 
     # Requested color policy is optional and controlled from tuning file.
     requested_ball_color = _get_requested_ball_color(ud)
@@ -922,6 +931,11 @@ def handle_detect_bucket(
     seen_streak = getattr(ud, "bucket_seen_streak", 0)
     close_streak = getattr(ud, "bucket_close_streak", 0)
     lost_streak = getattr(ud, "bucket_lost_streak", 0)
+
+    # Safety gate: if arm is in an active phase, force full stop and skip bucket updates.
+    if getattr(ud, "arm_state", "idle") != "idle":
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
 
     # Set during successful pick so drop can target matching bucket color.
     target_bucket_color = getattr(ud, "target_bucket_color", None)
