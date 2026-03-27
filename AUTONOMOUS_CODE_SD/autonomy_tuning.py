@@ -17,8 +17,9 @@ HOST_LINEAR_CMD_SCALE = -1.0
 
 # Arm command magnitudes sent to Pico during pick/drop phases.
 # Raise these if servos do not move reliably under load.
-ARM_SHOULDER_CMD = 12000
-ARM_CLAW_CMD = 12000
+# Keep shoulder lower than claw to avoid hard ground impact during pickup.
+ARM_SHOULDER_CMD = 1800
+ARM_CLAW_CMD = 7000
 
 # -----------------------------------------------------------------------------
 # Detection Quality Gates
@@ -127,12 +128,12 @@ TURN_TO_CENTER_AFTER_DROP = True
 
 # Pick sequence arm timing.
 # Lower PICK_LOWER_FRAMES if the arm drops too low during pickup.
-PICK_LOWER_FRAMES = 150
-PICK_CLOSE_FRAMES = 150
-PICK_RAISE_FRAMES = 180
+PICK_LOWER_FRAMES = 40
+PICK_CLOSE_FRAMES = 90
+PICK_RAISE_FRAMES = 80
 
 # Drop sequence arm timing.
-DROP_LOWER_FRAMES = 40
+DROP_LOWER_FRAMES = 20
 DROP_OPEN_FRAMES = 40
 
 # Ball approach and pickup
