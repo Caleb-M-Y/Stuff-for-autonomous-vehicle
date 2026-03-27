@@ -656,7 +656,12 @@ def handle_drop(ud) -> None:
 def handle_fixed_ball(ud) -> None:
     """Drive forward (encoder phase) toward center; then switch to detect."""
     # Open-loop timed travel; useful when no target is visible yet.
-    fixed_ball_frames = max(1, int(getattr(tune, "FIXED_BALL_TRAVEL_FRAMES", 500)))
+    fixed_ball_frames = int(getattr(tune, "FIXED_BALL_TRAVEL_FRAMES", 500))
+    if fixed_ball_frames <= 0:
+        ud.mode = "detect"
+        ud.fixed_travel_counter = 0
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
     ud.latest_msg = build_msg(-0.30, 0.0, 0, 0, 10)
     ud.fixed_travel_counter += 1
     if ud.fixed_travel_counter >= fixed_ball_frames:
@@ -668,7 +673,12 @@ def handle_fixed_ball(ud) -> None:
 def handle_fixed_bucket(ud) -> None:
     """Drive forward toward bucket area; then switch to detect_bucket."""
     # Open-loop transition leg between pick and bucket-search phases.
-    fixed_bucket_frames = max(1, int(getattr(tune, "FIXED_BUCKET_TRAVEL_FRAMES", 300)))
+    fixed_bucket_frames = int(getattr(tune, "FIXED_BUCKET_TRAVEL_FRAMES", 300))
+    if fixed_bucket_frames <= 0:
+        ud.mode = "detect_bucket"
+        ud.fixed_travel_counter = 0
+        ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
+        return
     ud.latest_msg = build_msg(-0.30, 0.0, 0, 0, 0)
     ud.fixed_travel_counter += 1
     if ud.fixed_travel_counter >= fixed_bucket_frames:
@@ -834,7 +844,12 @@ def handle_detect_ball(
                 try:
                     odom_lin, odom_ang = odom.compute_goal_velocity()
                     cmd_eps = float(getattr(tune, "ODOM_CMD_EPSILON", 0.01))
-                    if abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
+                    sign_guard = bool(getattr(tune, "ODOM_REQUIRE_VISION_SIGN_MATCH", True))
+                    sign_conflict = sign_guard and abs(lin_cmd) > cmd_eps and abs(odom_lin) > cmd_eps and (lin_cmd * odom_lin < 0.0)
+                    if sign_conflict:
+                        ud.ball_odom_assist_active = False
+                        _increment_counter(ud, "ball_odom_fallback_count")
+                    elif abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
                         lin_cmd = odom_lin
                         ang_cmd = _clamp(odom_ang, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
                         ud.ball_odom_assist_active = True
@@ -1006,7 +1021,12 @@ def handle_detect_bucket(
                 try:
                     odom_lin, odom_ang = odom.compute_goal_velocity()
                     cmd_eps = float(getattr(tune, "ODOM_CMD_EPSILON", 0.01))
-                    if abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
+                    sign_guard = bool(getattr(tune, "ODOM_REQUIRE_VISION_SIGN_MATCH", True))
+                    sign_conflict = sign_guard and abs(lin_cmd) > cmd_eps and abs(odom_lin) > cmd_eps and (lin_cmd * odom_lin < 0.0)
+                    if sign_conflict:
+                        ud.bucket_odom_assist_active = False
+                        _increment_counter(ud, "bucket_odom_fallback_count")
+                    elif abs(odom_lin) > cmd_eps or abs(odom_ang) > cmd_eps:
                         lin_cmd = odom_lin
                         ang_cmd = _clamp(odom_ang, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
                         ud.bucket_odom_assist_active = True

@@ -88,9 +88,13 @@ MIN_VALID_DEPTH_M = 0.10
 # -----------------------------------------------------------------------------
 # State-Machine Timing (frame counts)
 # -----------------------------------------------------------------------------
+# Initial FSM mode at process start.
+# Use "detect" to prevent blind startup movement before vision lock.
+START_MODE = "detect"
+
 # Initial encoder-only travel toward center before vision takes over.
 # Lower this if startup drive feels too long.
-FIXED_BALL_TRAVEL_FRAMES = 430
+FIXED_BALL_TRAVEL_FRAMES = 0
 
 # Travel toward bucket area before bucket detection mode starts.
 FIXED_BUCKET_TRAVEL_FRAMES = 300
@@ -251,7 +255,7 @@ ODOM_MAX_W = 0.60
 ODOM_GOAL_TOLERANCE_M = 0.05
 
 # In current robot convention, negative linear command drives forward.
-ODOM_FORWARD_IS_NEGATIVE = False
+ODOM_FORWARD_IS_NEGATIVE = True
 
 # If True, enable odom-assisted velocity output in ball detect mode only.
 # If False, state_machine keeps using vision steering only.
@@ -269,14 +273,18 @@ ODOM_GOAL_RESPECT_COLOR_FILTER = True
 
 # Kernel radius used for odom-goal depth sampling around detection center.
 # 0 = single pixel, 1 = 3x3 median, 2 = 5x5 median.
-ODOM_GOAL_DEPTH_KERNEL_RADIUS = 1
+ODOM_GOAL_DEPTH_KERNEL_RADIUS = 2
 
 # If True, keep the current odom goal when new candidates move only slightly.
 # This reduces target jitter when multiple similar detections are clustered.
 ODOM_GOAL_HYSTERESIS_ENABLE = True
 
 # Radius (meters) inside which new goal candidates are ignored while a goal is active.
-ODOM_GOAL_HYSTERESIS_M = 0.12
+ODOM_GOAL_HYSTERESIS_M = 0.06
+
+# If True, reject odom linear commands that would reverse direction relative to
+# the vision-derived command sign for the same frame.
+ODOM_REQUIRE_VISION_SIGN_MATCH = True
 
 # If True, clear odom goal when no valid ball target is detected.
 ODOM_CLEAR_GOAL_WHEN_BALL_LOST = True

@@ -250,7 +250,10 @@ class UserData:
         self.latest_msg = "0.0, 0.0, 0, 0, 0\n".encode("utf-8")
 
         # Finite-state-machine mode fields consumed by state_machine.py.
-        self.mode = "fixed_ball"
+        start_mode = str(getattr(tune, "START_MODE", "fixed_ball")).strip().lower()
+        if start_mode not in {"fixed_ball", "detect"}:
+            start_mode = "fixed_ball"
+        self.mode = start_mode
         self.arm_state = "idle"
         self.fixed_travel_counter = 0
         self.picker_counter = 0
