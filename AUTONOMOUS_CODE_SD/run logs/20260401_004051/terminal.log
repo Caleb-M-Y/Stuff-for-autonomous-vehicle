@@ -1,0 +1,14 @@
+Run artifact capture enabled: /home/ball-e/ball-e/python_scripts/run_logs/20260401_004051
+[WARN] Label-order contract mismatch between runtime labels JSON and expected class order. expected=['blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball', 'yellow bucket'] actual=['yellow bucket', 'blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball']
+HEF path: /home/ball-e/ball-e/models/3-12-caleb.hef
+HEF sha256: 987366ffa8e59d1361df775af5803c2328c5da10fab7c956b755fa1af6b8ed8f
+Labels path: /home/ball-e/ball-e/models/ball_bucket.json
+Labels sha256: 169c59298e13dd1f449498216aec975daf498e826182cbe9984a272f6cc03bb7
+Labels order: ['yellow bucket', 'blue ball', 'blue bucket', 'green ball', 'green bucket', 'red ball', 'red bucket', 'yellow ball']
+Hailo inference started.
+RealSense D455 started (color + depth).
+Pico messenger: /dev/ttyACM0
+Main loop running. Use Ctrl+C to stop.
+Stopping.
+Run artifacts saved to: /home/ball-e/ball-e/python_scripts/run_logs/20260401_004051
+Done.
