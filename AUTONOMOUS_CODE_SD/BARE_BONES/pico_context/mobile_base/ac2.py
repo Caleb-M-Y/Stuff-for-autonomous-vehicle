@@ -41,6 +41,24 @@ class ArmController:
         self.shoulder_servo_b.duty_ns(self.shoulder_duty_b)
         self.claw_servo.duty_ns(self.claw_duty)
 
+    def move_toward_neutral(self):
+        shoulder_step = int(getattr(tune, "NEUTRAL_SHOULDER_STEP_NS", getattr(tune, "SHOULDER_STEP_LIMIT_NS", 8_000)))
+        claw_step = int(getattr(tune, "NEUTRAL_CLAW_STEP_NS", getattr(tune, "CLAW_STEP_LIMIT_NS", 10_000)))
+
+        self.shoulder_duty_a = self._slew(self.shoulder_duty_a, tune.SHOULDER_A_NEUTRAL, shoulder_step)
+        self.shoulder_duty_b = self._slew(self.shoulder_duty_b, tune.SHOULDER_B_NEUTRAL, shoulder_step)
+        self.claw_duty = self._slew(self.claw_duty, tune.CLAW_NEUTRAL, claw_step)
+
+        self.shoulder_servo_a.duty_ns(self.shoulder_duty_a)
+        self.shoulder_servo_b.duty_ns(self.shoulder_duty_b)
+        self.claw_servo.duty_ns(self.claw_duty)
+
+        return (
+            self.shoulder_duty_a == tune.SHOULDER_A_NEUTRAL
+            and self.shoulder_duty_b == tune.SHOULDER_B_NEUTRAL
+            and self.claw_duty == tune.CLAW_NEUTRAL
+        )
+
     def lower_claw(self, dc_inc=0):
         base = self._sanitize(dc_inc)
         if base > 0:

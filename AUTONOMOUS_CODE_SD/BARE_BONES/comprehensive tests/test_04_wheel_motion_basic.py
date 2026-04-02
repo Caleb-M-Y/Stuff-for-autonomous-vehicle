@@ -39,6 +39,7 @@ def drain_lines(ser, rx_buffer: str):
     if not chunk:
         return [], rx_buffer
 
+    chunk = chunk.replace("\r\n", "\n").replace("\r", "\n").replace("\\n", "\n")
     rx_buffer += chunk
     lines = []
     while "\n" in rx_buffer:

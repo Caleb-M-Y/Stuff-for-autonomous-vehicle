@@ -28,3 +28,7 @@ MAX_ABS_HOST_CMD = 8_000
 # Hard slew-rate limits per control tick to avoid slamming.
 SHOULDER_STEP_LIMIT_NS = 12_000
 CLAW_STEP_LIMIT_NS = 10_000
+
+# Smooth return-to-neutral shaping (used when arm_state=10).
+NEUTRAL_SHOULDER_STEP_NS = 8_000
+NEUTRAL_CLAW_STEP_NS = 8_000

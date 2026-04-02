@@ -44,6 +44,7 @@ FREQ_HZ = 240_000_000
 CMD_TIMEOUT_US = 250_000
 FEEDBACK_PERIOD_US = 10_000
 ALPHA_IMU = 0.95
+ARM_UPDATE_PERIOD_US = 20_000  # 50 Hz arm command updates to avoid servo snap/jitter.
 
 # Debug lines are prefixed so host tests can classify them.
 DEBUG_SERIAL = True
@@ -98,6 +99,7 @@ fb_tx_count = 0
 last_cmd_t = ticks_us()
 last_fb_t = ticks_us()
 last_dbg_t = ticks_us()
+last_arm_t = ticks_us()
 
 dbg("boot ok")
 
@@ -131,11 +133,16 @@ while True:
 
     ddc.set_vels(target_lin, target_ang)
 
-    if arm_state == 10:
-        arm.set_neutral()
-    else:
-        arm.lower_claw(sho_vel)
-        arm.close_claw(cla_vel)
+    if ticks_diff(now, last_arm_t) >= ARM_UPDATE_PERIOD_US:
+        if arm_state == 10:
+            if hasattr(arm, "move_toward_neutral"):
+                arm.move_toward_neutral()
+            else:
+                arm.set_neutral()
+        else:
+            arm.lower_claw(sho_vel)
+            arm.close_claw(cla_vel)
+        last_arm_t = now
 
     if ticks_diff(now, last_fb_t) >= FEEDBACK_PERIOD_US:
         meas_lin, meas_ang = ddc.get_vels()
@@ -145,7 +152,7 @@ while True:
         except Exception:
             fused_ang = meas_ang
 
-        sys.stdout.write(f"{meas_lin:.3f}, {fused_ang:.3f}\\n")
+        sys.stdout.write(f"{meas_lin:.3f}, {fused_ang:.3f}\n")
         try:
             sys.stdout.flush()
         except Exception:
