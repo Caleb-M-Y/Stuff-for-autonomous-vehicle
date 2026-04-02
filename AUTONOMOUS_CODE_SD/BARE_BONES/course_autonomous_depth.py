@@ -7,6 +7,10 @@ Keeps only essentials:
 - serial command send + feedback odom integration
 """
 
+# current run command below:
+# python /home/ball-e/ball-e/python_scripts/BARE_BONES/course_autonomous_depth.py --hef-path /home/ball-e/ball-e/models/3-12-caleb.hef --labels-json /home/ball-e/ball-e/models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run --allow-label-mismatch
+
+
 import argparse
 import json
 import threading
@@ -179,28 +183,67 @@ def _load_labels(labels_path):
         raise ValueError("labels JSON must contain a non-empty 'labels' list")
     return labels
 
+def _resolve_existing_path(raw_value, here, candidate_model_name=False):
+    """
+    Resolve a possibly-relative path from common working locations.
+
+    This keeps launch behavior compatible with commands where scripts and model
+    assets live in sibling folders on the Pi.
+    """
+    raw = Path(raw_value)
+    if raw.is_absolute():
+        if raw.exists():
+            return raw
+        raise FileNotFoundError(f"Path not found: {raw}")
+
+    candidates = [
+        Path.cwd() / raw,
+        here / raw,
+        here.parent / raw,
+        here.parent.parent / raw,
+    ]
+    if candidate_model_name:
+        candidates.extend(
+            [
+                here / "models" / raw.name,
+                here.parent / "models" / raw.name,
+                here.parent.parent / "models" / raw.name,
+            ]
+        )
+
+    seen = set()
+    ordered = []
+    for c in candidates:
+        key = str(c.resolve(strict=False))
+        if key in seen:
+            continue
+        seen.add(key)
+        ordered.append(c)
+
+    for c in ordered:
+        if c.exists():
+            return c
+
+    tried = "\n".join(str(c) for c in ordered)
+    raise FileNotFoundError(f"Could not resolve path '{raw_value}'. Tried:\n{tried}")
+
 
 def main():
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Bare-bones autonomous + odom")
-    parser.add_argument("--hef", "--hef-path", dest="hef", default=str(here / "3-12-caleb.hef"))
-    parser.add_argument("--labels-json", dest="labels", default=str(here / "ball_bucket.json"))
+    parser.add_argument("--hef", "--hef-path", dest="hef", default="models/3-12-caleb.hef")
+    parser.add_argument("--labels-json", dest="labels", default="models/ball_bucket.json")
+    parser.add_argument("--labels", dest="labels_alias", default=None)
     parser.add_argument("--port", default="/dev/ttyACM0")
     parser.add_argument("--no-display", action="store_true")
+    # Accepted for command compatibility with the full runtime.
+    parser.add_argument("--save-run", action="store_true")
+    parser.add_argument("--allow-label-mismatch", action="store_true")
     args = parser.parse_args()
 
-    hef_path = Path(args.hef)
-    if not hef_path.is_absolute():
-        hef_candidates = [
-            here / hef_path,
-            here / "models" / hef_path.name,
-            here.parent / "models" / hef_path.name,
-        ]
-    labels_path = Path(args.labels)
-    if not hef_path.exists():
-        raise FileNotFoundError(f"HEF not found: {hef_path}")
-    if not labels_path.exists():
-        raise FileNotFoundError(f"labels JSON not found: {labels_path}")
+    labels_arg = args.labels_alias if args.labels_alias else args.labels
+    hef_path = _resolve_existing_path(args.hef, here, candidate_model_name=True)
+    labels_path = _resolve_existing_path(labels_arg, here, candidate_model_name=True)
 
     _load_labels(labels_path)
 
@@ -299,3 +342,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
