@@ -1,5 +1,5 @@
 from machine import Pin, PWM
-import arm_tuning as tune
+import mobile_base.arm_tuning as tune
 
 
 class ArmController:
