@@ -1,0 +1,23 @@
+"""Bare-bones arm tuning for Pico debug."""
+
+SHOULDER_A_NEUTRAL = 1_300_000
+SHOULDER_B_NEUTRAL = 1_600_000
+CLAW_NEUTRAL = 1_800_000
+
+# Keep travel conservative while we validate pickup/drop behavior.
+SHOULDER_A_MIN = 1_050_000
+SHOULDER_A_MAX = 1_700_000
+SHOULDER_B_MIN = 1_200_000
+SHOULDER_B_MAX = 1_900_000
+CLAW_MIN = 1_550_000
+CLAW_MAX = 2_200_000
+
+SHOULDER_CMD_SCALE = 0.16
+CLAW_CMD_SCALE = 0.28
+SHOULDER_LOWER_SCALE = 0.75
+SHOULDER_RAISE_SCALE = 0.65
+MAX_ABS_HOST_CMD = 8_000
+
+# Hard slew-rate limits per control tick to avoid slamming.
+SHOULDER_STEP_LIMIT_NS = 8_000
+CLAW_STEP_LIMIT_NS = 10_000
