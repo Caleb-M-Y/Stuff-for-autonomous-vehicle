@@ -4,6 +4,9 @@ Bare-bones Pico runtime for 5-field command protocol + fused feedback.
 This version supports both deployment layouts:
 1. package layout on Pico (`mobile_base.*`, `perception.*`)
 2. flat-file layout in the same folder (fallback imports)
+
+It also supports both inertial helper spellings to prevent boot failures from
+filename mismatches during deployment.
 """
 
 import select
@@ -12,10 +15,29 @@ import sys
 from machine import freq
 from utime import ticks_diff, ticks_us
 
-from mobile_base.ac2 import ArmController
-from mobile_base.diff_drive_controller import DiffDriveController
-from perception.odom_autonomous_inertial_sensor import MPU6050
+# Arm controller import: package first, fallback to local file.
+try:
+    from mobile_base.ac2 import ArmController
+except Exception:
+    from ac2 import ArmController
 
+# Diff-drive import: package first, fallback to local file.
+try:
+    from mobile_base.diff_drive_controller import DiffDriveController
+except Exception:
+    from diff_drive_controller import DiffDriveController
+
+# IMU import with robust fallback for historical filename typo.
+try:
+    from perception.odom_autonomous_inertial_sensor import MPU6050
+except Exception:
+    try:
+        from perception.odom_autonomous_intertial_sensor import MPU6050
+    except Exception:
+        try:
+            from odom_autonomous_inertial_sensor import MPU6050
+        except Exception:
+            from odom_autonomous_intertial_sensor import MPU6050
 
 
 FREQ_HZ = 240_000_000
@@ -89,8 +111,15 @@ while True:
 
     if ticks_diff(now, last_fb_t) >= FEEDBACK_PERIOD_US:
         meas_lin, meas_ang = ddc.get_vels()
-        imu_data = imu.read_data()
-        fused_ang = ALPHA_IMU * imu_data["omg_z"] + (1.0 - ALPHA_IMU) * meas_ang
-        sys.stdout.write(f"{meas_lin:.3f}, {fused_ang:.3f}\\n")
-        last_fb_t = now
+        try:
+            imu_data = imu.read_data()
+            fused_ang = ALPHA_IMU * imu_data["omg_z"] + (1.0 - ALPHA_IMU) * meas_ang
+        except Exception:
+            fused_ang = meas_ang
 
+        sys.stdout.write(f"{meas_lin:.3f}, {fused_ang:.3f}\\n")
+        try:
+            sys.stdout.flush()
+        except Exception:
+            pass
+        last_fb_t = now

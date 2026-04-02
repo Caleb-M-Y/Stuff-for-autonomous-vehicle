@@ -30,18 +30,43 @@ def parse_feedback(line: str):
         return None
 
 
-def run_phase(ser, name: str, lin: float, ang: float, duration: float, period: float):
+def drain_lines(ser, rx_buffer: str):
+    available = ser.in_waiting
+    if available <= 0:
+        return [], rx_buffer
+
+    chunk = ser.read(available).decode("utf-8", "ignore")
+    if not chunk:
+        return [], rx_buffer
+
+    rx_buffer += chunk
+    lines = []
+    while "\n" in rx_buffer:
+        line, rx_buffer = rx_buffer.split("\n", 1)
+        lines.append(line.strip())
+    return lines, rx_buffer
+
+
+def run_phase(ser, name: str, lin: float, ang: float, duration: float, period: float, rx_buffer: str):
     t0 = time.monotonic()
+    next_tx = t0
     samples = []
     while time.monotonic() - t0 < duration:
-        ser.write(build_cmd(lin, ang))
-        line = ser.readline().decode("utf-8", "ignore").strip()
-        parsed = parse_feedback(line) if line else None
-        if parsed is not None:
-            samples.append(parsed)
-        time.sleep(period)
+        now = time.monotonic()
+        if now >= next_tx:
+            ser.write(build_cmd(lin, ang))
+            next_tx = now + period
+
+        lines, rx_buffer = drain_lines(ser, rx_buffer)
+        for line in lines:
+            parsed = parse_feedback(line)
+            if parsed is not None:
+                samples.append(parsed)
+
+        time.sleep(0.003)
+
     print(f"[INFO] Phase {name}: sent lin={lin:.2f}, ang={ang:.2f}, feedback samples={len(samples)}")
-    return samples
+    return samples, rx_buffer
 
 
 def mean_abs(values):
@@ -58,7 +83,7 @@ def main() -> int:
     args = parser.parse_args()
 
     print("[WARN] Ensure wheels are OFF THE GROUND before continuing.")
-    ser = serial.Serial(port=args.port, baudrate=args.baud, timeout=0.03)
+    ser = serial.Serial(port=args.port, baudrate=args.baud, timeout=0)
 
     try:
         phases = [
@@ -73,8 +98,10 @@ def main() -> int:
         ]
 
         phase_data = {}
+        rx_buffer = ""
         for name, lin, ang, dur in phases:
-            phase_data[name] = run_phase(ser, name, lin, ang, dur, args.period)
+            data, rx_buffer = run_phase(ser, name, lin, ang, dur, args.period, rx_buffer)
+            phase_data[name] = data
 
     finally:
         try:
