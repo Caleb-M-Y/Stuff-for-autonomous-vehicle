@@ -5,6 +5,8 @@ Bare-bones state machine focused on detection + odom + autonomous pick/drop flow
 from __future__ import annotations
 
 import re
+from math import cos, sin
+
 import autonomy_tuning as tune
 
 BALL_HEIGHT_M = tune.BALL_HEIGHT_M
@@ -168,6 +170,44 @@ def _odom_goal_from_bbox(ud, depth_frame, depth_width, depth_height, bbox):
     return True
 
 
+def _drive_to_initial_ball_zone(ud):
+    if not bool(getattr(tune, "INITIAL_BALL_ZONE_GOAL_ENABLE", True)):
+        return False
+    if getattr(ud, "lap_counter", 0) > 0:
+        return False
+    if not getattr(ud, "odom_enabled", False):
+        return False
+
+    odom = getattr(ud, "odom", None)
+    if odom is None:
+        return False
+
+    if not getattr(odom, "goal_active", False):
+        dist_fwd = float(getattr(tune, "INITIAL_BALL_ZONE_FORWARD_M", 3.8))
+        gx = odom.pose.x + dist_fwd * cos(odom.pose.theta)
+        gy = odom.pose.y + dist_fwd * sin(odom.pose.theta)
+        odom.set_goal(gx, gy)
+
+    stop_dist = float(getattr(tune, "INITIAL_BALL_ZONE_STOP_DIST_M", 0.45))
+    dx = float(getattr(odom, "goal_x", 0.0)) - float(getattr(odom.pose, "x", 0.0))
+    dy = float(getattr(odom, "goal_y", 0.0)) - float(getattr(odom.pose, "y", 0.0))
+    if (dx * dx + dy * dy) ** 0.5 <= stop_dist:
+        odom.clear_goal()
+        return False
+
+    cmd_v, cmd_w = odom.compute_goal_velocity()
+    vmax = abs(float(getattr(tune, "INITIAL_BALL_ZONE_V_MAX", 0.16)))
+    wmax = abs(float(getattr(tune, "INITIAL_BALL_ZONE_W_MAX", 0.30)))
+    cmd_v = _clamp(cmd_v, -vmax, vmax)
+    cmd_w = _clamp(cmd_w, -wmax, wmax)
+
+    if abs(cmd_v) <= tune.ODOM_CMD_EPSILON and abs(cmd_w) <= tune.ODOM_CMD_EPSILON:
+        return False
+
+    ud.latest_msg = build_msg(cmd_v, cmd_w, 0, 0, 0)
+    return True
+
+
 def handle_pause(ud):
     ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
 
@@ -215,7 +255,10 @@ def handle_drop(ud):
             ud.picker_counter = 0
             ud.carrying_ball_color = None
             ud.target_bucket_color = None
-            ud.mode = "swivel_large_right" if tune.TURN_TO_CENTER_AFTER_DROP else "detect"
+            if ud.lap_counter >= int(getattr(tune, "MAX_LAPS", 4)):
+                ud.mode = "pause"
+            else:
+                ud.mode = "swivel_large_right" if tune.TURN_TO_CENTER_AFTER_DROP else "detect"
     else:
         ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
 
@@ -276,13 +319,18 @@ def handle_detect_ball(ud, detections, depth_frame, depth_width, depth_height, m
         ud.ball_seen_streak = 0
         ud.ball_close_streak = 0
         ud.ball_lost_streak = getattr(ud, "ball_lost_streak", 0) + 1
+
+        if _drive_to_initial_ball_zone(ud):
+            return
+
         if ud.ball_lost_streak >= tune.SEARCH_START_FRAMES:
             pref = getattr(ud, "ball_search_dir", 1.0)
             lin, ang = _search_motion(ud.ball_lost_streak, tune.BALL_SEARCH_TURN_RATE, tune.BALL_SEARCH_FORWARD_LIN, pref)
             ud.latest_msg = build_msg(lin, ang, 0, 0, 0)
         else:
             ud.latest_msg = build_msg(0.0, 0.0, 0, 0, 0)
-        if tune.ODOM_CLEAR_GOAL_WHEN_BALL_LOST and getattr(ud, "odom", None) is not None:
+
+        if tune.ODOM_CLEAR_GOAL_WHEN_BALL_LOST and getattr(ud, "odom", None) is not None and not (bool(getattr(tune, "INITIAL_BALL_ZONE_GOAL_ENABLE", True)) and getattr(ud, "lap_counter", 0) == 0):
             ud.odom.clear_goal()
         return
 
@@ -302,12 +350,17 @@ def handle_detect_ball(ud, detections, depth_frame, depth_width, depth_height, m
     ud.distance_from_depth = used_depth
 
     if dist_m > tune.BALL_PICK_MAX_M:
+        if (not used_depth) and dist_m <= float(getattr(tune, "BALL_NO_DEPTH_NEAR_STOP_M", 0.80)):
+            ud.latest_msg = build_msg(0.0, ang * 0.7, 0, 0, 0)
+            return
+
         if dist_m >= tune.BALL_FAR_M:
             lin = tune.BALL_SPEED_FAR
         elif dist_m >= tune.BALL_MID_M:
             lin = tune.BALL_SPEED_MID
         else:
             lin = tune.BALL_SPEED_NEAR
+
         if abs(cx - 0.5) > tune.MISALIGN_ERR_FOR_SLOWDOWN:
             lin *= tune.MISALIGN_LINEAR_SCALE
 
@@ -318,6 +371,10 @@ def handle_detect_ball(ud, detections, depth_frame, depth_width, depth_height, m
                 if not (tune.ODOM_REQUIRE_VISION_SIGN_MATCH and abs(lin) > eps and abs(cmd_v) > eps and (lin * cmd_v < 0.0)):
                     lin = cmd_v
                     ang = _clamp(cmd_w, -tune.MAX_TURN_RATE, tune.MAX_TURN_RATE)
+
+        hard_stop_edge = tune.BALL_PICK_MAX_M + float(getattr(tune, "BALL_PICK_HARD_STOP_MARGIN_M", 0.04))
+        if dist_m <= hard_stop_edge:
+            lin = min(0.0, lin)
 
         ud.latest_msg = build_msg(lin, ang, 0, 0, 0)
         return
@@ -420,3 +477,5 @@ def handle_detect_bucket(ud, detections, depth_frame, depth_width, depth_height,
     ud.arm_state = "lower"
     if getattr(ud, "odom", None) is not None:
         ud.odom.clear_goal()
+
+

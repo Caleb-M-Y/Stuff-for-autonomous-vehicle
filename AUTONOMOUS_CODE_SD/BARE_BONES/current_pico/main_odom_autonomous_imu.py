@@ -1,6 +1,9 @@
 """
 Bare-bones Pico runtime for 5-field command protocol + fused feedback.
-Requires your existing diff drive stack on Pico.
+
+This version supports both deployment layouts:
+1. package layout on Pico (`mobile_base.*`, `perception.*`)
+2. flat-file layout in the same folder (fallback imports)
 """
 
 import select
@@ -10,8 +13,16 @@ from machine import freq
 from utime import ticks_diff, ticks_us
 
 from ac2 import ArmController
-from mobile_base.diff_drive_controller import DiffDriveController
-from perception.odom_autonomous_inertial_sensor import MPU6050
+
+try:
+    from mobile_base.diff_drive_controller import DiffDriveController
+except Exception:
+    from diff_drive_controller import DiffDriveController
+
+try:
+    from perception.odom_autonomous_inertial_sensor import MPU6050
+except Exception:
+    from odom_autonomous_inertial_sensor import MPU6050
 
 
 FREQ_HZ = 240_000_000
@@ -56,8 +67,12 @@ last_fb_t = ticks_us()
 
 while True:
     events = listener.poll(0)
-    for msg, _ in events:
-        parsed = parse_host_command(msg.readline().strip())
+    for obj, _ in events:
+        try:
+            line = obj.readline().strip()
+        except Exception:
+            line = ""
+        parsed = parse_host_command(line)
         if parsed is None:
             continue
         target_lin, target_ang, sho_vel, cla_vel, arm_state = parsed
