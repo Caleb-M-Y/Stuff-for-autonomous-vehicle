@@ -12,7 +12,7 @@ import sys
 from machine import freq
 from utime import ticks_diff, ticks_us
 
-from ac2 import ArmController
+from mobile_base.ac2 import ArmController
 
 try:
     from mobile_base.diff_drive_controller import DiffDriveController
