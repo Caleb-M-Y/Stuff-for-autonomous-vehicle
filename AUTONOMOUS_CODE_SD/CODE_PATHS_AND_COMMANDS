@@ -18,7 +18,7 @@ Virtual environment 'venv_hailo_rpi_examples' activated
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/hailo-rpi5-examples $
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/hailo-rpi5-examples $ cd
 (venv_hailo_rpi_examples) ball-e@BALL-E:~ $ cd ball-e/python_scripts/
-(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef-path models/calebv8m.hef --labels-json models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run --allow-label-mismatch
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef-path models/3-12-caleb.hef --labels-json models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run --allow-label-mismatch
 
 *************************************************************************************************************
 
@@ -29,7 +29,7 @@ odom_autonomous_bridge.py --> /home/ball-e/ball-e/python_scripts/odom_autonomous
 course_autonomous_depth.py --> /home/ball-e/ball-e/python_scripts/course_autonomous_depth.py
 state_machine.py --> /home/ball-e/ball-e/python_scripts/state_machine.py
 
-calebv8m.hef --> /home/ball-e/ball-e/models/calebv8m.hef
+3-12-caleb.hef --> /home/ball-e/ball-e/models/3-12-caleb.hef
 yolov8l.hef --> /home/ball-e/ball-e/models/yolov8l.hef
 ball_bucket.json --> /home/ball-e/ball-e/models/ball_bucket.json
 Note: ball_bucket.json configs do not match the codes which is something we cant figure out
