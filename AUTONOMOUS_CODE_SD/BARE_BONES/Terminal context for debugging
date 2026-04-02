@@ -1,0 +1,13 @@
+Here is the error I am seeing now: 
+
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python course_autonomous_depth.py --hef-path models/3-12-caleb.hef --labels-json models/ball_bucket.json --port /dev/ttyACM0 --no-display --save-run --allow-label-mismatch
+^CTraceback (most recent call last):
+  File "/home/ball-e/ball-e/python_scripts/course_autonomous_depth.py", line 344, in <module>
+    main()
+  File "/home/ball-e/ball-e/python_scripts/course_autonomous_depth.py", line 273, in main
+    frames = rs_pipe.wait_for_frames()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
