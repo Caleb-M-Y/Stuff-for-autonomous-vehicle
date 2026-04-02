@@ -159,3 +159,424 @@ Stream Profiles supported by Motion Module
     Gyro        MOTION_XYZ32F  @ 400/200 Hz
 
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+***********************************************************************************************
+
+COntext from a basic camera test: 
+
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python basic_camera_test.py 
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+<pyrealsense2.[video_]stream_profile: Depth(0) 848x480 @ 30fps Z16>
+<pyrealsense2.[video_]stream_profile: Color(0) 1280x720 @ 30fps RGB8>
+<pyrealsense2.stream_profile: Accel(0) @ 100fps MOTION_XYZ32F>
+<pyrealsense2.stream_profile: Gyro(0) @ 200fps MOTION_XYZ32F>
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+This was done with this code: 
+
+import pyrealsense2 as rs
+pipe = rs.pipeline()
+profile = pipe.start()
+try:
+  for i in range(0, 100):
+    frames = pipe.wait_for_frames()
+    for f in frames:
+      print(f.profile)
+finally:
+    pipe.stop()
