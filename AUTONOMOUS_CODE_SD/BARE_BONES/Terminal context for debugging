@@ -621,59 +621,58 @@ TEST 3 CONTEXT:
 
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_03_serial_protocol_5field.py --port /dev/ttyACM0
 [INFO] Opening serial: /dev/ttyACM0 @ 115200
-[INFO] Commands sent: 80
+[INFO] Commands sent: 79
+[INFO] Raw feedback lines: 0
 [INFO] Valid feedback lines: 0
 [INFO] Feedback parse errors: 0
-[FAIL] Too few valid feedback lines from Pico
-(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
-
-TEST 3 SECOND TRY CONTEXT: 
-
+[FAIL] No serial feedback received from Pico (likely Pico main not running or not printing feedback)
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_03_serial_protocol_5field.py --port /dev/ttyACM0
 [INFO] Opening serial: /dev/ttyACM0 @ 115200
-^CTraceback (most recent call last):
-  File "/home/ball-e/ball-e/python_scripts/test_03_serial_protocol_5field.py", line 86, in <module>
-    raise SystemExit(main())
-                     ^^^^^^
-  File "/home/ball-e/ball-e/python_scripts/test_03_serial_protocol_5field.py", line 57, in main
-    line = ser.readline().decode("utf-8", "ignore").strip()
-           ^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 565, in read
-    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-KeyboardInterrupt
+[INFO] Commands sent: 79
+[INFO] Raw feedback lines: 0
+[INFO] Valid feedback lines: 0
+[INFO] Feedback parse errors: 0
+[FAIL] No serial feedback received from Pico (likely Pico main not running or not printing feedback)
 
-(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
 
 
 TEST 4 CONTEXT:
 
-(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_04_wheel_motion_basic.py 
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_04_wheel_motion_basic.py --port /dev/ttyACM0
 [WARN] Ensure wheels are OFF THE GROUND before continuing.
-^CTraceback (most recent call last):
-  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 107, in <module>
-    raise SystemExit(main())
-                     ^^^^^^
-  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 77, in main
-    phase_data[name] = run_phase(ser, name, lin, ang, dur, args.period)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 38, in run_phase
-    line = ser.readline().decode("utf-8", "ignore").strip()
-           ^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 565, in read
-    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-KeyboardInterrupt
-
-(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+[INFO] Phase stop_1: sent lin=0.00, ang=0.00, feedback samples=0
+[INFO] Phase forward: sent lin=0.22, ang=0.00, feedback samples=0
+[INFO] Phase stop_2: sent lin=0.00, ang=0.00, feedback samples=0
+[INFO] Phase reverse: sent lin=-0.22, ang=0.00, feedback samples=0
+[INFO] Phase stop_3: sent lin=0.00, ang=0.00, feedback samples=0
+[INFO] Phase turn_left: sent lin=0.00, ang=0.30, feedback samples=0
+[INFO] Phase turn_right: sent lin=0.00, ang=-0.30, feedback samples=0
+[INFO] Phase stop_4: sent lin=0.00, ang=0.00, feedback samples=0
+[INFO] mean |lin| forward=0.0000, reverse=0.0000
+[INFO] mean |ang| left=0.0000, right=0.0000
+[FAIL] No meaningful linear motion feedback observed
 
 
 TEST 5 CONTEXT:
 
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_05_arm_motion_basic.py --port /dev/ttyACM0 --confirm
+[WARN] Arm test is about to run. Ensure clear space around arm.
+[INFO] neutral
+[INFO] lower shoulder
+[INFO] hold
+[INFO] close claw
+[INFO] open claw
+[INFO] raise shoulder
+[INFO] neutral
+[INFO] Total command packets sent: 101
+Did the arm move smoothly and safely through the sequence? [y/N]: y
+[PASS] Arm command sequence sent successfully
 
 
 TEST 6 CONTEXT:
 
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_06_state_machine_dry_run.py 
+[PASS] Dry-run state machine test succeeded. lap_counter=1, mode=swivel_large_right
 
 
 RUN ALL TESTS CONTEXT: 
