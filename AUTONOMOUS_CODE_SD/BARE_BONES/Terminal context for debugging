@@ -587,20 +587,93 @@ THIS PART OF TERMINAL CONTEXT IS FOR EACH COMPREHENSIVE TEST CASE FROM CODEX:
 
 TEST 1 CONTEXT: 
 
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_01_camera_stream_exact.py 
+[INFO] Starting RealSense pipeline (color+depth 640x480 @30)...
+[INFO] Pipeline started: <pyrealsense2.pyrealsense2.pipeline_profile object at 0x7ffedadd3cb0>
+[INFO] First depth profile: <pyrealsense2.[video_]stream_profile: Depth(0) 640x480 @ 30fps Z16>
+[INFO] First color profile: <pyrealsense2.[video_]stream_profile: Color(0) 640x480 @ 30fps RGB8>
+[INFO] Frames received: 30/120
+[INFO] Frames received: 60/120
+[INFO] Frames received: 90/120
+[INFO] Frames received: 120/120
+[INFO] Received 120 frames in 7.31s (16.4 fps)
+[INFO] Color frames: 120, Depth frames: 120
+[PASS] Camera stream test succeeded
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
 
 TEST 2 CONTEXT:
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_02_model_pipeline_smoke.py --hef-path /home/ball-e/ball-e/models/3-12-caleb.hef --labels-json /home/ball-e/ball-e/models/ball_bucket.json
+[INFO] HEF: /home/ball-e/ball-e/models/3-12-caleb.hef
+[INFO] Labels: /home/ball-e/ball-e/models/ball_bucket.json (8 classes)
+[INFO] Starting Hailo and camera pipeline...
+[INFO] Pushed frames: 30/150, inference packets: 27
+[INFO] Pushed frames: 60/150, inference packets: 58
+[INFO] Pushed frames: 90/150, inference packets: 88
+[INFO] Pushed frames: 120/150, inference packets: 119
+[INFO] Pushed frames: 150/150, inference packets: 149
+[INFO] Pushed 150 frames in 5.95s
+[PASS] Model smoke test succeeded with 150 inference packets
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
 
 
 TEST 3 CONTEXT: 
 
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_03_serial_protocol_5field.py --port /dev/ttyACM0
+[INFO] Opening serial: /dev/ttyACM0 @ 115200
+[INFO] Commands sent: 80
+[INFO] Valid feedback lines: 0
+[INFO] Feedback parse errors: 0
+[FAIL] Too few valid feedback lines from Pico
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
+TEST 3 SECOND TRY CONTEXT: 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_03_serial_protocol_5field.py --port /dev/ttyACM0
+[INFO] Opening serial: /dev/ttyACM0 @ 115200
+^CTraceback (most recent call last):
+  File "/home/ball-e/ball-e/python_scripts/test_03_serial_protocol_5field.py", line 86, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/ball-e/ball-e/python_scripts/test_03_serial_protocol_5field.py", line 57, in main
+    line = ser.readline().decode("utf-8", "ignore").strip()
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 565, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
+
 
 TEST 4 CONTEXT:
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_04_wheel_motion_basic.py 
+[WARN] Ensure wheels are OFF THE GROUND before continuing.
+^CTraceback (most recent call last):
+  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 107, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 77, in main
+    phase_data[name] = run_phase(ser, name, lin, ang, dur, args.period)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ball-e/ball-e/python_scripts/test_04_wheel_motion_basic.py", line 38, in run_phase
+    line = ser.readline().decode("utf-8", "ignore").strip()
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 565, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
 
 
 TEST 5 CONTEXT:
 
 
+
 TEST 6 CONTEXT:
+
 
 
 RUN ALL TESTS CONTEXT: 
