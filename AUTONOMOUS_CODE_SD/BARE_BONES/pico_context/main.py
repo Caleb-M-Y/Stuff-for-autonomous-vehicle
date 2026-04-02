@@ -45,6 +45,10 @@ CMD_TIMEOUT_US = 250_000
 FEEDBACK_PERIOD_US = 10_000
 ALPHA_IMU = 0.95
 
+# Debug lines are prefixed so host tests can classify them.
+DEBUG_SERIAL = True
+DEBUG_PERIOD_US = 1_000_000
+
 freq(FREQ_HZ)
 
 # Keep your validated pin map.
@@ -57,6 +61,16 @@ imu = MPU6050(pow_id=3, scl_id=5, sda_id=4, i2c_addr=0x68)
 
 listener = select.poll()
 listener.register(sys.stdin, select.POLLIN)
+
+
+def dbg(msg):
+    if not DEBUG_SERIAL:
+        return
+    try:
+        sys.stdout.write("#DBG " + str(msg) + "\n")
+        sys.stdout.flush()
+    except Exception:
+        pass
 
 
 def parse_host_command(line):
@@ -77,8 +91,15 @@ sho_vel = 0
 cla_vel = 0
 arm_state = 0
 
+cmd_rx_count = 0
+cmd_bad_count = 0
+fb_tx_count = 0
+
 last_cmd_t = ticks_us()
 last_fb_t = ticks_us()
+last_dbg_t = ticks_us()
+
+dbg("boot ok")
 
 while True:
     events = listener.poll(0)
@@ -87,11 +108,18 @@ while True:
             line = obj.readline().strip()
         except Exception:
             line = ""
-        parsed = parse_host_command(line)
-        if parsed is None:
-            continue
-        target_lin, target_ang, sho_vel, cla_vel, arm_state = parsed
-        last_cmd_t = ticks_us()
+
+        if line:
+            parsed = parse_host_command(line)
+            if parsed is None:
+                cmd_bad_count += 1
+                if cmd_bad_count <= 5 or (cmd_bad_count % 50 == 0):
+                    dbg("bad_cmd line='{}'".format(line))
+                continue
+
+            target_lin, target_ang, sho_vel, cla_vel, arm_state = parsed
+            cmd_rx_count += 1
+            last_cmd_t = ticks_us()
 
     now = ticks_us()
     if ticks_diff(now, last_cmd_t) > CMD_TIMEOUT_US:
@@ -122,4 +150,13 @@ while True:
             sys.stdout.flush()
         except Exception:
             pass
+
+        fb_tx_count += 1
         last_fb_t = now
+
+    if DEBUG_SERIAL and ticks_diff(now, last_dbg_t) >= DEBUG_PERIOD_US:
+        dbg(
+            "alive rx={} bad={} fb={} lin={:.2f} ang={:.2f} arm={}"
+            .format(cmd_rx_count, cmd_bad_count, fb_tx_count, target_lin, target_ang, arm_state)
+        )
+        last_dbg_t = now
