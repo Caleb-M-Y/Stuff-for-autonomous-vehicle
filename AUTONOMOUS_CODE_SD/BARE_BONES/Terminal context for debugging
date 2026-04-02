@@ -580,3 +580,27 @@ try:
       print(f.profile)
 finally:
     pipe.stop()
+
+******************************************************************************************************
+
+THIS PART OF TERMINAL CONTEXT IS FOR EACH COMPREHENSIVE TEST CASE FROM CODEX: 
+
+TEST 1 CONTEXT: 
+
+
+TEST 2 CONTEXT:
+
+
+TEST 3 CONTEXT: 
+
+
+TEST 4 CONTEXT:
+
+
+TEST 5 CONTEXT:
+
+
+TEST 6 CONTEXT:
+
+
+RUN ALL TESTS CONTEXT: 
