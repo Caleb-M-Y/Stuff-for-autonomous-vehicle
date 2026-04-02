@@ -19,11 +19,11 @@ CLAW_MIN = 1_550_000
 CLAW_MAX = 2_200_000
 
 # Shoulder motion needed higher authority to reliably raise back to neutral.
-SHOULDER_CMD_SCALE = 2.0
+SHOULDER_CMD_SCALE = 0.50
 CLAW_CMD_SCALE = 0.35
-SHOULDER_LOWER_SCALE = 0.80
-SHOULDER_RAISE_SCALE = 1.25
-MAX_ABS_HOST_CMD = 20_000
+SHOULDER_LOWER_SCALE = 0.50
+SHOULDER_RAISE_SCALE = 0.20
+MAX_ABS_HOST_CMD = 8_000
 
 # Hard slew-rate limits per control tick to avoid slamming.
 SHOULDER_STEP_LIMIT_NS = 12_000
