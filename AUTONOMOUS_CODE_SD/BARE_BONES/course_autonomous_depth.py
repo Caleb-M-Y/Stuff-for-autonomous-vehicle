@@ -183,13 +183,19 @@ def _load_labels(labels_path):
 def main():
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Bare-bones autonomous + odom")
-    parser.add_argument("--hef-path", dest="hef", default=str(here / "2-25-26.hef"))
+    parser.add_argument("--hef", "--hef-path", dest="hef", default=str(here / "3-12-caleb.hef"))
     parser.add_argument("--labels-json", dest="labels", default=str(here / "ball_bucket.json"))
     parser.add_argument("--port", default="/dev/ttyACM0")
     parser.add_argument("--no-display", action="store_true")
     args = parser.parse_args()
 
     hef_path = Path(args.hef)
+    if not hef_path.is_absolute():
+        hef_candidates = [
+            here / hef_path,
+            here / "models" / hef_path.name,
+            here.parent / "models" / hef_path.name,
+        ]
     labels_path = Path(args.labels)
     if not hef_path.exists():
         raise FileNotFoundError(f"HEF not found: {hef_path}")
