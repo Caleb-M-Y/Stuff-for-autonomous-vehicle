@@ -62,7 +62,7 @@ class ArmController:
     def lower_claw(self, dc_inc=0):
         base = self._sanitize(dc_inc)
         if base > 0:
-            scaled = int(base * tune.SHOULDER_CMD_SCALE * tune.SHOULDER_LOWER_SCALE)
+            scaled = int(base * tune.SHOULDER_CMD_SCALE * tune.SHOULDER_LOWER_SCALE)  # WARNING: SCALE DOWN BASE 1/4!!!
         else:
             scaled = int(base * tune.SHOULDER_CMD_SCALE * tune.SHOULDER_RAISE_SCALE)
 
@@ -70,7 +70,7 @@ class ArmController:
         target_b = self._clamp(self.shoulder_duty_b - scaled, tune.SHOULDER_B_MIN, tune.SHOULDER_B_MAX)
 
         step = int(getattr(tune, "SHOULDER_STEP_LIMIT_NS", 8_000))
-        self.shoulder_duty_a = self._slew(self.shoulder_duty_a, target_a, step)
+        self.shoulder_duty_a = self._slew(self.shoulder_duty_a, target_a, step)  # WARNING: TARGET TOO CLOSE TO CURRENT
         self.shoulder_duty_b = self._slew(self.shoulder_duty_b, target_b, step)
 
         self.shoulder_servo_a.duty_ns(self.shoulder_duty_a)
