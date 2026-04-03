@@ -810,3 +810,38 @@ Did the arm move smoothly and safely through the sequence? [y/N]: n
 [FAIL] Manual confirmation failed
 (venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ 
 
+*************************************************************************************************************88
+
+TESTS FOR SERIAL COMS AND ARM MOVEMENT
+
+TEST 3 CONTEXT: 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_03_serial_protocol_5field.py --port /dev/ttyACM0
+[INFO] Opening serial: /dev/ttyACM0 @ 115200
+[INFO] Waiting 1.5s for Pico boot...
+[INFO] Commands sent: 79
+[INFO] Raw feedback/debug lines: 239
+[INFO] Valid feedback lines: 239
+[INFO] Debug lines (#DBG): 0
+[INFO] Non-parse lines (excluding #DBG): 0
+[PASS] Serial protocol test succeeded (5-field TX / 2-field RX)
+
+TEST 5 CONTEXT:
+
+Note about this context: The motion is smooth, but is VERY small. The arm hardly moves enough to verify that it 
+is working. 
+
+(venv_hailo_rpi_examples) ball-e@BALL-E:~/ball-e/python_scripts $ python test_05_arm_motion_basic.py --port /dev/ttyACM0 --confirm
+[WARN] Arm test is about to run. Ensure clear space around arm.
+[INFO] neutral
+[INFO] lower shoulder
+[INFO] hold
+[INFO] close claw
+[INFO] open claw
+[INFO] raise shoulder
+[INFO] neutral
+[INFO] Total command packets sent: 110
+Did the arm move smoothly and safely through the sequence? [y/N]: y
+[PASS] Arm command sequence sent successfully
+
+
