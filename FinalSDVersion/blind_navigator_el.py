@@ -137,33 +137,18 @@ class BlindNavigator:
 
 if __name__ == "__main__":
     navigator = BlindNavigator()
-    navigator.set_goal(1.4, 0.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
-    navigator.set_goal(1.4, 5.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
-    navigator.set_goal(4.5, 5.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
-    navigator.set_goal(1.4, 5.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
-    navigator.set_goal(1.5, 0.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
-    navigator.set_goal(0.0, 0.0)
-    while not navigator.is_goal_reached:
-        print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
-        sleep(0.1)
-    print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
+    waypoints = [
+        (1.4, 0.0),
+        (1.4, 5.0),
+        (4.5, 5.0),
+        (1.4, 5.0),
+        (1.5, 0.0),
+        (0.0, 0.0),
+    ]
+
+    for goal_x, goal_y in waypoints:
+        navigator.set_goal(goal_x, goal_y, 1700000, 1500000)
+        while not navigator.is_goal_reached:
+            print(f"[{time()}]: x={navigator.x}, y ={navigator.y}, theta={navigator.theta}")
+            sleep(0.1)
+        print(f"Goal x={navigator.goal_x}, y={navigator.goal_y} reached.")
