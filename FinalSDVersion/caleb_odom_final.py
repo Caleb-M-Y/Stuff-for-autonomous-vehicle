@@ -400,6 +400,12 @@ def main():
                 if run_pick_sequence(navigator, state):
                     state.arm_state = "idle"
                     state.targeting_active = False
+                    navigator.backup_for(
+                        duration_s=0.35,
+                        speed_mps=0.10,
+                        claw_pw=1080000,
+                        shoa_pw=1500000,
+                    )
                     if state.target_index in pre_bucket_midpoints:
                         state.mode = "NAV_MIDPOINT"
                         state.midpoint_cfg = pre_bucket_midpoints[state.target_index]
