@@ -1,4 +1,4 @@
-from blind_navigator_el import BlindNavigator
+from blind_navigator import BlindNavigator
 
 # Import to save modes and counters
 from types import SimpleNamespace
@@ -401,8 +401,8 @@ def main():
                     state.arm_state = "idle"
                     state.targeting_active = False
                     navigator.backup_for(
-                        duration_s=0.35,
-                        speed_mps=0.10,
+                        duration_s=1.0,
+                        speed_mps=0.30,
                         claw_pw=1080000,
                         shoa_pw=1500000,
                     )
