@@ -30,6 +30,7 @@ class MPU6050:
         self.gyro_bias_x = 0.0
         self.gyro_bias_y = 0.0
         self.gyro_bias_z = 0.0
+        sleep(1)  # hands off
         self.calibrate_gyro()
 
     def read_data(self):
