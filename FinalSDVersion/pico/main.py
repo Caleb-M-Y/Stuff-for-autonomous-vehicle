@@ -1,5 +1,5 @@
 """
-Rename this file to main.py
+This is the `main.py` on Pico
 """
 
 import sys
@@ -11,7 +11,7 @@ from mobile_base.diff_drive_controller import DiffDriveController
 from perception.inertial_sensor import MPU6050
 
 # SETUP
-ALPHA = 0.90  # weight for gyro measured angular velocity
+ALPHA = 0.95  # weight for gyro measured angular velocity
 # Overclock
 freq(240_000_000)  # Pico2 original: 150_000_000
 # Instantiate robot
@@ -55,11 +55,13 @@ while True:
         in_msg = sys.stdin.readline().strip()  # take out whitespaces
         targ_vels = in_msg.split(",")  # get a list
         if len(targ_vels) == 4:
-            targ_lin_vel = float(targ_vels[0])
-            targ_ang_vel = float(targ_vels[1])
-            claw_pw = int(targ_vels[2])
-            shoa_pw = int(targ_vels[3])
-            mobile_base.set_vels(targ_lin_vel, targ_ang_vel)
-            arm.set_joint_positions(claw_pw, shoa_pw)
-             
+            try:
+                targ_lin_vel = float(targ_vels[0])
+                targ_ang_vel = float(targ_vels[1])
+                claw_pw = int(targ_vels[2])
+                shoa_pw = int(targ_vels[3])
+                mobile_base.set_vels(targ_lin_vel, targ_ang_vel)
+                arm.set_joint_positions(claw_pw, shoa_pw)
+            except ValueError:
+                pass
 
