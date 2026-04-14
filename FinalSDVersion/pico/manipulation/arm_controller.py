@@ -9,7 +9,7 @@ SHOULDER_UP = 1_500_000
 SHOULDER_MID = 1_000_000
 SHOULDER_DOWN = 550_000
 SHOULDER_OFFSET = 100_000
-PULSE_WIDTH_INC_STEP = 5_000  # servo speed
+PULSE_WIDTH_INC_STEP = 8_000  # servo speed
 
 
 class ArmController:
@@ -49,8 +49,10 @@ class ArmController:
             self.is_target_reached = False
             self.target_claw = target_claw
             self.target_shoa = target_shoa
-            self.target_shob = SHOULDER_UP - (target_shoa - SHOULDER_UP) - SHOULDER_OFFSET
-        
+            self.target_shob = (
+                SHOULDER_UP - (target_shoa - SHOULDER_UP) - SHOULDER_OFFSET
+            )
+
     def manipulate_joints(self, timer):
         diff_claw = self.target_claw - self.pulse_width_claw
         diff_shoa = self.target_shoa - self.pulse_width_shoa
