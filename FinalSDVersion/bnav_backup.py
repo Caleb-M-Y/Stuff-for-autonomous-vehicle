@@ -122,31 +122,15 @@ class BlindNavigator:
             self.targ_lin_vel = max(min(cmd_v, max_v), -max_v)
             self.targ_ang_vel = max(min(cmd_w, max_w), -max_w)
 
- 
-    
 
-    def set_goal(self, goal_x, goal_y, claw_pw, shoa_pw):
+    def set_goal(self, goal_x, goal_y,claw_pw,shoa_pw):
         self.goal_x = goal_x
         self.goal_y = goal_y
-        # *****
+        #*****
         self.claw_pw = claw_pw
         self.shoa_pw = shoa_pw
 
         self.is_goal_reached = False
-
-    def backup_for(
-        self, duration_s=0.35, speed_mps=0.10, claw_pw=1700000, shoa_pw=1500000
-    ):
-        """
-        Quick reverse test helper.
-        Sends manual reverse velocity for a short duration, then stops.
-        """
-        reverse_v = -abs(speed_mps)
-        self.manual_override_msg = f"{reverse_v:.3f},0.0,{claw_pw},{shoa_pw}\n"
-        sleep(duration_s)
-        self.manual_override_msg = f"0.0,0.0,{claw_pw},{shoa_pw}\n"
-        sleep(0.05)
-        self.manual_override_msg = ""
 
 
 if __name__ == "__main__":
@@ -154,10 +138,10 @@ if __name__ == "__main__":
     waypoints = [
         (1.4, 0.0),
         (1.4, 5.0),
-        #(4.5, 5.0),
-        #(1.4, 5.0),
-        #(1.5, 0.0),
-        #(0.0, 0.0),
+        (4.5, 5.0),
+        (1.4, 5.0),
+        (1.5, 0.0),
+        (0.0, 0.0),
     ]
 
     for goal_x, goal_y in waypoints:
