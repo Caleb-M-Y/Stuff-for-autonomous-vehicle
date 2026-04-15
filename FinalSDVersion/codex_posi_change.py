@@ -1,4 +1,4 @@
-from blind_navigator_el import BlindNavigator
+from blind_navigator import BlindNavigator
 
 # Import to save modes and counters
 from types import SimpleNamespace
@@ -29,22 +29,22 @@ from gi.repository import Gst, GLib
 # Keep this sequence to control pick/drop order.
 TARGET_SEQUENCE = ["blue", "red", "yellow", "green"]
 
-# Randomized ball positions (inside the hoop area).
+# Ball waypoints (inside hoop), taken from odom_course_4-14.py.
 # Update only the (x, y) tuple to retune.
 BALL_POSITIONS = {
-    "blue": (4.15, 5.05),
-    "red": (5.15, 4.20),
-    "yellow": (5.05, 5.10),
-    "green": (4.20, 4.15),
+    "blue": (4.0, 4.0),
+    "red": (5.3, 4.0),
+    "yellow": (5.3, 5.3),
+    "green": (4.0, 5.3),
 }
 
-# Randomized bucket positions (must stay on course corners).
+# Bucket waypoints (corners), taken from odom_course_4-14.py.
 # Update only the (x, y) tuple to retune.
 BUCKET_POSITIONS = {
-    "blue": (1.00, 8.40),   # top-left
-    "red": (8.35, 1.15),    # bottom-right
-    "yellow": (8.35, 8.65), # top-right
-    "green": (1.00, 1.00),  # bottom-left
+    "blue": (1.0, 1.0),
+    "red": (8.3, 8.7),
+    "yellow": (1.0, 8.3),
+    "green": (8.3, 2.0),
 }
 
 # Keep detection disabled for labels that are currently unreliable.
@@ -55,7 +55,7 @@ DISABLE_BUCKET_DETECTION_FOR = {"yellow"}
 # pre_bucket_midpoints: after picking that color's ball, before navigating to its bucket
 PRE_BALL_MIDPOINTS_BY_COLOR = {
     "red": {
-        "waypoint": (7.0, 5.0),
+        "waypoint": (7.0, 2.5),
         "target_label": "blue ball",
         "claw_pw": 1700000,
         "shoa_pw": 1500000,
@@ -66,7 +66,7 @@ PRE_BALL_MIDPOINTS_BY_COLOR = {
 }
 PRE_BUCKET_MIDPOINTS_BY_COLOR = {
     "green": {
-        "waypoint": (3.0, 3.7),
+        "waypoint": (5.0, 5.5),
         "target_label": "red ball",
         "claw_pw": 1080000,
         "shoa_pw": 1500000,
@@ -74,6 +74,15 @@ PRE_BUCKET_MIDPOINTS_BY_COLOR = {
         "start_msg": "Setting mid way point...",
         "arrival_msg": "Arrived at midpoint location. Switching to bucket search.",
     }
+}
+
+# Quick backup after each successful pickup to avoid clipping the center hoop.
+BACKUP_AFTER_PICK = {
+    "enabled": True,
+    "duration_s": 1.0,
+    "speed_mps": 0.30,
+    "claw_pw": 1080000,
+    "shoa_pw": 1500000,
 }
 
 
@@ -432,6 +441,13 @@ def main():
                 if run_pick_sequence(navigator, state):
                     state.arm_state = "idle"
                     state.targeting_active = False
+                    if BACKUP_AFTER_PICK["enabled"]:
+                        navigator.backup_for(
+                            duration_s=BACKUP_AFTER_PICK["duration_s"],
+                            speed_mps=BACKUP_AFTER_PICK["speed_mps"],
+                            claw_pw=BACKUP_AFTER_PICK["claw_pw"],
+                            shoa_pw=BACKUP_AFTER_PICK["shoa_pw"],
+                        )
                     if state.target_index in pre_bucket_midpoints:
                         state.mode = "NAV_MIDPOINT"
                         state.midpoint_cfg = pre_bucket_midpoints[state.target_index]
