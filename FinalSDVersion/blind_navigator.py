@@ -135,7 +135,7 @@ class BlindNavigator:
         self.is_goal_reached = False
 
     def backup_for(
-        self, duration_s=0.35, speed_mps=0.10, claw_pw=1700000, shoa_pw=1500000
+        self, duration_s=0.50, speed_mps=0.30, claw_pw=1700000, shoa_pw=1500000
     ):
         """
         Quick reverse test helper.
