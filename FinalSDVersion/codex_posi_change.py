@@ -27,7 +27,7 @@ from gi.repository import Gst, GLib
 # EDITABLE COURSE LAYOUT
 # ---------------------------------------------------------
 # Keep this sequence to control pick/drop order.
-TARGET_SEQUENCE = ["blue", "red", "yellow", "green"]
+TARGET_SEQUENCE = ["blue", "yellow", "red", "green"]
 
 # Ball waypoints (inside hoop), taken from odom_course_4-14.py.
 # Update only the (x, y) tuple to retune.
@@ -54,20 +54,18 @@ DISABLE_BUCKET_DETECTION_FOR = {"yellow"}
 # pre_ball_midpoints: before searching for that color's ball
 # pre_bucket_midpoints: after picking that color's ball, before navigating to its bucket
 PRE_BALL_MIDPOINTS_BY_COLOR = {
-    "red": {
-        "waypoint": (7.0, 2.5),
-        "target_label": "blue ball",
+    "yellow": {
+        "waypoint": (8.0, 2.5),
+        "target_label": "eric",
         "claw_pw": 1700000,
         "shoa_pw": 1500000,
         "focus_type": "ball",
         "start_msg": "Setting mid waypoint...",
         "arrival_msg": "Arrived at midpoint location. Switching to next ball search.",
-    }
-}
-PRE_BUCKET_MIDPOINTS_BY_COLOR = {
-    "green": {
-        "waypoint": (5.0, 5.5),
-        "target_label": "red ball",
+    }, 
+     "red": {
+        "waypoint": (7.0, 4.0),
+        "target_label": "eric",
         "claw_pw": 1080000,
         "shoa_pw": 1500000,
         "focus_type": "ball",
@@ -75,13 +73,24 @@ PRE_BUCKET_MIDPOINTS_BY_COLOR = {
         "arrival_msg": "Arrived at midpoint location. Switching to bucket search.",
     }
 }
+#PRE_BUCKET_MIDPOINTS_BY_COLOR = {
+#    "red": {
+#        "waypoint": (7.0, 4.0),
+#        "target_label": "eric",
+#        "claw_pw": 1080000,
+#        "shoa_pw": 1500000,
+#        "focus_type": "ball",
+#        "start_msg": "Setting mid way point...",
+#        "arrival_msg": "Arrived at midpoint location. Switching to bucket search.",
+#    }
+#}
 
 # Quick backup after each successful pickup to avoid clipping the center hoop.
 BACKUP_AFTER_PICK = {
     "enabled": True,
-    "duration_s": 1.0,
+    "duration_s": 2.0,
     "speed_mps": 0.30,
-    "claw_pw": 1080000,
+    "claw_pw": 1070000,
     "shoa_pw": 1500000,
 }
 
@@ -155,9 +164,9 @@ def process_targeting(
                 #     f"Object {label} at X:{coords_cam[0]:.2f}m, Y:{coords_cam[1]:.2f}m, Z:{coords_cam[2]:.2f}m"
                 # )  # debug
                 if "ball" in target_label:
-                    dist_offset = -0.575
+                    dist_offset = -0.61
                 else:
-                    dist_offset = -0.445
+                    dist_offset = -0.47
                 goal_coords = transform_cam_to_odom(
                     (coords_cam[0], coords_cam[1], coords_cam[2]),
                     (navigator.x, navigator.y, navigator.theta),
@@ -219,19 +228,19 @@ def run_pick_sequence(navigator, state):
         sleep(0.1)
         if navigator.goal_status == 1:
             state.arm_state = "close"
-            navigator.manual_override_msg = "0.0,0.0,1080000,500000\n"
+            navigator.manual_override_msg = "0.0,0.0,1070000,500000\n"
             sleep(0.2)
 
     elif state.arm_state == "close":
-        navigator.manual_override_msg = "0.0,0.0,1080000,500000\n"
+        navigator.manual_override_msg = "0.0,0.0,1070000,500000\n"
         sleep(0.1)
         if navigator.goal_status == 1:
             state.arm_state = "raise"
-            navigator.manual_override_msg = "0.0,0.0,1080000,1500000\n"
+            navigator.manual_override_msg = "0.0,0.0,1070000,1500000\n"
             sleep(0.2)
 
     elif state.arm_state == "raise":
-        navigator.manual_override_msg = "0.0,0.0,1080000,1500000\n"
+        navigator.manual_override_msg = "0.0,0.0,1070000,1500000\n"
         sleep(0.1)
         if navigator.goal_status == 1:
             return True
@@ -242,11 +251,11 @@ def run_pick_sequence(navigator, state):
 def run_drop_sequence(navigator, state):
     if state.arm_state == "idle":
         state.arm_state = "lower"
-        navigator.manual_override_msg = "0.0,0.0,1080000,1100000\n"
+        navigator.manual_override_msg = "0.0,0.0,1070000,1100000\n"
         sleep(0.2)
 
     if state.arm_state == "lower":
-        navigator.manual_override_msg = "0.0,0.0,1080000,1100000\n"
+        navigator.manual_override_msg = "0.0,0.0,1070000,1100000\n"
         sleep(0.1)
         if navigator.goal_status == 1:
             state.arm_state = "open"
@@ -386,11 +395,11 @@ def main():
         for color, cfg in PRE_BALL_MIDPOINTS_BY_COLOR.items()
         if color in targets
     }
-    pre_bucket_midpoints = {
-        targets.index(color): cfg
-        for color, cfg in PRE_BUCKET_MIDPOINTS_BY_COLOR.items()
-        if color in targets
-    }
+    #pre_bucket_midpoints = {
+    #    targets.index(color): cfg
+    #    for color, cfg in PRE_BUCKET_MIDPOINTS_BY_COLOR.items()
+    #    if color in targets
+    #}
 
     # Create a state object with generic modes.
     state = SimpleNamespace(
@@ -448,12 +457,12 @@ def main():
                             claw_pw=BACKUP_AFTER_PICK["claw_pw"],
                             shoa_pw=BACKUP_AFTER_PICK["shoa_pw"],
                         )
-                    if state.target_index in pre_bucket_midpoints:
-                        state.mode = "NAV_MIDPOINT"
-                        state.midpoint_cfg = pre_bucket_midpoints[state.target_index]
-                        state.next_mode = "NAV_TO_BUCKET"
-                    else:
-                        state.mode = "NAV_TO_BUCKET"
+                    #if state.target_index in pre_bucket_midpoints:
+                    #    state.mode = "NAV_MIDPOINT"
+                    #    state.midpoint_cfg = pre_bucket_midpoints[state.target_index]
+                    #    state.next_mode = "NAV_TO_BUCKET"
+                    #else:
+                    state.mode = "NAV_TO_BUCKET"
 
             elif state.mode == "DROP_BALL":
                 if run_drop_sequence(navigator, state):
@@ -507,7 +516,7 @@ def main():
                     state,
                     navigator,
                     bucket_waypoints[state.target_index],
-                    1080000,
+                    1070000,
                     1500000,
                     f"Setting waypoint for {target_name} bucket...",
                 )
@@ -516,7 +525,7 @@ def main():
                     depth_frame,
                     detections,
                     bucket_labels[state.target_index],
-                    1080000,
+                    1070000,
                     1500000,
                 )
 

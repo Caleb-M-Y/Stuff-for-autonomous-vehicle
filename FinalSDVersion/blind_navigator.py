@@ -91,8 +91,8 @@ class BlindNavigator:
         self,
         kp_v=0.5,
         kp_w=0.5,
-        max_v=0.3,
-        max_w=0.6,
+        max_v=0.4,
+        max_w=0.65,
         distance_tolerance=0.05,
     ):
         """
@@ -135,7 +135,7 @@ class BlindNavigator:
         self.is_goal_reached = False
 
     def backup_for(
-        self, duration_s=0.50, speed_mps=0.30, claw_pw=1700000, shoa_pw=1500000
+        self, duration_s=2.0, speed_mps=0.30, claw_pw=1700000, shoa_pw=1500000
     ):
         """
         Quick reverse test helper.
